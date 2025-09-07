@@ -59,7 +59,7 @@ O desenvolvimento foi dividido em 3 Sprints, cada uma com um objetivo claro para
 
 | Sprint | Período da Sprint | Link para Documentação da Sprint | Link para Vídeo no YouTube do Incremento |
 | :--- | :--- | :--- | :--- |
-| **Sprint 1** | 08/09/2025 a 28/09/2025 | [Documentação da Sprint 1](./docs/Sprint_1_Backlog.xlsx) | [Vídeo da Entrega da Sprint 1]() |
+| **Sprint 1** | 08/09/2025 a 28/09/2025 | [Documentação da Sprint 1](./docs/Sprint_1_Backlog.pdf) | [Vídeo da Entrega da Sprint 1]() |
 | **Sprint 2** | 06/10/2025 a 26/10/2025 | [Documentação da Sprint 2]() | [Vídeo da Entrega da Sprint 2]() |
 | **Sprint 3** | 03/11/2025 a 23/11/2025 | [Documentação da Sprint 3]() | [Vídeo da Entrega da Sprint 3]() |
 
