@@ -27,7 +27,7 @@ A tabela abaixo representa a lista de funcionalidades priorizadas para o desenvo
 | 11 | Média | Como um Gestor de RH, eu quero visualizar um painel com a localizacao de trabalho de todos os colaboradores. |
 | ... | ... | ... |
 
-**Para ver o Backlog completo, [clique aqui](https://fatecspgov-my.sharepoint.com/:x:/r/personal/enrico_germano_fatec_sp_gov_br/Documents/ProductBacklog_CodeX_API2DSM.xlsx?d=wbef8e08307ad4891a0f18bffca919aa6&csf=1&web=1&e=wvch1S).**
+**Para ver o Backlog completo, [clique aqui](./docs/ProductBacklog_CodeX_API2DSM.pdf).**
 
 -----
 
@@ -59,7 +59,7 @@ O desenvolvimento foi dividido em 3 Sprints, cada uma com um objetivo claro para
 
 | Sprint | Período da Sprint | Link para Documentação da Sprint | Link para Vídeo no YouTube do Incremento |
 | :--- | :--- | :--- | :--- |
-| **Sprint 1** | 08/09/2025 a 28/09/2025 | [Documentação da Sprint 1](https://fatecspgov-my.sharepoint.com/:x:/g/personal/enrico_germano_fatec_sp_gov_br/EYPg-L6tB5FIoPGL_8qRmqYBqLye5QdP35qWpsfk1F_RIw?e=nfnoAC) | [Vídeo da Entrega da Sprint 1]() |
+| **Sprint 1** | 08/09/2025 a 28/09/2025 | [Documentação da Sprint 1](./docs/Sprint_1_Backlog.xlsx) | [Vídeo da Entrega da Sprint 1]() |
 | **Sprint 2** | 06/10/2025 a 26/10/2025 | [Documentação da Sprint 2]() | [Vídeo da Entrega da Sprint 2]() |
 | **Sprint 3** | 03/11/2025 a 23/11/2025 | [Documentação da Sprint 3]() | [Vídeo da Entrega da Sprint 3]() |
 
@@ -111,7 +111,7 @@ Toda a documentação do projeto está centralizada e pode ser acessada nos link
 
   * **Estratégia de Branch:** [Documento de Estratégia de Branch (Git Flow)]()
   * **DoR e DoD (Definition of Ready & Definition of Done):**
-      * [Checklist de DoR e DoD]()
+      * [Checklist de DoR e DoD](./docs/U.S_Cenários_R.N._DoR.pptx)
       * [DoR e DoD aplicados por Sprint]()
   * **Manuais:**
       * [Manual do Usuário]()
