@@ -113,6 +113,7 @@ Toda a documentação do projeto está centralizada e pode ser acessada nos link
   * **DoR e DoD (Definition of Ready & Definition of Done):**
       * [Checklist de DoR e DoD](./docs/U.S_Cenários_R.N._DoR.pptx)
       * [DoR e DoD aplicados por Sprint]()
+      * [Mockup / Protótipo](https://www.figma.com/proto/XwOWDv5ccjUUGrWecSSVFv/CodeX?node-id=10-634&p=f&t=wtTYc0qTYeluLbyq-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=10%3A634&show-proto-sidebar=1)
   * **Manuais:**
       * [Manual do Usuário]()
       * [Manual de Instalação]()
