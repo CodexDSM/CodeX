@@ -126,6 +126,6 @@ Toda a documentação do projeto está centralizada e pode ser acessada nos link
 | :--- | :--- | :--- | :--- | :--- |
 | <img src="URL_DA_SUA_FOTO" width="80" height="80" alt="Foto do Membro 1" style="border-radius:50%;"> |**Enrico de Chiara Germano** | Product Owner / Desenvolvedor | [Link do GitHub](https://github.com/EnricoGermano) | [Link do LinkedIn]() |
 | <img src="URL_DA_SUA_FOTO" width="80" height="80" alt="Foto do Membro 2" style="border-radius:50%;"> | **Leonardo da Silva Lopes** | Scrum Master / Desenvolvedor | [Link do GitHub](https://github.com/leodaslb) | [Link do LinkedIn]() |
-| <img src="URL_DA_SUA_FOTO" width="80" height="80" alt="Foto do Membro 3" style="border-radius:50%;"> | **Kaique Henrique Silva Pinto ** | Desenvolvedor | [Link do GitHub]() | [Link do LinkedIn]() |
-| <img src="URL_DA_SUA_FOTO" width="80" height="80" alt="Foto do Membro 3" style="border-radius:50%;"> | **Pedro Miguel Fernandes ** | Desenvolvedor | [Link do GitHub]() | [Link do LinkedIn]() |
-| <img src="URL_DA_SUA_FOTO" width="80" height="80" alt="Foto do Membro 3" style="border-radius:50%;"> | **Lucas Marins ** | Desenvolvedor | [Link do GitHub]() | [Link do LinkedIn]() |
+| <img src="URL_DA_SUA_FOTO" width="80" height="80" alt="Foto do Membro 3" style="border-radius:50%;"> | **Kaique Henrique Silva Pinto** | Desenvolvedor | [Link do GitHub]() | [Link do LinkedIn]() |
+| <img src="URL_DA_SUA_FOTO" width="80" height="80" alt="Foto do Membro 3" style="border-radius:50%;"> | **Pedro Miguel Fernandes** | Desenvolvedor | [Link do GitHub]() | [Link do LinkedIn]() |
+| <img src="URL_DA_SUA_FOTO" width="80" height="80" alt="Foto do Membro 3" style="border-radius:50%;"> | **Lucas Gabriel Marins dos Santos** | Desenvolvedor | [Link do GitHub](https://github.com/lucasMarinsSantos) | [Link do LinkedIn](https://www.linkedin.com/in/lucas-gabriel-marins-dos-santos-56b529246/) |
