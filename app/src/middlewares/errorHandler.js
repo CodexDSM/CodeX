@@ -1,14 +1,16 @@
+// src/middlewares/errorHandler.js
 const errorHandler = (err, req, res, next) => {
-const statusCode = err.statusCode | 500;
-const message = err.message | 'Erro Interno do Servidor';
+  console.error(err.stack);
 
-console.error(err);
+  if (err.code === 'ER_DUP_ENTRY') {
+    return res.status(400).json({ error: 'Registro duplicado' });
+  }
 
-res.status(statusCode).json({
-status: 'error',
-statusCode: statusCode,
-message: message,
-});
+  if (err.code === 'ER_NO_REFERENCED_ROW_2') {
+    return res.status(400).json({ error: 'Referência inválida' });
+  }
+
+  res.status(500).json({ error: 'Erro interno do servidor' });
 };
 
 module.exports = errorHandler;

@@ -1,0 +1,231 @@
+{
+  "info": {
+    "name": "Sistema de Fretes API",
+    "_postman_id": "69f4b982-0c37-4a15-9c7e-8b6a3d41f4c2",
+    "description": "Coleção de testes da API de Gestão de Fretes",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Autenticação",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@sistema.com\",\n  \"senha\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/colaboradores/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "colaboradores", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Colaboradores",
+      "item": [
+        {
+          "name": "Listar Colaboradores",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "http://localhost:3000/api/colaboradores"
+          }
+        },
+        {
+          "name": "Criar Colaborador",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"José\",\n  \"cpf\": \"123.456.789-99\",\n  \"email\": \"jose@empresa.com\",\n  \"senha\": \"123456\",\n  \"telefone\": \"1199999999\",\n  \"perfil\": \"Operador\",\n  \"logradouro\": \"Rua Teste\",\n  \"numero\": \"10\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"São Paulo\",\n  \"uf\": \"SP\",\n  \"cep\": \"01000-000\"\n}"
+            },
+            "url": "http://localhost:3000/api/colaboradores"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "item": [
+        {
+          "name": "Criar Cliente PF",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo_pessoa\": \"F\",\n  \"nome\": \"Maria\",\n  \"documento\": \"123.456.789-00\",\n  \"email\": \"maria@email.com\",\n  \"telefone\": \"11987654321\",\n  \"logradouro\": \"Av Brasil\",\n  \"numero\": \"200\",\n  \"bairro\": \"Bairro Azul\",\n  \"cidade\": \"São Paulo\",\n  \"uf\": \"SP\",\n  \"cep\": \"02000-000\"\n}"
+            },
+            "url": "http://localhost:3000/api/clientes"
+          }
+        },
+        {
+          "name": "Listar Clientes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3000/api/clientes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Veiculos",
+      "item": [
+        {
+          "name": "Criar Veiculo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"XYZ-1234\",\n  \"modelo\": \"Mercedes Atego\",\n  \"capacidade_kg\": 12000,\n  \"tipo\": \"Caminhão\"\n}"
+            },
+            "url": "http://localhost:3000/api/veiculos"
+          }
+        },
+        {
+          "name": "Listar Veículos",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3000/api/veiculos"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Motoristas",
+      "item": [
+        {
+          "name": "Criar Motorista",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"colaborador_id\": 2,\n  \"cnh\": \"12345678900\",\n  \"categoria_cnh\": \"E\",\n  \"validade_cnh\": \"2026-12-31\",\n  \"veiculo_id\": 1\n}"
+            },
+            "url": "http://localhost:3000/api/motoristas"
+          }
+        },
+        {
+          "name": "Listar Motoristas",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3000/api/motoristas"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fretes",
+      "item": [
+        {
+          "name": "Criar Frete",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente_id\": 1,\n  \"motorista_id\": 2,\n  \"veiculo_id\": 1,\n  \"origem_cidade\": \"São Paulo\",\n  \"origem_uf\": \"SP\",\n  \"destino_cidade\": \"Rio de Janeiro\",\n  \"destino_uf\": \"RJ\",\n  \"distancia_km\": 450,\n  \"valor\": 2000.5,\n  \"peso_kg\": 5000,\n  \"data_coleta\": \"2025-09-10\",\n  \"data_entrega_prevista\": \"2025-09-12\",\n  \"observacoes\": \"Carga frágil\"\n}"
+            },
+            "url": "http://localhost:3000/api/fretes"
+          }
+        },
+        {
+          "name": "Listar Fretes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3000/api/fretes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rastreamento",
+      "item": [
+        {
+          "name": "Registrar Posição",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": -23.55052,\n  \"longitude\": -46.633308\n}"
+            },
+            "url": "http://localhost:3000/api/rastreamento/frete/1"
+          }
+        },
+        {
+          "name": "Última Posição",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3000/api/rastreamento/frete/1/ultima"
+          }
+        },
+        {
+          "name": "Rastreamento Público",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/rastreamento/publico/FRT1699991234567"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "token", "value": "" }
+  ]
+}
