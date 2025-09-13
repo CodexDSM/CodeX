@@ -1,0 +1,50 @@
+
+.inputWrapper {
+  width: 100%;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem; 
+  font-weight: 500;
+  color: #028BBF; 
+  padding-left: 1rem;
+  margin-bottom: 0.4rem; 
+}
+
+.input {
+  width: 100%;
+  padding: 0.5rem 1rem; 
+  margin-bottom: 0.5rem;
+  border: 1px solid #028BBF;
+  border-radius: 1.3rem; 
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color: #374151;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #028BBF;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.select{
+  width: 100%;
+  padding: 0.5rem 1rem; 
+  margin-bottom: 0.5rem;
+  border: 1px solid #028BBF;
+  border-radius: 1.3rem; 
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color: #666666;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1.2em;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.select:focus {
+  outline: none;
+  border-color: #3B82F6; /* focus:ring-blue-500 */
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
