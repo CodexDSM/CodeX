@@ -1,0 +1,42 @@
+.header{
+    height: 64px;
+    background-color: #121D97;
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between ;
+    padding: 0 2rem;
+    flex-shrink: 0;
+    
+   
+}
+.title {
+  text-transform: capitalize;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f2f3f4;
+}
+
+.perfil{
+    display: flex;
+    align-items: center;    
+    gap: 1.5rem;
+    margin-right: 2rem;
+    
+    
+}
+.perfilInfo {
+    text-align: left;
+}
+
+.perfilName {
+  font-weight: 900;
+  color: #e9ecf0;
+  font-size: 0.875rem;
+}
+    
+.perfilEmail{
+      color: #028BBF;
+  font-size: 0.75rem;
+}
