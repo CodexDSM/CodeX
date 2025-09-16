@@ -24,3 +24,12 @@
   gap: 0.75rem; 
   padding-top: 1rem; 
 }
+
+.labelinput {
+  display: block;
+  font-size: 0.875rem; 
+  font-weight: 500;
+  color: #028BBF; 
+  padding-left: 1rem;
+  margin-bottom: 0.4rem; 
+}

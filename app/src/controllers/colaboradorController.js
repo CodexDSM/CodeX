@@ -1,34 +1,40 @@
-// src/controllers/colaboradorController.js
 const pool = require('../config/database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 class ColaboradorController {
-  // Login
+  
   async login(req, res, next) {
+
+    console.log('DADOS RECEBIDOS PELO BACK-END:', req.body);
+    
     try {
-      const { email, senha } = req.body;
+      let { cpf, senha } = req.body;
+
+      if (cpf) {
+        cpf = cpf.replace(/[^0-9]/g, '');
+      }
       
       const [rows] = await pool.execute(
-        'SELECT * FROM colaborador WHERE email = ? AND ativo = true',
-        [email]
+        'SELECT * FROM colaborador WHERE REPLACE(REPLACE(cpf, ".", ""), "-", "") = ? AND ativo = true',
+        [cpf]
       );
 
       if (rows.length === 0) {
-        return res.status(401).json({ error: 'Credenciais inválidas' });
+        return res.status(401).json({ message: 'CPF ou senha inválidos.' });
       }
 
       const colaborador = rows[0];
       const senhaValida = await bcrypt.compare(senha, colaborador.senha);
 
       if (!senhaValida) {
-        return res.status(401).json({ error: 'Credenciais inválidas' });
+        return res.status(401).json({ message: 'Credenciais inválidas.' });
       }
 
       const token = jwt.sign(
         { 
           id: colaborador.id, 
-          email: colaborador.email, 
+          cpf: colaborador.cpf, 
           perfil: colaborador.perfil 
         },
         process.env.JWT_SECRET,
@@ -36,13 +42,13 @@ class ColaboradorController {
       );
 
       delete colaborador.senha;
-      res.json({ token, colaborador });
+      res.json({ message: 'Login bem-sucedido', token, colaborador });
+
     } catch (error) {
-      next(error);
+      next({ status: 500, message: error.message });
     }
   }
 
-  // Listar todos
   async index(req, res, next) {
     try {
       const { ativo, perfil } = req.query;
@@ -66,7 +72,6 @@ class ColaboradorController {
     }
   }
 
-  // Buscar por ID
   async show(req, res, next) {
     try {
       const { id } = req.params;
@@ -85,7 +90,6 @@ class ColaboradorController {
     }
   }
 
-  // Criar
   async create(req, res, next) {
     try {
       const { 
@@ -93,13 +97,14 @@ class ColaboradorController {
         logradouro, numero, complemento, bairro, cidade, uf, cep 
       } = req.body;
 
+      const cpfNormalizado = cpf ? cpf.replace(/[^0-9]/g, '') : null;
       const hashedSenha = await bcrypt.hash(senha, 10);
 
       const [result] = await pool.execute(
         `INSERT INTO colaborador 
         (nome, cpf, email, senha, telefone, perfil, logradouro, numero, complemento, bairro, cidade, uf, cep) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [nome, cpf, email, hashedSenha, telefone, perfil || 'Operador', 
+        [nome, cpfNormalizado, email, hashedSenha, telefone, perfil || 'Operador', 
          logradouro, numero, complemento, bairro, cidade, uf, cep]
       );
 
@@ -112,7 +117,6 @@ class ColaboradorController {
     }
   }
 
-  // Atualizar
   async update(req, res, next) {
     try {
       const { id } = req.params;
@@ -123,10 +127,10 @@ class ColaboradorController {
 
       const [result] = await pool.execute(
         `UPDATE colaborador 
-        SET nome = ?, telefone = ?, perfil = ?, ativo = ?,
-            logradouro = ?, numero = ?, complemento = ?, 
-            bairro = ?, cidade = ?, uf = ?, cep = ?
-        WHERE id = ?`,
+         SET nome = ?, telefone = ?, perfil = ?, ativo = ?,
+             logradouro = ?, numero = ?, complemento = ?, 
+             bairro = ?, cidade = ?, uf = ?, cep = ?
+         WHERE id = ?`,
         [nome, telefone, perfil, ativo, logradouro, numero, 
          complemento, bairro, cidade, uf, cep, id]
       );
@@ -141,7 +145,6 @@ class ColaboradorController {
     }
   }
 
-  // Deletar (soft delete)
   async destroy(req, res, next) {
     try {
       const { id } = req.params;
@@ -161,7 +164,6 @@ class ColaboradorController {
     }
   }
 
-  // Alterar senha
   async changePassword(req, res, next) {
     try {
       const { id } = req.params;

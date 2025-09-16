@@ -1,48 +1,115 @@
-import { Card } from "@/components/ui/card"
-import { Input, Select } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import styles from './login.module.css'
-
-
+"use client";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import styles from './login.module.css';
 
 export default function LoginPage() {
-    const locaisSelect = [
-    { value: 'home_office', label: 'Home Office' },
-        { value: 'presencial', label: 'Presencial' },
-        { value: 'evento', label: 'Evento/Treinamento' }
-    ]
-    return (
+  const router = useRouter();
+  const [cpf, setCpf] = useState('');
+  const [senha, setSenha] = useState('');
+  const [localTrabalho, setLocalTrabalho] = useState('presencial');
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const locaisSelect = [
+    { value: 'presencial', label: 'Presencial' },
+    { value: 'homeOffice', label: 'Home Office' },
+    { value: 'evento', label: 'Evento' },
+    { value: 'treinamento', label: 'Treinamento' }
+  ];
+
+  const handleCpfChange = (event) => {
+    const onlyNums = String(event.target.value).replace(/[^0-9]/g, '');
+    if (onlyNums.length <= 11) setCpf(onlyNums);
+  };
+
+  const handleSenhaChange = (event) => setSenha(event.target.value);
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/colaboradores/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cpf: cpf.trim(),
+          senha: senha.trim(),
+          localTrabalho: localTrabalho,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || 'Ocorreu um erro desconhecido.');
+
+      localStorage.setItem('authToken', data.token);
+      router.push('/dashboard');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
     <main className={styles.mainContainer}>
-        <Card>
-            <div className={styles.contentWrapper}>
-                <h1 className={styles.title}>Login</h1> 
-                <Input
-                    label='CPF'
-                    placeholder= "Digite apenas Numeros"
-                />   
-                
-                <Input
-                    label= 'Senha'
-                    placeholder= '**********'
-                />
-
-                <Select 
-                    label='Local de Trabalho'
-                    options={locaisSelect}
-                />
-                   
-                
-                    
-                    
-            
-                <div className={styles.buttonContainer}>
-                    <Button variant="primary"> Entrar </Button>
-                    <Button variant="secondary">Formularios</Button>
-                </div>               
-            </div>
-        </Card>
+      <Card>
+        <form onSubmit={handleLogin} className={styles.contentWrapper}>
+          <h1 className={styles.title}>Login</h1>
+          <Input
+            label='CPF'
+            placeholder="Digite apenas números"
+            value={cpf}
+            onChange={handleCpfChange}
+            required
+            inputMode="numeric"
+            maxLength={11}
+          />
+          <Input
+            label='Senha'
+            type="password"
+            placeholder='**********'
+            value={senha}
+            onChange={handleSenhaChange}
+            required
+          />
+          <div className={styles.inputWrapper}>
+            <label className={styles.labelinput}>Local de Trabalho</label>
+            <Select onValueChange={setLocalTrabalho} defaultValue={localTrabalho}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o local" />
+              </SelectTrigger>
+              <SelectContent>
+                {locaisSelect.map((local) => (
+                  <SelectItem key={local.value} value={local.value}>
+                    {local.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {error && <p className={styles.errorMessage}>{error}</p>}
+          <div className={styles.buttonContainer}>
+            <Button type="submit" variant="primary" disabled={isLoading}>
+              {isLoading ? 'Entrando...' : 'Entrar'}
+            </Button>
+            <Button type="button" variant="secondary">Formulários</Button>
+          </div>
+        </form>
+      </Card>
     </main>
-    )
-
+  );
 }
-

@@ -1,0 +1,3 @@
+# .gitignore
+.next/
+node_modules/

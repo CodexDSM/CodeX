@@ -13,12 +13,14 @@
 
 .button:hover {
   transform: scale(1.05);
+  background-color: #daf4ff;
+  transition-delay: 100ms;
   
 }
 
 /* Variante primaria */
 .primary {
-  background-color: #cceef3;
+  background-color: #ffffff;
   color: #028BBF;
   border-color: #028BBF;
 }
