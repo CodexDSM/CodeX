@@ -2,7 +2,6 @@
 -- Sistema de Gestão de Fretes - Banco de Dados
 -- =============================================
 
-DROP SCHEMA IF EXISTS sistema_fretes;
 CREATE SCHEMA sistema_fretes DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE sistema_fretes;
 
@@ -158,3 +157,31 @@ JOIN colaborador col ON f.colaborador_id = col.id
 LEFT JOIN motorista m ON f.motorista_id = m.colaborador_id
 LEFT JOIN colaborador mot ON m.colaborador_id = mot.id
 LEFT JOIN veiculo v ON f.veiculo_id = v.id;
+
+SELECT * FROM COLABORADOR;
+
+INSERT INTO colaborador (
+    nome, cpf, email, senha, telefone, perfil, 
+    logradouro, numero, bairro, cidade, uf, cep
+) 
+VALUES (
+    'Administrador 2',
+    '000.000.000-01',
+    'admin1@sistema.com',
+    '12345',
+    '12999999999',
+    'Administrador',
+    'Rua Sistema 2', '11', 'Ceentro', 'São Paulo', 'SP', '11000-000'
+);
+
+USE sistema_fretes;
+SELECT * FROM cliente;
+SELECT * FROM colaborador;
+
+UPDATE colaborador 
+SET senha = '$2b$10$uOVrky6BPwQizQeswoPAXe0ZWXUtR95/umE.cAttVOSNBODLtOyqq'
+WHERE email = 'admin@sistema.com';
+
+UPDATE colaborador 
+SET senha = '$2b$10$spjldKZz9E7KxfHpEYtDgOfDz9w69eE6OGTs.2nDrloeP.AmUEOi.'
+WHERE email = 'admin1@sistema.com';
