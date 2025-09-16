@@ -1,9 +1,8 @@
-// src/app.js
 const express = require('express');
 const cors = require('cors');
 const errorHandler = require('./middlewares/errorHandler');
 
-// Importar rotas
+// Importa os arquivos de rotas
 const colaboradorRoutes = require('./routes/colaboradorRoutes');
 const clienteRoutes = require('./routes/clienteRoutes');
 const veiculoRoutes = require('./routes/veiculoRoutes');
@@ -13,12 +12,12 @@ const rastreamentoRoutes = require('./routes/rastreamentoRoutes');
 
 const app = express();
 
-// Middlewares
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Middlewares globais da aplicação
+app.use(cors()); // Permite requisições de outras origens (frontend)
+app.use(express.json()); // Habilita o uso de JSON no corpo das requisições
+app.use(express.urlencoded({ extended: true })); // Habilita o uso de dados de formulário
 
-// Rotas
+// Associa as rotas a seus respectivos endpoints
 app.use('/api/colaboradores', colaboradorRoutes);
 app.use('/api/clientes', clienteRoutes);
 app.use('/api/veiculos', veiculoRoutes);
@@ -26,12 +25,12 @@ app.use('/api/motoristas', motoristaRoutes);
 app.use('/api/fretes', freteRoutes);
 app.use('/api/rastreamento', rastreamentoRoutes);
 
-// Rota de teste
+// Rota de teste para verificar se a API está online
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'API funcionando' });
 });
 
-// Middleware de erro
+// Middleware centralizado para tratamento de erros
 app.use(errorHandler);
 
 module.exports = app;

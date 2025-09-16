@@ -1,8 +1,7 @@
-// src/controllers/motoristaController.js
 const pool = require('../config/database');
 
 class MotoristaController {
-  // Listar todos
+  // Lista todos os motoristas ativos com seus dados de colaborador e veículo.
   async index(req, res, next) {
     try {
       const [rows] = await pool.execute(
@@ -18,7 +17,7 @@ class MotoristaController {
     }
   }
 
-  // Buscar por ID
+  // Busca um motorista pelo ID do colaborador, retornando seus dados completos.
   async show(req, res, next) {
     try {
       const { id } = req.params;
@@ -41,16 +40,13 @@ class MotoristaController {
     }
   }
 
-  // Criar
+  // Cria um novo registro de motorista.
   async create(req, res, next) {
     try {
       const { colaborador_id, cnh, categoria_cnh, validade_cnh, veiculo_id } = req.body;
 
-      // Verificar se o colaborador é motorista
-      const [colaborador] = await pool.execute(
-        'SELECT perfil FROM colaborador WHERE id = ?',
-        [colaborador_id]
-      );
+      // Verifica se o perfil do colaborador é 'Motorista'.
+      const [colaborador] = await pool.execute('SELECT perfil FROM colaborador WHERE id = ?', [colaborador_id]);
 
       if (colaborador.length === 0 || colaborador[0].perfil !== 'Motorista') {
         return res.status(400).json({ error: 'Colaborador deve ter perfil de Motorista' });
@@ -67,7 +63,7 @@ class MotoristaController {
     }
   }
 
-  // Atualizar
+  // Atualiza os dados de um motorista.
   async update(req, res, next) {
     try {
       const { id } = req.params;
@@ -88,15 +84,12 @@ class MotoristaController {
     }
   }
 
-  // Deletar
+  // Deleta um registro de motorista da tabela (hard delete).
   async destroy(req, res, next) {
     try {
       const { id } = req.params;
       
-      const [result] = await pool.execute(
-        'DELETE FROM motorista WHERE colaborador_id = ?',
-        [id]
-      );
+      const [result] = await pool.execute('DELETE FROM motorista WHERE colaborador_id = ?', [id]);
 
       if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Motorista não encontrado' });
@@ -108,7 +101,7 @@ class MotoristaController {
     }
   }
 
-  // Motoristas disponíveis
+  // Lista motoristas disponíveis (não estão com fretes em andamento).
   async disponiveis(req, res, next) {
     try {
       const [rows] = await pool.execute(

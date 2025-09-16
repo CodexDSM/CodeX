@@ -1,29 +1,32 @@
-// src/controllers/freteController.js
 const pool = require('../config/database');
 
 class FreteController {
-  // Listar todos
+  // Lista todos os fretes com filtros
   async index(req, res, next) {
     try {
       const { status, cliente_id, motorista_id, data_inicio, data_fim } = req.query;
       let query = 'SELECT * FROM vw_resumo_fretes WHERE 1=1';
       const params = [];
 
+      // Filtra por status do frete
       if (status) {
         query += ' AND status = ?';
         params.push(status);
       }
 
+      // Filtra por ID do cliente
       if (cliente_id) {
         query += ' AND cliente_id = ?';
         params.push(cliente_id);
       }
 
+      // Filtra por ID do motorista
       if (motorista_id) {
         query += ' AND motorista_id = ?';
         params.push(motorista_id);
       }
 
+      // Filtra por período de data de coleta
       if (data_inicio && data_fim) {
         query += ' AND data_coleta BETWEEN ? AND ?';
         params.push(data_inicio, data_fim);
@@ -38,14 +41,11 @@ class FreteController {
     }
   }
 
-  // Buscar por ID
+  // Busca um frete pelo ID
   async show(req, res, next) {
     try {
       const { id } = req.params;
-      const [rows] = await pool.execute(
-        'SELECT * FROM frete WHERE id = ?',
-        [id]
-      );
+      const [rows] = await pool.execute('SELECT * FROM frete WHERE id = ?', [id]);
 
       if (rows.length === 0) {
         return res.status(404).json({ error: 'Frete não encontrado' });
@@ -57,10 +57,11 @@ class FreteController {
     }
   }
 
-  // Criar
+  // Cria um novo frete com controle de transação
   async create(req, res, next) {
     const connection = await pool.getConnection();
     try {
+      // Inicia a transação
       await connection.beginTransaction();
 
       const {
@@ -70,7 +71,7 @@ class FreteController {
         observacoes
       } = req.body;
 
-      // Gerar código único
+      // Gera um código único para o frete
       const codigo = `FRT${Date.now()}`;
 
       const [result] = await connection.execute(
@@ -88,14 +89,12 @@ class FreteController {
         ]
       );
 
-      // Atualizar disponibilidade do veículo se houver
+      // Se um veículo foi atribuído, muda o status dele para indisponível
       if (veiculo_id) {
-        await connection.execute(
-          'UPDATE veiculo SET disponivel = false WHERE id = ?',
-          [veiculo_id]
-        );
+        await connection.execute('UPDATE veiculo SET disponivel = false WHERE id = ?', [veiculo_id]);
       }
 
+      // Confirma a transação
       await connection.commit();
       res.status(201).json({ 
         id: result.insertId, 
@@ -103,14 +102,16 @@ class FreteController {
         message: 'Frete criado com sucesso' 
       });
     } catch (error) {
+      // Em caso de erro, desfaz a transação
       await connection.rollback();
       next(error);
     } finally {
+      // Libera a conexão
       connection.release();
     }
   }
 
-  // Atualizar
+  // Atualiza dados de um frete
   async update(req, res, next) {
     try {
       const { id } = req.params;
@@ -146,68 +147,55 @@ class FreteController {
     }
   }
 
-  // Atualizar status
+  // Atualiza apenas o status de um frete
   async updateStatus(req, res, next) {
     const connection = await pool.getConnection();
     try {
+      // Inicia a transação
       await connection.beginTransaction();
 
       const { id } = req.params;
       const { status } = req.body;
 
-      // Buscar frete atual
-      const [frete] = await connection.execute(
-        'SELECT status, veiculo_id FROM frete WHERE id = ?',
-        [id]
-      );
+      // Busca o frete atual para pegar o ID do veículo
+      const [frete] = await connection.execute('SELECT status, veiculo_id FROM frete WHERE id = ?', [id]);
 
       if (frete.length === 0) {
         await connection.rollback();
         return res.status(404).json({ error: 'Frete não encontrado' });
       }
 
-      // Atualizar status
-      await connection.execute(
-        'UPDATE frete SET status = ? WHERE id = ?',
-        [status, id]
-      );
+      // Atualiza o status do frete
+      await connection.execute('UPDATE frete SET status = ? WHERE id = ?', [status, id]);
 
-      // Se entregue ou cancelado, liberar veículo
-// src/controllers/freteController.js (continuação)
-      // Se entregue ou cancelado, liberar veículo
+      // Se o frete for entregue ou cancelado, o veículo volta a ficar disponível
       if ((status === 'Entregue' || status === 'Cancelado') && frete[0].veiculo_id) {
-        await connection.execute(
-          'UPDATE veiculo SET disponivel = true WHERE id = ?',
-          [frete[0].veiculo_id]
-        );
+        await connection.execute('UPDATE veiculo SET disponivel = true WHERE id = ?', [frete[0].veiculo_id]);
       }
 
-      // Se entregue, registrar data de entrega
+      // Se o frete for entregue, registra a data de entrega
       if (status === 'Entregue') {
-        await connection.execute(
-          'UPDATE frete SET data_entrega = CURRENT_DATE WHERE id = ?',
-          [id]
-        );
+        await connection.execute('UPDATE frete SET data_entrega = CURRENT_DATE WHERE id = ?', [id]);
       }
 
+      // Confirma a transação
       await connection.commit();
       res.json({ message: 'Status atualizado com sucesso' });
     } catch (error) {
+      // Em caso de erro, desfaz a transação
       await connection.rollback();
       next(error);
     } finally {
+      // Libera a conexão
       connection.release();
     }
   }
 
-  // Buscar por código
+  // Busca um frete pelo código
   async findByCodigo(req, res, next) {
     try {
       const { codigo } = req.params;
-      const [rows] = await pool.execute(
-        'SELECT * FROM vw_resumo_fretes WHERE codigo = ?',
-        [codigo]
-      );
+      const [rows] = await pool.execute('SELECT * FROM vw_resumo_fretes WHERE codigo = ?', [codigo]);
 
       if (rows.length === 0) {
         return res.status(404).json({ error: 'Frete não encontrado' });
@@ -219,7 +207,7 @@ class FreteController {
     }
   }
 
-  // Relatório de fretes
+  // Gera um relatório de fretes com dados agregados
   async relatorio(req, res, next) {
     try {
       const { data_inicio, data_fim } = req.query;

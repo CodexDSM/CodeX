@@ -1,8 +1,7 @@
-// src/controllers/rastreamentoController.js
 const pool = require('../config/database');
 
 class RastreamentoController {
-  // Listar por frete
+  // Lista todas as posições de um frete específico, da mais recente para a mais antiga.
   async index(req, res, next) {
     try {
       const { frete_id } = req.params;
@@ -18,17 +17,14 @@ class RastreamentoController {
     }
   }
 
-  // Criar nova posição
+  // Cria um novo ponto de rastreamento para um frete.
   async create(req, res, next) {
     try {
       const { frete_id } = req.params;
       const { latitude, longitude } = req.body;
 
-      // Verificar se o frete existe e está em trânsito
-      const [frete] = await pool.execute(
-        'SELECT status FROM frete WHERE id = ?',
-        [frete_id]
-      );
+      // Verifica se o frete existe e se seu status é 'Transito'.
+      const [frete] = await pool.execute('SELECT status FROM frete WHERE id = ?', [frete_id]);
 
       if (frete.length === 0) {
         return res.status(404).json({ error: 'Frete não encontrado' });
@@ -52,7 +48,7 @@ class RastreamentoController {
     }
   }
 
-  // Última posição
+  // Retorna a última posição registrada de um frete.
   async ultimaPosicao(req, res, next) {
     try {
       const { frete_id } = req.params;
@@ -72,15 +68,12 @@ class RastreamentoController {
     }
   }
 
-  // Rastreamento por código do frete
+  // Rastreia um frete usando seu código, retornando status e posições.
   async rastrearPorCodigo(req, res, next) {
     try {
       const { codigo } = req.params;
       
-      const [frete] = await pool.execute(
-        'SELECT id, status FROM frete WHERE codigo = ?',
-        [codigo]
-      );
+      const [frete] = await pool.execute('SELECT id, status FROM frete WHERE codigo = ?', [codigo]);
 
       if (frete.length === 0) {
         return res.status(404).json({ error: 'Frete não encontrado' });

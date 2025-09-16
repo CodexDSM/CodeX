@@ -1,16 +1,27 @@
 {
   "info": {
-    "name": "Sistema de Fretes API",
-    "_postman_id": "69f4b982-0c37-4a15-9c7e-8b6a3d41f4c2",
-    "description": "Coleção de testes da API de Gestão de Fretes",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "name": "API NEWE",
+    "description": "Coleção completa de endpoints da API",
   },
   "item": [
+    {
+      "name": "Saúde da API",
+      "item": [
+        {
+          "name": "Verificar Saúde",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "http://localhost:3001/api/health"
+          }
+        }
+      ]
+    },
     {
       "name": "Autenticação",
       "item": [
         {
-          "name": "Login",
+          "name": "Login de Colaborador",
           "request": {
             "method": "POST",
             "header": [
@@ -24,10 +35,10 @@
               "raw": "{\n  \"email\": \"admin@sistema.com\",\n  \"senha\": \"password\"\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/colaboradores/login",
+              "raw": "http://localhost:3001/api/colaboradores/login",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "3000",
+              "port": "3001",
               "path": ["api", "colaboradores", "login"]
             }
           }
@@ -47,7 +58,20 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "http://localhost:3000/api/colaboradores"
+            "url": "http://localhost:3001/api/colaboradores"
+          }
+        },
+        {
+          "name": "Buscar por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "http://localhost:3001/api/colaboradores/1"
           }
         },
         {
@@ -62,7 +86,47 @@
               "mode": "raw",
               "raw": "{\n  \"nome\": \"José\",\n  \"cpf\": \"123.456.789-99\",\n  \"email\": \"jose@empresa.com\",\n  \"senha\": \"123456\",\n  \"telefone\": \"1199999999\",\n  \"perfil\": \"Operador\",\n  \"logradouro\": \"Rua Teste\",\n  \"numero\": \"10\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"São Paulo\",\n  \"uf\": \"SP\",\n  \"cep\": \"01000-000\"\n}"
             },
-            "url": "http://localhost:3000/api/colaboradores"
+            "url": "http://localhost:3001/api/colaboradores"
+          }
+        },
+        {
+          "name": "Atualizar Colaborador",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"José da Silva\"\n}"
+            },
+            "url": "http://localhost:3001/api/colaboradores/1"
+          }
+        },
+        {
+          "name": "Deletar Colaborador",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/colaboradores/1"
+          }
+        },
+        {
+          "name": "Atualizar Senha",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"senha\": \"nova_senha_123\"\n}"
+            },
+            "url": "http://localhost:3001/api/colaboradores/1/senha"
           }
         }
       ]
@@ -71,7 +135,37 @@
       "name": "Clientes",
       "item": [
         {
-          "name": "Criar Cliente PF",
+          "name": "Listar Clientes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/clientes"
+          }
+        },
+        {
+          "name": "Buscar por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/clientes/1"
+          }
+        },
+        {
+          "name": "Buscar por Documento",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/clientes/documento/123.456.789-00"
+          }
+        },
+        {
+          "name": "Criar Cliente",
           "request": {
             "method": "POST",
             "header": [
@@ -82,26 +176,71 @@
               "mode": "raw",
               "raw": "{\n  \"tipo_pessoa\": \"F\",\n  \"nome\": \"Maria\",\n  \"documento\": \"123.456.789-00\",\n  \"email\": \"maria@email.com\",\n  \"telefone\": \"11987654321\",\n  \"logradouro\": \"Av Brasil\",\n  \"numero\": \"200\",\n  \"bairro\": \"Bairro Azul\",\n  \"cidade\": \"São Paulo\",\n  \"uf\": \"SP\",\n  \"cep\": \"02000-000\"\n}"
             },
-            "url": "http://localhost:3000/api/clientes"
+            "url": "http://localhost:3001/api/clientes"
           }
         },
         {
-          "name": "Listar Clientes",
+          "name": "Atualizar Cliente",
           "request": {
-            "method": "GET",
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Maria de Sousa\"\n}"
+            },
+            "url": "http://localhost:3001/api/clientes/1"
+          }
+        },
+        {
+          "name": "Deletar Cliente",
+          "request": {
+            "method": "DELETE",
             "header": [
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
-            "url": "http://localhost:3000/api/clientes"
+            "url": "http://localhost:3001/api/clientes/1"
           }
         }
       ]
     },
     {
-      "name": "Veiculos",
+      "name": "Veículos",
       "item": [
         {
-          "name": "Criar Veiculo",
+          "name": "Listar Veículos",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/veiculos"
+          }
+        },
+        {
+          "name": "Buscar por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/veiculos/1"
+          }
+        },
+        {
+          "name": "Buscar por Placa",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/veiculos/placa/XYZ-1234"
+          }
+        },
+        {
+          "name": "Criar Veículo",
           "request": {
             "method": "POST",
             "header": [
@@ -112,17 +251,32 @@
               "mode": "raw",
               "raw": "{\n  \"placa\": \"XYZ-1234\",\n  \"modelo\": \"Mercedes Atego\",\n  \"capacidade_kg\": 12000,\n  \"tipo\": \"Caminhão\"\n}"
             },
-            "url": "http://localhost:3000/api/veiculos"
+            "url": "http://localhost:3001/api/veiculos"
           }
         },
         {
-          "name": "Listar Veículos",
+          "name": "Atualizar Veículo",
           "request": {
-            "method": "GET",
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"disponivel\": true\n}"
+            },
+            "url": "http://localhost:3001/api/veiculos/1"
+          }
+        },
+        {
+          "name": "Deletar Veículo",
+          "request": {
+            "method": "DELETE",
             "header": [
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
-            "url": "http://localhost:3000/api/veiculos"
+            "url": "http://localhost:3001/api/veiculos/1"
           }
         }
       ]
@@ -130,6 +284,36 @@
     {
       "name": "Motoristas",
       "item": [
+        {
+          "name": "Listar Motoristas",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/motoristas"
+          }
+        },
+        {
+          "name": "Listar Disponíveis",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/motoristas/disponiveis"
+          }
+        },
+        {
+          "name": "Buscar por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/motoristas/1"
+          }
+        },
         {
           "name": "Criar Motorista",
           "request": {
@@ -142,17 +326,32 @@
               "mode": "raw",
               "raw": "{\n  \"colaborador_id\": 2,\n  \"cnh\": \"12345678900\",\n  \"categoria_cnh\": \"E\",\n  \"validade_cnh\": \"2026-12-31\",\n  \"veiculo_id\": 1\n}"
             },
-            "url": "http://localhost:3000/api/motoristas"
+            "url": "http://localhost:3001/api/motoristas"
           }
         },
         {
-          "name": "Listar Motoristas",
+          "name": "Atualizar Motorista",
           "request": {
-            "method": "GET",
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"veiculo_id\": 2\n}"
+            },
+            "url": "http://localhost:3001/api/motoristas/1"
+          }
+        },
+        {
+          "name": "Deletar Motorista",
+          "request": {
+            "method": "DELETE",
             "header": [
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
-            "url": "http://localhost:3000/api/motoristas"
+            "url": "http://localhost:3001/api/motoristas/1"
           }
         }
       ]
@@ -160,6 +359,46 @@
     {
       "name": "Fretes",
       "item": [
+        {
+          "name": "Listar Fretes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/fretes"
+          }
+        },
+        {
+          "name": "Relatório de Fretes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/fretes/relatorio"
+          }
+        },
+        {
+          "name": "Buscar por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/fretes/1"
+          }
+        },
+        {
+          "name": "Buscar por Código",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/fretes/codigo/FRT1699991234567"
+          }
+        },
         {
           "name": "Criar Frete",
           "request": {
@@ -172,17 +411,37 @@
               "mode": "raw",
               "raw": "{\n  \"cliente_id\": 1,\n  \"motorista_id\": 2,\n  \"veiculo_id\": 1,\n  \"origem_cidade\": \"São Paulo\",\n  \"origem_uf\": \"SP\",\n  \"destino_cidade\": \"Rio de Janeiro\",\n  \"destino_uf\": \"RJ\",\n  \"distancia_km\": 450,\n  \"valor\": 2000.5,\n  \"peso_kg\": 5000,\n  \"data_coleta\": \"2025-09-10\",\n  \"data_entrega_prevista\": \"2025-09-12\",\n  \"observacoes\": \"Carga frágil\"\n}"
             },
-            "url": "http://localhost:3000/api/fretes"
+            "url": "http://localhost:3001/api/fretes"
           }
         },
         {
-          "name": "Listar Fretes",
+          "name": "Atualizar Frete",
           "request": {
-            "method": "GET",
+            "method": "PUT",
             "header": [
+              { "key": "Content-Type", "value": "application/json" },
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
-            "url": "http://localhost:3000/api/fretes"
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"valor\": 2100.00\n}"
+            },
+            "url": "http://localhost:3001/api/fretes/1"
+          }
+        },
+        {
+          "name": "Atualizar Status do Frete",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Transito\"\n}"
+            },
+            "url": "http://localhost:3001/api/fretes/1/status"
           }
         }
       ]
@@ -190,6 +449,33 @@
     {
       "name": "Rastreamento",
       "item": [
+        {
+          "name": "Rastreamento Público (por Código)",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3001/api/rastreamento/publico/FRT1699991234567"
+          }
+        },
+        {
+          "name": "Listar Posições do Frete",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/rastreamento/frete/1"
+          }
+        },
+        {
+          "name": "Última Posição do Frete",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "http://localhost:3001/api/rastreamento/frete/1/ultima"
+          }
+        },
         {
           "name": "Registrar Posição",
           "request": {
@@ -202,24 +488,7 @@
               "mode": "raw",
               "raw": "{\n  \"latitude\": -23.55052,\n  \"longitude\": -46.633308\n}"
             },
-            "url": "http://localhost:3000/api/rastreamento/frete/1"
-          }
-        },
-        {
-          "name": "Última Posição",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": "http://localhost:3000/api/rastreamento/frete/1/ultima"
-          }
-        },
-        {
-          "name": "Rastreamento Público",
-          "request": {
-            "method": "GET",
-            "url": "http://localhost:3000/api/rastreamento/publico/FRT1699991234567"
+            "url": "http://localhost:3001/api/rastreamento/frete/1"
           }
         }
       ]
