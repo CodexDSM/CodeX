@@ -4,7 +4,7 @@
   width: 55%;
   padding: 0.3rem 1rem; 
   border-radius: 1.1rem;
-  font-weight: 900; 
+  font-weight: 600; 
   font-size: 1.325rem; 
   transition: transform 0.2s;
   border: 1px solid transparent;
@@ -30,4 +30,54 @@
   background-color: white;
   color: #028BBF;
   border-color: #028BBF;
+}
+
+
+
+
+.ButtonEstatico{
+  font-family: 'Inter',sans-serif;
+  width: 55%;
+  padding: 0.3rem 1rem; 
+  border-radius: 1.1rem;
+  font-weight: 600; 
+  font-size: 1.325rem; 
+  border: 1px solid transparent;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+ /* Botão de adicionar sem icone */
+.Adicionar{
+  font-family: 'Inter',sans-serif;
+  display: flex;
+  gap: 7px;
+  width: 12%;
+  background-color: #575756;
+  color: #ffffff;
+  border-color: #575756;
+}
+
+.Adicionar:hover{
+  transform: scale(1.03);
+  transition-delay: 100ms;
+}
+
+ /* Botão de adicionar com icone */
+.Adicionar_icon{
+  font-family: 'Inter',sans-serif;
+  display: flex;
+  gap: 7px;
+  width: 12%;
+  background-color: #ffffff;
+  color: #575756;
+  border-color: #575756;
+}
+
+.Adicionar_icon:hover{
+  transform: scale(1.03);
+  background-color: #ffffff;
+  transition-delay: 100ms;
 }

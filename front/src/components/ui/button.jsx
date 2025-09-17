@@ -10,3 +10,14 @@ export function Button({ children, variant = 'primary' }) {
     </button>
   );
 }
+
+
+export function ButtonEstatico({ children, variant = 'Adicionar' }) {
+  const buttonClasses = `${styles.ButtonEstatico} ${styles[variant]}`
+
+return (
+  <button className={buttonClasses}>
+    {children}
+  </button>
+);
+}
