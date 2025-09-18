@@ -9,6 +9,7 @@ const veiculoRoutes = require('./routes/veiculoRoutes');
 const motoristaRoutes = require('./routes/motoristaRoutes');
 const freteRoutes = require('./routes/freteRoutes');
 const rastreamentoRoutes = require('./routes/rastreamentoRoutes');
+const interactionRoutes = require('./routes/interactionRoutes');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api/veiculos', veiculoRoutes);
 app.use('/api/motoristas', motoristaRoutes);
 app.use('/api/fretes', freteRoutes);
 app.use('/api/rastreamento', rastreamentoRoutes);
+app.use('/api', interactionRoutes);
 
 // Rota de teste para verificar se a API está online
 app.get('/api/health', (req, res) => {

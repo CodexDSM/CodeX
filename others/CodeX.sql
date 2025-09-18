@@ -1,21 +1,21 @@
 -- =============================================
--- Sistema de Gestão de Fretes - Banco de Dados
+-- Sistema de Gestão Newe - Banco de Dados
 -- =============================================
 
-CREATE SCHEMA sistema_fretes DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE SCHEMA IF NOT EXISTS sistema_fretes DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE sistema_fretes;
 
 -- -----------------------------------------------------
 -- Tabela: colaborador
 -- -----------------------------------------------------
-CREATE TABLE colaborador (
+CREATE TABLE IF NOT EXISTS colaborador (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     cpf CHAR(14) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL,
     telefone VARCHAR(15),
-    perfil ENUM('Administrador', 'Gerente', 'Operador', 'Motorista') DEFAULT 'Operador',
+    perfil ENUM('Administrador', 'Gerente', 'Operador', 'Motorista', 'Comercial') DEFAULT 'Operador',
     ativo BOOLEAN DEFAULT TRUE,
     logradouro VARCHAR(150) NOT NULL,
     numero VARCHAR(10) NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE colaborador (
 -- -----------------------------------------------------
 -- Tabela: cliente
 -- -----------------------------------------------------
-CREATE TABLE cliente (
+CREATE TABLE IF NOT EXISTS cliente (
     id INT AUTO_INCREMENT PRIMARY KEY,
     tipo_pessoa ENUM('F', 'J') NOT NULL,
     nome VARCHAR(150) NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE cliente (
 -- -----------------------------------------------------
 -- Tabela: veiculo
 -- -----------------------------------------------------
-CREATE TABLE veiculo (
+CREATE TABLE IF NOT EXISTS veiculo (
     id INT AUTO_INCREMENT PRIMARY KEY,
     placa CHAR(8) UNIQUE NOT NULL,
     modelo VARCHAR(50) NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE veiculo (
 -- -----------------------------------------------------
 -- Tabela: motorista
 -- -----------------------------------------------------
-CREATE TABLE motorista (
+CREATE TABLE IF NOT EXISTS motorista (
     colaborador_id INT PRIMARY KEY,
     cnh VARCHAR(20) UNIQUE NOT NULL,
     categoria_cnh VARCHAR(5) NOT NULL,
@@ -83,7 +83,7 @@ CREATE TABLE motorista (
 -- -----------------------------------------------------
 -- Tabela: frete
 -- -----------------------------------------------------
-CREATE TABLE frete (
+CREATE TABLE IF NOT EXISTS frete (
     id INT AUTO_INCREMENT PRIMARY KEY,
     codigo VARCHAR(20) UNIQUE NOT NULL,
     cliente_id INT NOT NULL,
@@ -115,7 +115,7 @@ CREATE TABLE frete (
 -- -----------------------------------------------------
 -- Tabela: rastreamento
 -- -----------------------------------------------------
-CREATE TABLE rastreamento (
+CREATE TABLE IF NOT EXISTS rastreamento (
     id INT AUTO_INCREMENT PRIMARY KEY,
     frete_id INT NOT NULL,
     latitude DECIMAL(10,8) NOT NULL,
@@ -123,6 +123,25 @@ CREATE TABLE rastreamento (
     registrado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (frete_id) REFERENCES frete(id) ON DELETE CASCADE,
     INDEX idx_frete_data (frete_id, registrado_em)
+);
+
+-- -----------------------------------------------------
+-- Tabela: interacao_cliente
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS interacao_cliente (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    colaborador_id INT NOT NULL,
+    cliente_id INT NOT NULL,
+    tipo_interacao ENUM('Ligação', 'E-mail', 'Reunião Presencial', 'Mensagem', 'Outro') NOT NULL,
+    data_interacao DATETIME NOT NULL,
+    assunto VARCHAR(255),
+    detalhes TEXT,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (colaborador_id) REFERENCES colaborador(id) ON DELETE CASCADE,
+    FOREIGN KEY (cliente_id) REFERENCES cliente(id) ON DELETE CASCADE,
+    INDEX idx_colaborador (colaborador_id),
+    INDEX idx_cliente (cliente_id),
+    INDEX idx_data (data_interacao)
 );
 
 -- -----------------------------------------------------
@@ -134,7 +153,7 @@ VALUES ('Administrador', '000.000.000-00', 'admin@sistema.com', '$2y$10$92IXUNpk
 -- -----------------------------------------------------
 -- View: resumo de fretes
 -- -----------------------------------------------------
-CREATE VIEW vw_resumo_fretes AS
+CREATE OR REPLACE VIEW vw_resumo_fretes AS
 SELECT 
     f.id,
     f.codigo,
@@ -158,6 +177,9 @@ LEFT JOIN motorista m ON f.motorista_id = m.colaborador_id
 LEFT JOIN colaborador mot ON m.colaborador_id = mot.id
 LEFT JOIN veiculo v ON f.veiculo_id = v.id;
 
+-- -----------------------------------------------------
+-- Adicionar dados adicionais e atualizar senhas
+-- -----------------------------------------------------
 SELECT * FROM COLABORADOR;
 
 INSERT INTO colaborador (
