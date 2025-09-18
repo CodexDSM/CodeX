@@ -32,9 +32,6 @@
   border-color: #028BBF;
 }
 
-
-
-
 .ButtonEstatico{
   font-family: 'Inter',sans-serif;
   width: 55%;
@@ -50,23 +47,25 @@
 }
 
  /* Botão de adicionar sem icone */
-.Adicionar{
+.adicionar{
   font-family: 'Inter',sans-serif;
   display: flex;
   gap: 7px;
-  width: 12%;
+  width: 55%;
   background-color: #575756;
   color: #ffffff;
   border-color: #575756;
+  align-items: center;
+  justify-content: center;
 }
 
-.Adicionar:hover{
+.adicionar:hover{
   transform: scale(1.03);
   transition-delay: 100ms;
 }
 
  /* Botão de adicionar com icone */
-.Adicionar_icon{
+.adicionar_icon{
   font-family: 'Inter',sans-serif;
   display: flex;
   gap: 7px;
@@ -76,8 +75,27 @@
   border-color: #575756;
 }
 
-.Adicionar_icon:hover{
+.adicionar_icon:hover{
   transform: scale(1.03);
   background-color: #ffffff;
   transition-delay: 100ms;
+}
+
+.clear {
+  background-color: white;
+  color: #575756;
+  border-color: #575756;
+  width: 50%;
+  gap: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(87,87,86,0.2 );
+}
+
+.clear:hover{
+  transform: scale(1.02);
+  background-color: #ff9d9d;
+  transition: transform 0.2s, background-color 0.2s;
+  box-shadow: 0 6px 12px rgba(87,87,86,0.3);
 }
