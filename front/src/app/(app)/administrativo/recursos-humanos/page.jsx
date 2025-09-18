@@ -3,7 +3,7 @@ import { useState, useMemo } from "react";
 
 import { ColaboradorTable } from "@/features/administrativo/colaboradorTable";
 import { CardContent } from "@/components/ui/card";
- import { testeColaboradores } from "./function";
+ import { testeColaboradores } from "./listaColaboradores";
 
 
           

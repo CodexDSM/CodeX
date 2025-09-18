@@ -1,4 +1,4 @@
-import { testeColaboradores } from "../function";
+import { testeColaboradores } from "../listaColaboradores";
 import styles from './detalhe.module.css';
 
 
