@@ -32,6 +32,9 @@
   border-color: #028BBF;
 }
 
+
+
+
 .ButtonEstatico{
   font-family: 'Inter',sans-serif;
   width: 55%;
@@ -62,6 +65,7 @@
 .adicionar:hover{
   transform: scale(1.03);
   transition-delay: 100ms;
+  background-color: #575756;
 }
 
  /* Botão de adicionar com icone */
