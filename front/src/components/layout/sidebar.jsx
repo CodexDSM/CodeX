@@ -86,6 +86,12 @@ export function Sidebar() {
             className= {pathname === '/operacional/formularios' ? styles.activeLink : ''}>
               <ClipboardList size={16} /> Formulários</Link>
           </li>
+
+          <li className={styles.navItem}>
+            <Link href="/operacional/checklist"
+            className= {pathname === '/operacional/checklist' ? styles.activeLink : ''}>
+              <ClipboardList size={16} /> Checklist</Link>
+          </li>
         </ul>
         )}
         </li>
