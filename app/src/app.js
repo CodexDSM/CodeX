@@ -27,7 +27,7 @@ app.use('/api/motoristas', motoristaRoutes);
 app.use('/api/fretes', freteRoutes);
 app.use('/api/rastreamento', rastreamentoRoutes);
 app.use('/api', interactionRoutes);
-app.use('/api', checklistRoutes);
+app.use(checklistRoutes);
 
 // Rota de teste para verificar se a API está online
 app.get('/api/health', (req, res) => {
