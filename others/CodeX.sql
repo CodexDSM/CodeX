@@ -2,8 +2,8 @@
 -- Sistema de Gestão Newe - Banco de Dados
 -- =============================================
 
-CREATE SCHEMA IF NOT EXISTS sistema_fretes DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE sistema_fretes;
+CREATE SCHEMA IF NOT EXISTS newe_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE newe_db;
 
 -- -----------------------------------------------------
 -- Tabela: colaborador
@@ -81,8 +81,28 @@ CREATE TABLE IF NOT EXISTS motorista (
 );
 
 -- -----------------------------------------------------
+-- Tabela: agregados
+-- -----------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS agregados (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome_motorista VARCHAR(255) NOT NULL,
+    cnh VARCHAR(20) NOT NULL UNIQUE,
+    placa_veiculo VARCHAR(10) NOT NULL UNIQUE,
+    modelo_veiculo VARCHAR(255) NOT NULL,
+    telefone VARCHAR(20),
+    email VARCHAR(255),
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_cnh (cnh),
+    INDEX idx_placa (placa_veiculo),
+    INDEX idx_email (email)
+);
+
+-- -----------------------------------------------------
 -- Tabela: frete
 -- -----------------------------------------------------
+
 CREATE TABLE IF NOT EXISTS frete (
     id INT AUTO_INCREMENT PRIMARY KEY,
     codigo VARCHAR(20) UNIQUE NOT NULL,
@@ -196,9 +216,10 @@ VALUES (
     'Rua Sistema 2', '11', 'Ceentro', 'São Paulo', 'SP', '11000-000'
 );
 
-USE sistema_fretes;
+USE newe_db;
 SELECT * FROM cliente;
 SELECT * FROM colaborador;
+SELECT * FROM agregados;
 
 UPDATE colaborador 
 SET senha = '$2b$10$uOVrky6BPwQizQeswoPAXe0ZWXUtR95/umE.cAttVOSNBODLtOyqq'

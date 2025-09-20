@@ -96,8 +96,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"José\",\n  \"cpf\": \"123.456.789-99\",\n  \"email\": \"jose@empresa.com\",\n  \"senha\": \"123456\",\n  \"telefone\": \"1199999999\",\n  \"perfil\": \"Operador\",\n  \"logradouro\": \"Rua Teste\",\n  \"numero\": \"10\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"São Paulo\",\n  \"uf\": \"SP\",
-              "cep": \"01000-000\"\n}"
+              "raw": "{\n  \"nome\": \"José\",\n  \"cpf\": \"123.456.789-99\",\n  \"email\": \"jose@empresa.com\",\n  \"senha\": \"123456\",\n  \"telefone\": \"1199999999\",\n  \"perfil\": \"Operador\",\n  \"logradouro\": \"Rua Teste\",\n  \"numero\": \"10\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"São Paulo\",\n  \"uf\": \"SP\",\n  \"cep\": \"01000-000\"\n}"
             },
             "url": "http://localhost:3001/api/colaboradores"
           }
@@ -314,6 +313,118 @@
                 "interactions"
               ]
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agregados",
+      "item": [
+        {
+          "name": "Cadastrar Agregado (Público)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome_motorista\": \"José da Silva\",\n  \"cnh\": \"12345678901\",\n  \"placa_veiculo\": \"ABC1234\",\n  \"modelo_veiculo\": \"Scania R450\",\n  \"telefone\": \"11987654321\",\n  \"email\": \"jose@email.com\"\n}"
+            },
+            "url": "http://localhost:3001/api/public/agregados"
+          }
+        },
+        {
+          "name": "Listar Agregados",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "http://localhost:3001/api/agregados"
+          }
+        },
+        {
+          "name": "Listar com Paginação",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3001/api/agregados?page=1&limit=5",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "api",
+                "agregados"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Agregados",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3001/api/agregados?search=jose",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "api",
+                "agregados"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "jose"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "http://localhost:3001/api/agregados/1"
           }
         }
       ]
