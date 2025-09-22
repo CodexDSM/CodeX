@@ -4,7 +4,10 @@ import { useState, useMemo } from "react"
 import { ClienteTable } from "@/features/comercial/clientesTable"   // nome do componente em PascalCase
 import { CardContent } from "@/components/ui/card"
 import { testeClientes } from "./[id]/listaClientes"
-import { ButtonEstatico } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { UserRoundPlus } from "lucide-react";
+import styles from "./cliente.module.css"
 
 export default function PaginaClientes() {
   const [sortConfig, setSortConfig] = useState({ key: "nome", direction: "ascending" })
@@ -38,6 +41,14 @@ export default function PaginaClientes() {
   return (
     <div>
       <CardContent>
+
+          <header className={styles.header}>
+          <Link href="/comercial/clientes/novo">
+            <Button variant="add"><UserRoundPlus size={20}/>  Adicionar</Button>
+          </Link>
+
+        </header>
+
 
         <ClienteTable
           clientes={sortedClientes}
