@@ -27,11 +27,10 @@ export default function ChecklistPage() {
   const [submissionStatus, setSubmissionStatus] = useState('idle');
 
   useEffect(() => {
-    // No projeto real, você faria um fetch para a sua API
+    // Fetch para API futuramente
     setTemplates(mockTemplates);
   }, []);
 
-  // --- Funções de Manipulação de Eventos ---
   const handleTemplateChange = (e) => {
     const templateId = e.target.value;
     const template = templates.find(t => t.id.toString() === templateId);
@@ -108,7 +107,6 @@ export default function ChecklistPage() {
     setSubmissionStatus('idle');
   };
 
-  // --- Renderização (código omitido por ser igual ao anterior) ---
   const renderContent = () => {
     if (submissionStatus === 'success') {
       return (
@@ -157,6 +155,8 @@ export default function ChecklistPage() {
     switch (q.tipo_pergunta) {
         case 'TEXTO':
             return <div key={q.id}><label className={styles.formLabel}>{q.texto_pergunta}</label><input type="text" value={formValues[q.id] || ''} onChange={e => handleInputChange(q.id, e.target.value)} required={q.obrigatoria} className={styles.textInput} /></div>;
+        case 'NUMERO':
+            return <div key={q.id}><label className={styles.formLabel}>{q.texto_pergunta}</label><input type="number" value={formValues[q.id] || ''} onChange={e => handleInputChange(q.id, e.target.value)} required={q.obrigatoria} className={styles.textInput} /></div>;
         case 'DATA':
             return <div key={q.id}><label className={styles.formLabel}>{q.texto_pergunta}</label><input type="date" value={formValues[q.id] || ''} onChange={e => handleInputChange(q.id, e.target.value)} required={q.obrigatoria} className={styles.textInput} /></div>;
         case 'TEXTO_LONGO':

@@ -171,18 +171,6 @@ VALUES (
 );
 
 
-
-
-INSERT INTO template_questions (template_id, questao_id, display_ordem, necesseario) VALUES
-(1, 1, 10, true), (1, 2, 20, true), (1, 3, 30, true), (1, 4, 40, true),
-(1, 5, 50, true), (1, 6, 60, true), (1, 7, 70, false), (1, 8, 80, false),
-(1, 9, 90, true), (1, 10, 100, true), (1, 11, 110, true), (1, 12, 120, true),
-(1, 13, 130, true), (1, 14, 140, false), (1, 15, 150, false),
-(2, 16, 10, true), (2, 17, 20, true), (2, 18, 30, true), (2, 19, 40, true),
-(2, 20, 50, true), (2, 21, 60, true), (2, 22, 70, true), (2, 23, 80, false),
-(2, 24, 90, true), (2, 25, 100, false);
-
-
 CREATE TABLE checklist_templates (
 id INT PRIMARY KEY AUTO_INCREMENT,
 nome VARCHAR(255) NOT NULL,
@@ -211,7 +199,7 @@ FOREIGN KEY (pergunta_id) REFERENCES checklist_perguntas(id) ON DELETE CASCADE
 CREATE TABLE registros_checklist (
 id INT PRIMARY KEY AUTO_INCREMENT,
 template_id INT NOT NULL,
-usuario_id INT NOT NULL,
+colaborador_id INT NOT NULL,
 data_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 ativo_relacionado_id VARCHAR(255), -- Ex: A placa de um carro 'ABC-1234'
 FOREIGN KEY (template_id) REFERENCES checklist_templates(id),
