@@ -31,6 +31,17 @@
   color: #028BBF;
   border-color: #028BBF;
 }
+.add {
+  display: flex;
+  
+  width: 8rem;
+  color: #575756;
+  font-weight: 500;
+  gap: 4px;
+  font-size: 16px;
+  box-shadow: 0px 0px 1px 1px rgba(0.5, 0.05, 0.05, 0.1) ;
+
+}
 
 
 
@@ -88,7 +99,7 @@
 .clear {
   background-color: white;
   color: #575756;
-  border-color: #575756;
+  border-color: #afaf4f;
   width: 50%;
   gap: 7px;
   display: flex;
@@ -102,4 +113,6 @@
   background-color: #ff9d9d;
   transition: transform 0.2s, background-color 0.2s;
   box-shadow: 0 6px 12px rgba(87,87,86,0.3);
+  background-color: blue;
+  
 }

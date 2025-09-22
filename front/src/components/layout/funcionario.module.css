@@ -1,24 +1,13 @@
-.mainContainer {
-    display: flex;
-    min-height: 100vh;
-    background-color: #F0F0F0;
-    padding: 2rem 1rem;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .centerContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-  }
-  
+
  
-  
-  
+ 
   .form {
+    
+    box-sizing: border-box;
     padding: 2rem;
+    width: 100%;
+    
+    
   }
   
   .title {
