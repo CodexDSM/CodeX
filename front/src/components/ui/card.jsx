@@ -8,3 +8,11 @@ export function Card({ children }) {
     </div>
   );
 }
+
+export function CardContent({ children }) {
+  return (
+    <div className={styles.cardContent}>
+      {children}
+    </div>
+  );
+}

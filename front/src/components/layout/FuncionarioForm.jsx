@@ -1,7 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card,Card2 } from "@/components/ui/card";
+import { Card,CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,9 +39,7 @@ export default function CadastroColaborador() {
   const [isLoading, setIsLoading] = useState(false);
 
   const estados = [
-    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 
-    'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 
-    'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+    'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
   ];
 
   const perfis = [
@@ -106,9 +104,8 @@ export default function CadastroColaborador() {
   };
 
   return (
-    <main className={styles.mainContainer}>
-      <div className={styles.centerContainer}>
-        <Card2 className={styles.Card2}>
+    
+        <CardContent >
           <form onSubmit={handleSubmit} className={styles.form}>
             <h2 className={styles.title}>Cadastro de Colaborador</h2>
             
@@ -308,8 +305,7 @@ export default function CadastroColaborador() {
               </Button>
             </div>
           </form>
-        </Card2>
-      </div>
-    </main>
+        </CardContent>
+  
   );
 }

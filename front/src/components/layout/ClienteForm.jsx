@@ -1,7 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card2 } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -36,9 +36,7 @@ export default function CadastroCliente() {
   const [isLoading, setIsLoading] = useState(false);
 
   const estados = [
-    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO',
-    'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI',
-    'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+    'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
   ];
 
   const tiposPessoa = [
@@ -121,9 +119,9 @@ export default function CadastroCliente() {
   const documentoMaxLength = formData.tipo_pessoa === 'F' ? 11 : 14;
 
   return (
-    <main className={styles.mainContainer}>
-      <div className={styles.centerContainer}>
-        <Card2 className={styles.Card2}>
+    
+      <div className={styles.allContainer}>
+        <CardContent >
           <form onSubmit={handleSubmit} className={styles.form}>
             <h2 className={styles.title}>Cadastro de Cliente</h2>
 
@@ -311,8 +309,8 @@ export default function CadastroCliente() {
               </Button>
             </div>
           </form>
-        </Card2>
+        </CardContent>
       </div>
-    </main>
+    
   );
 }

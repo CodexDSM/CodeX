@@ -1,0 +1,111 @@
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.nome {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+
+.editButton, .saveButton, .cancelButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+
+.editButton {
+  background-color: #3b82f6; 
+  color: white;
+}
+.editButton:hover {
+  background-color: #2563eb;
+}
+
+.saveButton {
+  background-color: #16a34a; 
+  color: white;
+}
+.saveButton:hover {
+  background-color: #15803d;
+}
+
+.cancelButton {
+  background-color: #e5e7eb; 
+  color: #4b5563;
+}
+.cancelButton:hover {
+  background-color: #d1d5db;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+    display: block;
+    font-size: 0.875rem; 
+    font-weight: 500;
+    color: #0225bf; 
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+}
+
+.input {
+    width: 100%;
+    padding: 0.5rem 1rem; 
+    margin-bottom: 0.5rem;
+    border-radius: 1.3rem; 
+    transition: border-color 0.2s, box-shadow 0.2s;
+    color: #374151;
+    border: 1px solid #D1D5DB;
+    background-color: #f9fafb; 
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Estilo para quando o campo está editável */
+.input:not([readOnly]) {
+  background-color: white;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #121D97;
+  box-shadow: 0 0 0 2px rgba(18, 29, 151, 0.4);
+}

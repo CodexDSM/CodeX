@@ -34,9 +34,9 @@ export function Sidebar() {
         <ul className={styles.submenu}>
 
           <li className={styles.navItem}>
-            <Link href="/administrativo/recursos-humanos"
-              className= {pathname === '/administrativo/recursos-humanos' ? styles.activeLink : ''}>
-              <Users size={16} /> Recursos Humanos</Link>
+            <Link href="/administrativo/colaboradores"
+              className= {pathname === '/administrativo/colaboradores' ? styles.activeLink : ''}>
+              <Users size={16}/> Colaboradores</Link>
           </li>
         </ul>
         )}
@@ -54,9 +54,9 @@ export function Sidebar() {
           <ul className={styles.submenu}>
             <li className={styles.navItem}>
 
-              <Link href="/comercial/relatorios"
-              className={pathname === '/comercial/relatorios' ? styles.activeLink : ''}>
-              <BarChart2 size={16} /> Relatórios
+              <Link href="/comercial/clientes"
+              className={pathname === '/comercial/clientes' ? styles.activeLink : ''}>
+              <BarChart2 size={16} /> Clientes
               </Link>
 
             </li>

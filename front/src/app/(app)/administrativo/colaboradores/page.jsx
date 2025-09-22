@@ -1,9 +1,12 @@
 'use client';
 import { useState, useMemo } from "react";
-
+import { Button, ButtonEstatico } from "@/components/ui/button";
 import { ColaboradorTable } from "@/features/administrativo/colaboradorTable";
 import { CardContent } from "@/components/ui/card";
- import { testeColaboradores } from "./listaColaboradores";
+import { testeColaboradores } from "./listaColaboradores";
+import styles from "./colaborador.module.css"
+import { UserRoundPlus } from "lucide-react";
+import Link from "next/link";
 
 
           
@@ -38,6 +41,11 @@ export default function PaginaRH() {
     <div>
       
       <CardContent>
+        <header className={styles.header}>
+          <Link href="/administrativo/colaboradores/novo">
+            <Button variant="add"><UserRoundPlus size={20}/>  Adicionar</Button>
+          </Link>
+        </header>
       <ColaboradorTable colaboradores={sortedColaboradores}
         requestSort={requestSort}
         sortConfig = {sortConfig}></ColaboradorTable>
