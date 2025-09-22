@@ -11,7 +11,7 @@ export function ColaboradorTable({colaboradores = [], requestSort, sortConfig}) 
         const router = useRouter();
         const handleRowClick = (colaboradorId) => {
     // Navega para a página de detalhes do colaborador correspondente
-        router.push(`/administrativo/recursos-humanos/${colaboradorId}`);
+        router.push(`/administrativo/colaboradores/${colaboradorId}`);
   };
 
     return(
