@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import styles from './sidebar.module.css';
-import {ClipboardList,Cog, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings } from 'lucide-react';
+import {ClipboardList,ListChecks,Cog, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
@@ -85,6 +85,12 @@ export function Sidebar() {
             <Link href="/operacional/formularios"
             className= {pathname === '/operacional/formularios' ? styles.activeLink : ''}>
               <ClipboardList size={16} /> Formulários</Link>
+          </li>
+
+          <li className={styles.navItem}>
+            <Link href="/operacional/checklist"
+            className= {pathname === '/operacional/checklist' ? styles.activeLink : ''}>
+              <ListChecks size={16} /> Checklist</Link>
           </li>
         </ul>
         )}
