@@ -52,22 +52,22 @@ export function Sidebar() {
           </button>
           {openMenu === 'comercial' &&(
           <ul className={styles.submenu}>
-            <li className={styles.navItem}>
 
+            <li className={styles.navItem}>
               <Link href="/comercial/clientes"
               className={pathname === '/comercial/clientes' ? styles.activeLink : ''}>
               <BarChart2 size={16} /> Clientes
               </Link>
-
             </li>
 
-            <li className={styles.navItem}>
+            {/* <li className={styles.navItem}>
               <Link
                href="/comercial/vendas"
                className={pathname === '/comercial/vendas' ? styles.activeLink : ''}>
                 <FileText size={16} /> Vendas
               </Link>
-            </li>
+            </li> */}
+
           </ul>
           )}
         </li>
@@ -80,12 +80,13 @@ export function Sidebar() {
         </button>
         {openMenu === 'operacional' && (
         <ul className={styles.submenu}>
-
+        {/*   
           <li className={styles.navItem}>
             <Link href="/operacional/formularios"
             className= {pathname === '/operacional/formularios' ? styles.activeLink : ''}>
               <ClipboardList size={16} /> Formulários</Link>
-          </li>
+          </li> 
+        */}
 
           <li className={styles.navItem}>
             <Link href="/operacional/checklist"

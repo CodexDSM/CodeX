@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Link from 'next/link';
 import {
   Select,
   SelectContent,
@@ -72,11 +73,6 @@ export default function LoginPage() {
     }
   };
 
-  // Função para testar o clique do botão de formulários
-  const handleFormulariosClick = () => {
-    console.log("Botão de formulários clicado! A tentar navegar para /operacional/checklist");
-    router.push('/operacional/checklist');
-  };
 
   return (
     <main className={styles.mainContainer}>
@@ -122,16 +118,16 @@ export default function LoginPage() {
                 {isLoading ? 'Entrando...' : 'Entrar'}
               </Button>
             </div>
+
+            <Link className={styles.buttonContainer} href="/agregados">
+              <Button
+                type="button"
+                variant="secondary"
+              >
+                Formulários
+              </Button>
+            </Link>
           </form>
-          <div className={styles.buttonContainer}>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleFormulariosClick}
-            >
-              Formulários
-            </Button>
-          </div>
         </div>
       </Card>
     </main>

@@ -1,15 +1,15 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { testeClientes } from './listaClientes';
 import styles from '../../../administrativo/colaboradores/[id]/detalhe.module.css'; 
 import { Edit, Save, XCircle } from 'lucide-react';
 
-
 // 2. Renomeia o componente para refletir que é sobre Clientes
 export default function DetalheClientePage({ params }) {
   const router = useRouter();
-  const clienteId = params.id;
+  const unwrappedParams = React.use(params);
+  const clienteId = unwrappedParams.id; 
     
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(null);
@@ -40,14 +40,14 @@ const handleEditClick = () => {
 
 const handleCancelClick = () => {
   setFormData(initialData); // Restaura os dados originais
-  setIsEditing(false); // Trava os campos novamente
+  setIsEditing(false); 
 };
 
 const handleSubmit = async (e) => {
   e.preventDefault();
   
   console.log("Salvando dados:", formData);
-  setInitialData(formData); // Atualiza o estado inicial com os novos dados
+  setInitialData(formData); 
   setIsEditing(false); 
   alert("Dados salvos com sucesso!");
 };
@@ -59,8 +59,6 @@ return (
     <form onSubmit={handleSubmit}>
       <div className={styles.header}>
         <h1 className={styles.nome}>Detalhes do Cliente</h1>
-        
-        {/* LÓGICA DOS BOTÕES */}
         {isEditing ? (
           <div className={styles.actionButtons}>
             <button type="button" onClick={handleCancelClick} className={styles.cancelButton}>
@@ -180,7 +178,6 @@ return (
                   value={formData.numero}
                   onChange={handleChange}
                   readOnly={!isEditing}
-                  required
                   className={styles.input}
                 />
               </div>
@@ -199,7 +196,7 @@ return (
               </div>
 
               <div className={styles.inputWrapper}>
-                <label className={styles.label}>Bairro *</label>
+                <label className={styles.label}>Bairro</label>
                 <input
                   name="bairro"
                   placeholder="Bairro"
@@ -211,7 +208,7 @@ return (
               </div>
 
               <div className={styles.inputWrapper}>
-                <label className={styles.label}>Cidade *</label>
+                <label className={styles.label}>Cidade</label>
                 <input
                   name="cidade"
                   placeholder="Cidade"

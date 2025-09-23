@@ -1,0 +1,24 @@
+.appContainer {
+  display: grid;
+  grid-template-columns: 1fr; 
+  width: 100%;
+  background-color: white;
+}
+
+
+.mainArea {
+  display: flex;    
+  flex-direction: column; 
+  overflow: hidden;
+  
+}
+
+
+.mainContent {
+  flex: 1;
+  padding: 20px;
+  background: #fff;
+  overflow-y: auto; 
+  position: sticky
+}
+

@@ -1,15 +1,17 @@
-'use client'
+"use client";
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { testeColaboradores } from "../listaColaboradores";
 import styles from './detalhe.module.css';
 import { Edit, Save, XCircle } from 'lucide-react';
+import React from 'react';
 
 
 
 export default function DetalheColaboradorPage({ params }) {
   const router = useRouter();
-  const colaboradorId = params.id;
+  const unwrappedParams = React.use(params);
+  const colaboradorId   = unwrappedParams.id;
     
   const [isEditing, setIsEditing] = useState(false);
 
