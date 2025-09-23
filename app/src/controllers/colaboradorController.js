@@ -5,11 +5,9 @@ const jwt = require('jsonwebtoken');
 class ColaboradorController {
   // Autentica um colaborador e gera um token JWT.
   async login(req, res, next) {
-    //DEBBUG TEMPORÁRIO!
-    //console.log('HEADERS RECEBIDOS:', req.headers);
     console.log('DADOS RECEBIDOS:', req.body);
     try {
-      let { cpf, senha } = req.body;
+      let { cpf, senha, local_trabalho } = req.body;
 
       if (cpf) {
         // Normaliza o CPF, removendo caracteres não numéricos
@@ -23,7 +21,6 @@ class ColaboradorController {
 
       // Checa se o colaborador existe.
       if (rows.length === 0) {
-        // TODO: Unificar as mensagens de erro de login para evitar dicas a invasores.
         return res.status(401).json({ message: 'CPF ou senha inválidos.' });
       }
 
@@ -33,6 +30,48 @@ class ColaboradorController {
 
       if (!senhaValida) {
         return res.status(401).json({ message: 'Credenciais inválidas.' });
+      }
+
+      // Registra localização com limite de 30
+      let localizacaoRegistrada = false;
+      if (local_trabalho) {
+        try {
+          // 1. Insere a nova localização
+          await pool.execute(
+            'INSERT INTO localizacao_colaborador (colaborador_id, tipo_localizacao) VALUES (?, ?)',
+            [colaborador.id, local_trabalho]
+          );
+
+          // Mantém apenas os últimos 30 registros
+          // Conta quantos registros existem para este colaborador
+          const [countResult] = await pool.execute(
+            'SELECT COUNT(*) as total FROM localizacao_colaborador WHERE colaborador_id = ?',
+            [colaborador.id]
+          );
+
+          const totalRegistros = countResult[0].total;
+
+          // Se passou de 30, remove os mais antigos
+          if (totalRegistros > 30) {
+            const registrosParaRemover = totalRegistros - 30;
+            
+            await pool.execute(`
+              DELETE FROM localizacao_colaborador 
+              WHERE colaborador_id = ? 
+              ORDER BY data_hora ASC 
+              LIMIT ?
+            `, [colaborador.id, registrosParaRemover]);
+
+            console.log(`Limpeza automática: removidos ${registrosParaRemover} registros antigos para colaborador ${colaborador.id}`);
+          }
+
+          localizacaoRegistrada = true;
+          console.log(`Localização registrada: ${local_trabalho} para colaborador ${colaborador.id}`);
+          console.log(`Total de localizações mantidas: ${Math.min(totalRegistros, 30)}`);
+          
+        } catch (localizacaoError) {
+          console.error('Erro ao registrar localização:', localizacaoError);
+        }
       }
 
       // Cria um token JWT com informações do usuário (payload).
@@ -48,10 +87,46 @@ class ColaboradorController {
 
       // Remove a senha do objeto para não expor no JSON de resposta.
       delete colaborador.senha;
-      res.json({ message: 'Login bem-sucedido', token, colaborador });
+      res.json({ 
+        message: 'Login bem-sucedido', 
+        token, 
+        colaborador,
+        localizacao_registrada: localizacaoRegistrada,
+        local_trabalho: local_trabalho || null
+      });
 
     } catch (error) {
       next({ status: 500, message: error.message });
+    }
+  }
+
+  //  Limpar localizações antigas (opcional)
+  async limparLocalizacoesAntigas(colaborador_id, limite = 30) {
+    try {
+      // Conta registros atuais
+      const [countResult] = await pool.execute(
+        'SELECT COUNT(*) as total FROM localizacao_colaborador WHERE colaborador_id = ?',
+        [colaborador_id]
+      );
+
+      const totalRegistros = countResult[0].total;
+
+      // Se passou do limite, remove os mais antigos
+      if (totalRegistros > limite) {
+        const registrosParaRemover = totalRegistros - limite;
+        
+        await pool.execute(`
+          DELETE FROM localizacao_colaborador 
+          WHERE colaborador_id = ? 
+          ORDER BY data_hora ASC 
+          LIMIT ?
+        `, [colaborador_id, registrosParaRemover]);
+
+        console.log(`Limpeza: removidos ${registrosParaRemover} registros antigos para colaborador ${colaborador_id}`);
+        console.log(`Mantidos ${limite} registros mais recentes`);
+      }
+    } catch (error) {
+      console.error('Erro na limpeza de localizações:', error);
     }
   }
 

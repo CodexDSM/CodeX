@@ -1,14 +1,15 @@
+-- =============================================
+-- SISTEMA DE GESTÃO NEWE - BANCO DE DADOS
+-- =============================================
+
 CREATE SCHEMA newe_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE newe_db;
 
 -- =============================================
--- Sistema de Gestão Newe - Banco de Dados
+-- TABELAS PRINCIPAIS
 -- =============================================
 
-
--- -----------------------------------------------------
--- Tabela: colaborador
--- -----------------------------------------------------
+-- Colaboradores (usuários do sistema)
 CREATE TABLE colaborador (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
@@ -31,9 +32,7 @@ CREATE TABLE colaborador (
     INDEX idx_ativo (ativo)
 );
 
--- -----------------------------------------------------
--- Tabela: cliente
--- -----------------------------------------------------
+-- Clientes
 CREATE TABLE cliente (
     id INT AUTO_INCREMENT PRIMARY KEY,
     tipo_pessoa ENUM('F', 'J') NOT NULL,
@@ -54,9 +53,7 @@ CREATE TABLE cliente (
     INDEX idx_tipo (tipo_pessoa)
 );
 
--- -----------------------------------------------------
--- Tabela: veiculo
--- -----------------------------------------------------
+-- Veículos da frota
 CREATE TABLE veiculo (
     id INT AUTO_INCREMENT PRIMARY KEY,
     placa CHAR(8) UNIQUE NOT NULL,
@@ -67,9 +64,11 @@ CREATE TABLE veiculo (
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- -----------------------------------------------------
--- Tabela: motorista
--- -----------------------------------------------------
+-- =============================================
+-- RELACIONAMENTOS
+-- =============================================
+
+-- Motoristas (especialização de colaborador)
 CREATE TABLE motorista (
     colaborador_id INT PRIMARY KEY,
     cnh VARCHAR(20) UNIQUE NOT NULL,
@@ -81,11 +80,8 @@ CREATE TABLE motorista (
     INDEX idx_veiculo (veiculo_id)
 );
 
--- -----------------------------------------------------
--- Tabela: agregados
--- -----------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS agregados (
+-- Motoristas terceirizados
+CREATE TABLE agregados (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome_motorista VARCHAR(255) NOT NULL,
     cnh VARCHAR(20) NOT NULL UNIQUE,
@@ -100,11 +96,27 @@ CREATE TABLE IF NOT EXISTS agregados (
     INDEX idx_email (email)
 );
 
--- -----------------------------------------------------
--- Tabela: frete
--- -----------------------------------------------------
+-- =============================================
+-- SISTEMA DE LOCALIZAÇÃO
+-- =============================================
 
-CREATE TABLE IF NOT EXISTS frete (
+-- Controle de presença dos colaboradores
+CREATE TABLE localizacao_colaborador (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    colaborador_id INT NOT NULL,
+    tipo_localizacao ENUM('Presencial', 'Home_Office', 'Evento', 'Treinamento') NOT NULL,
+    data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (colaborador_id) REFERENCES colaborador(id) ON DELETE CASCADE,
+    INDEX idx_colaborador_data (colaborador_id, data_hora DESC)
+);
+
+-- =============================================
+-- SISTEMA DE FRETES
+-- =============================================
+
+-- Fretes/transportes
+CREATE TABLE frete (
     id INT AUTO_INCREMENT PRIMARY KEY,
     codigo VARCHAR(20) UNIQUE NOT NULL,
     cliente_id INT NOT NULL,
@@ -133,7 +145,23 @@ CREATE TABLE IF NOT EXISTS frete (
     INDEX idx_datas (data_coleta, data_entrega_prevista)
 );
 
-CREATE TABLE IF NOT EXISTS interacao_cliente (
+-- Rastreamento GPS dos fretes
+CREATE TABLE rastreamento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    frete_id INT NOT NULL,
+    latitude DECIMAL(10,8) NOT NULL,
+    longitude DECIMAL(11,8) NOT NULL,
+    registrado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (frete_id) REFERENCES frete(id) ON DELETE CASCADE,
+    INDEX idx_frete_data (frete_id, registrado_em)
+);
+
+-- =============================================
+-- SISTEMA DE CRM
+-- =============================================
+
+-- Histórico de interações com clientes
+CREATE TABLE interacao_cliente (
     id INT AUTO_INCREMENT PRIMARY KEY,
     colaborador_id INT NOT NULL,
     cliente_id INT NOT NULL,
@@ -149,45 +177,83 @@ CREATE TABLE IF NOT EXISTS interacao_cliente (
     INDEX idx_data (data_interacao)
 );
 
--- -----------------------------------------------------
--- Tabela: rastreamento
--- -----------------------------------------------------
-CREATE TABLE rastreamento (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    frete_id INT NOT NULL,
-    latitude DECIMAL(10,8) NOT NULL,
-    longitude DECIMAL(11,8) NOT NULL,
-    registrado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (frete_id) REFERENCES frete(id) ON DELETE CASCADE,
-    INDEX idx_frete_data (frete_id, registrado_em)
+-- =============================================
+-- SISTEMA DE CHECKLIST
+-- =============================================
+
+-- Modelos de checklist
+CREATE TABLE checklist_templates (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(255) NOT NULL,
+    descricao TEXT,
+    ativo BOOLEAN DEFAULT TRUE,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- -----------------------------------------------------
--- Dados iniciais
--- -----------------------------------------------------
-INSERT INTO colaborador (nome, cpf, email, senha, telefone, perfil, logradouro, numero, bairro, cidade, uf, cep) 
-VALUES ('Administrador', '000.000.000-00', 'admin@sistema.com', '$2b$10$uOVrky6BPwQizQeswoPAXe0ZWXUtR95/umE.cAttVOSNBODLtOyqq', '11999999999', 'Administrador', 'Rua Sistema', '1', 'Centro', 'São Paulo', 'SP', '01000-000');
+-- Banco de perguntas
+CREATE TABLE checklist_perguntas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    texto_pergunta VARCHAR(255) NOT NULL,
+    tipo_pergunta ENUM('TEXTO', 'TEXTO_LONGO', 'NUMERO', 'SIM_NAO', 'DATA', 'ARQUIVO') NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE
+);
 
--- -----------------------------------------------------
--- View: resumo de fretes
--- -----------------------------------------------------
+-- Relacionamento template-pergunta
+CREATE TABLE template_perguntas (
+    template_id INT NOT NULL,
+    pergunta_id INT NOT NULL,
+    ordem_exibicao INT,
+    obrigatoria BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY (template_id, pergunta_id),
+    FOREIGN KEY (template_id) REFERENCES checklist_templates(id) ON DELETE CASCADE,
+    FOREIGN KEY (pergunta_id) REFERENCES checklist_perguntas(id) ON DELETE CASCADE
+);
+
+-- Registros preenchidos
+CREATE TABLE registros_checklist (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    template_id INT NOT NULL,
+    colaborador_id INT NOT NULL,
+    data_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ativo_relacionado_id VARCHAR(255),
+    FOREIGN KEY (template_id) REFERENCES checklist_templates(id),
+    FOREIGN KEY (colaborador_id) REFERENCES colaborador(id)
+);
+
+-- Respostas dos checklists
+CREATE TABLE checklist_respostas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    registro_id INT NOT NULL,
+    pergunta_id INT NOT NULL,
+    valor_resposta TEXT,
+    FOREIGN KEY (registro_id) REFERENCES registros_checklist(id) ON DELETE CASCADE,
+    FOREIGN KEY (pergunta_id) REFERENCES checklist_perguntas(id)
+);
+
+-- Arquivos anexados
+CREATE TABLE registros_anexos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    registro_id INT NOT NULL,
+    caminho_arquivo VARCHAR(255) NOT NULL,
+    nome_original_arquivo VARCHAR(255),
+    enviado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (registro_id) REFERENCES registros_checklist(id) ON DELETE CASCADE
+);
+
+-- =============================================
+-- VIEW PARA RELATÓRIOS
+-- =============================================
+
+-- Resumo completo dos fretes
 CREATE VIEW vw_resumo_fretes AS
 SELECT 
-    f.id,
-    f.codigo,
-    c.nome AS cliente,
-    c.documento,
-    col.nome AS responsavel,
-    COALESCE(m.colaborador_id, 0) AS motorista_id,
+    f.id, f.codigo, c.nome AS cliente, c.documento,
+    col.nome AS responsavel, COALESCE(m.colaborador_id, 0) AS motorista_id,
     COALESCE(mot.nome, 'Não atribuído') AS motorista,
-    COALESCE(v.placa, 'Sem veículo') AS veiculo,
-    f.status,
+    COALESCE(v.placa, 'Sem veículo') AS veiculo, f.status,
     CONCAT(f.origem_cidade, '/', f.origem_uf) AS origem,
     CONCAT(f.destino_cidade, '/', f.destino_uf) AS destino,
-    f.valor,
-    f.data_coleta,
-    f.data_entrega_prevista,
-    f.data_entrega
+    f.valor, f.data_coleta, f.data_entrega_prevista, f.data_entrega
 FROM frete f
 JOIN cliente c ON f.cliente_id = c.id
 JOIN colaborador col ON f.colaborador_id = col.id
@@ -195,114 +261,40 @@ LEFT JOIN motorista m ON f.motorista_id = m.colaborador_id
 LEFT JOIN colaborador mot ON m.colaborador_id = mot.id
 LEFT JOIN veiculo v ON f.veiculo_id = v.id;
 
-SELECT * FROM COLABORADOR;
+-- =============================================
+-- DADOS INICIAIS
+-- =============================================
 
-INSERT INTO colaborador (
-    nome, cpf, email, senha, telefone, perfil, 
-    logradouro, numero, bairro, cidade, uf, cep
-) 
-VALUES (
-    'Administrador 2',
-    '000.000.000-01',
-    'admin1@sistema.com',
-    '$2b$10$uOVrky6BPwQizQeswoPAXe0ZWXUtR95/umE.cAttVOSNBODLtOyqq',
-    '12999999999',
-    'Administrador',
-    'Rua Sistema 2', '11', 'Ceentro', 'São Paulo', 'SP', '11000-000'
-);
+-- Colaboradores administradores
+INSERT INTO colaborador (nome, cpf, email, senha, telefone, perfil, logradouro, numero, bairro, cidade, uf, cep) 
+VALUES 
+('Administrador', '000.000.000-00', 'admin@sistema.com', '$2b$10$uOVrky6BPwQizQeswoPAXe0ZWXUtR95/umE.cAttVOSNBODLtOyqq', '11999999999', 'Administrador', 'Rua Sistema', '1', 'Centro', 'São Paulo', 'SP', '01000-000'),
+('Administrador 2', '000.000.000-01', 'admin1@sistema.com', '$2b$10$uOVrky6BPwQizQeswoPAXe0ZWXUtR95/umE.cAttVOSNBODLtOyqq', '12999999999', 'Administrador', 'Rua Sistema 2', '11', 'Centro', 'São Paulo', 'SP', '11000-000');
 
-
-
-CREATE TABLE checklist_templates (
-id INT PRIMARY KEY AUTO_INCREMENT,
-nome VARCHAR(255) NOT NULL,
-descricao TEXT,
-ativo BOOLEAN DEFAULT TRUE,
-criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE checklist_perguntas (
-id INT PRIMARY KEY AUTO_INCREMENT,
-texto_pergunta VARCHAR(255) NOT NULL,
-tipo_pergunta ENUM('TEXTO', 'TEXTO_LONGO', 'NUMERO', 'SIM_NAO', 'DATA', 'ARQUIVO') NOT NULL,
-ativo BOOLEAN DEFAULT TRUE
-);
-
-CREATE TABLE template_perguntas (
-template_id INT NOT NULL,
-pergunta_id INT NOT NULL,
-ordem_exibicao INT,
-obrigatoria BOOLEAN DEFAULT FALSE,
-PRIMARY KEY (template_id, pergunta_id),
-FOREIGN KEY (template_id) REFERENCES checklist_templates(id) ON DELETE CASCADE,
-FOREIGN KEY (pergunta_id) REFERENCES checklist_perguntas(id) ON DELETE CASCADE
-);
-
-CREATE TABLE registros_checklist (
-id INT PRIMARY KEY AUTO_INCREMENT,
-template_id INT NOT NULL,
-colaborador_id INT NOT NULL,
-data_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-ativo_relacionado_id VARCHAR(255), -- Ex: A placa de um carro 'ABC-1234'
-FOREIGN KEY (template_id) REFERENCES checklist_templates(id),
-FOREIGN KEY (colaborador_id) REFERENCES colaborador(id)
-);
-
-
-CREATE TABLE checklist_respostas (
-id INT PRIMARY KEY AUTO_INCREMENT,
-registro_id INT NOT NULL,
-pergunta_id INT NOT NULL,
-valor_resposta TEXT,
-FOREIGN KEY (registro_id) REFERENCES registros_checklist(id) ON DELETE CASCADE,
-FOREIGN KEY (pergunta_id) REFERENCES checklist_perguntas(id)
-);
-
-CREATE TABLE registros_anexos (
-id INT PRIMARY KEY AUTO_INCREMENT,
-registro_id INT NOT NULL,
-caminho_arquivo VARCHAR(255) NOT NULL,
-nome_original_arquivo VARCHAR(255),
-enviado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (registro_id) REFERENCES registros_checklist(id) ON DELETE CASCADE
-);
-
-
--- INSERÇÃO DE DADOS INICIAIS
-
+-- Templates de checklist
 INSERT INTO checklist_templates (id, nome, descricao) VALUES
-(1, 'Checklist Diário - Frota Newe', 'Checklist para ser preenchido diariamente pelos motoristas da frota própria.'),
-(2, 'Formulário de Abertura', 'Procedimentos para a abertura diária da empresa.'),
-(3, 'Formulário de Fechamento', 'Procedimentos para o fechamento diário da empresa.'),
-(4, 'Formulário de Manutenção Predial', 'Verificação periódica das condições do local de trabalho.');
+(1, 'Checklist Diário - Frota Newe', 'Checklist para motoristas da frota própria'),
+(2, 'Formulário de Abertura', 'Procedimentos de abertura diária'),
+(3, 'Formulário de Fechamento', 'Procedimentos de fechamento diário'),
+(4, 'Formulário de Manutenção Predial', 'Verificação das condições prediais');
 
+-- Perguntas do checklist
 INSERT INTO checklist_perguntas (id, texto_pergunta, tipo_pergunta) VALUES
-(1, 'Nome do Motorista', 'TEXTO'),
-(2, 'Placa do Veículo', 'TEXTO'),
-(3, 'Data do Check-List', 'DATA'),
-(4, 'KM Inicial', 'NUMERO'),
-(5, 'Destino', 'TEXTO'),
-(6, 'KM Final', 'NUMERO'),
-(7, 'Teve Abastecimento?', 'SIM_NAO'),
-(8, 'Comprovante de abastecimento Enviado para gerência?', 'SIM_NAO'),
-(9, 'Óleo do Motor ok?', 'SIM_NAO'),
-(10, 'Reservatório de Água ok?', 'SIM_NAO'),
-(11, 'Sistema Elétrico ok?', 'SIM_NAO'),
-(12, 'Estado dos Pneus ok?', 'SIM_NAO'),
-(13, 'Limpeza Baú/Sider/Cabine ok?', 'SIM_NAO'),
-(14, 'Observações que sejam pertinentes', 'TEXTO_LONGO'),
-(15, 'Anexar Fotos', 'ARQUIVO'),
-(16, 'Quem está preenchendo?', 'TEXTO'),
-(17, 'Data de abertura da empresa?', 'DATA'),
-(18, 'Abriu cadeado das correntes (FRENTE DA EMPRESA)?', 'SIM_NAO'),
-(19, 'Desbloqueou o alarme?', 'SIM_NAO'),
-(20, 'Ligou TV (CAMERAS)?', 'SIM_NAO'),
-(21, 'Coletou chaves internas no chaveiro?', 'SIM_NAO'),
-(22, 'Removeu cadeado portão 1?', 'SIM_NAO'),
-(23, 'Posicionou cone no estacionamento PCD?', 'SIM_NAO'),
-(24, 'Fez café do dia?', 'SIM_NAO'),
-(25, 'Houve alguma situação atípica?', 'TEXTO_LONGO');
+(1, 'Nome do Motorista', 'TEXTO'), (2, 'Placa do Veículo', 'TEXTO'),
+(3, 'Data do Check-List', 'DATA'), (4, 'KM Inicial', 'NUMERO'),
+(5, 'Destino', 'TEXTO'), (6, 'KM Final', 'NUMERO'),
+(7, 'Teve Abastecimento?', 'SIM_NAO'), (8, 'Comprovante enviado?', 'SIM_NAO'),
+(9, 'Óleo do Motor ok?', 'SIM_NAO'), (10, 'Reservatório de Água ok?', 'SIM_NAO'),
+(11, 'Sistema Elétrico ok?', 'SIM_NAO'), (12, 'Estado dos Pneus ok?', 'SIM_NAO'),
+(13, 'Limpeza ok?', 'SIM_NAO'), (14, 'Observações', 'TEXTO_LONGO'),
+(15, 'Anexar Fotos', 'ARQUIVO'), (16, 'Quem está preenchendo?', 'TEXTO'),
+(17, 'Data de abertura?', 'DATA'), (18, 'Abriu cadeado?', 'SIM_NAO'),
+(19, 'Desbloqueou alarme?', 'SIM_NAO'), (20, 'Ligou TV?', 'SIM_NAO'),
+(21, 'Coletou chaves?', 'SIM_NAO'), (22, 'Removeu cadeado portão?', 'SIM_NAO'),
+(23, 'Posicionou cone PCD?', 'SIM_NAO'), (24, 'Fez café?', 'SIM_NAO'),
+(25, 'Situação atípica?', 'TEXTO_LONGO');
 
+-- Relacionamentos template-pergunta
 INSERT INTO template_perguntas (template_id, pergunta_id, ordem_exibicao, obrigatoria) VALUES
 (1, 1, 10, true), (1, 2, 20, true), (1, 3, 30, true), (1, 4, 40, true),
 (1, 5, 50, true), (1, 6, 60, true), (1, 7, 70, false), (1, 8, 80, false),
@@ -312,4 +304,5 @@ INSERT INTO template_perguntas (template_id, pergunta_id, ordem_exibicao, obriga
 (2, 20, 50, true), (2, 21, 60, true), (2, 22, 70, true), (2, 23, 80, false),
 (2, 24, 90, true), (2, 25, 100, false);
 
-
+-- Verificação
+SELECT 'Banco Newe criado com sucesso!' as status;

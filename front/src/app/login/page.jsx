@@ -17,15 +17,15 @@ export default function LoginPage() {
   const router = useRouter();
   const [cpf, setCpf] = useState('');
   const [senha, setSenha] = useState('');
-  const [localTrabalho, setLocalTrabalho] = useState('presencial');
+  const [localTrabalho, setLocalTrabalho] = useState('Presencial'); 
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const locaisSelect = [
-    { value: 'presencial', label: 'Presencial' },
-    { value: 'home_Office', label: 'Home Office' },
-    { value: 'evento', label: 'Evento' },
-    { value: 'treinamento', label: 'Treinamento' }
+    { value: 'Presencial', label: 'Presencial' },
+    { value: 'Home_Office', label: 'Home Office' },
+    { value: 'Evento', label: 'Evento' },
+    { value: 'Treinamento', label: 'Treinamento' }
   ];
 
   const handleCpfChange = (event) => {
@@ -47,7 +47,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           cpf: cpf.trim(),
           senha: senha.trim(),
-          localTrabalho: localTrabalho,
+          local_trabalho: localTrabalho, // ✅ CORREÇÃO 3: Nome do campo ajustado
         }),
       });
 
@@ -55,7 +55,15 @@ export default function LoginPage() {
 
       if (!response.ok) throw new Error(data.message || 'Ocorreu um erro desconhecido.');
 
+      // ✅ MELHORIA: Salva mais informações do colaborador
       localStorage.setItem('authToken', data.token);
+      localStorage.setItem('colaborador', JSON.stringify(data.colaborador));
+      
+      // ✅ LOG: Para debug - mostra se a localização foi registrada
+      if (data.localizacao_registrada) {
+        console.log(`✅ Localização registrada: ${data.local_trabalho}`);
+      }
+
       router.push('/administrativo/colaboradores');
     } catch (err) {
       setError(err.message);
@@ -74,7 +82,6 @@ export default function LoginPage() {
     <main className={styles.mainContainer}>
       <Card>
         <div className={styles.contentWrapper}>
-          {/* O formulário agora contém apenas a lógica de login */}
           <form onSubmit={handleLogin}>
             <h1 className={styles.title}>Login de Colaborador</h1>
             <Input
@@ -117,17 +124,16 @@ export default function LoginPage() {
             </div>
           </form>
           <div className={styles.buttonContainer}>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleFormulariosClick}
-              >
-                Formulários
-              </Button>
-            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleFormulariosClick}
+            >
+              Formulários
+            </Button>
           </div>
+        </div>
       </Card>
     </main>
   );
 }
-

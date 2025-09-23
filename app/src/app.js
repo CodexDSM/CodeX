@@ -13,6 +13,7 @@ const rastreamentoRoutes = require('./routes/rastreamentoRoutes');
 const interactionRoutes = require('./routes/interactionRoutes');
 const checklistRoutes = require('./routes/checklistRoutes');
 const agregadosRoutes = require('./routes/agregadosRoutes');
+const localizacaoRoutes = require('./routes/localizacaoRoutes');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use('/api/rastreamento', rastreamentoRoutes);
 app.use('/api', interactionRoutes);
 app.use(checklistRoutes);
 app.use('/api', agregadosRoutes);
+app.use('/api/localizacoes', localizacaoRoutes);
 
 // Rota de teste para verificar se a API está online
 app.get('/api/health', (req, res) => {

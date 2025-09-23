@@ -1,372 +1,464 @@
-## Autenticação
+Autenticação
+Login de Colaborador (com Localização)
 
-* **Login de Colaborador**
-    * `POST http://localhost:3001/api/colaboradores/login`
-    * **Formulário (JSON):**
-        ```json
+POST http://localhost:3001/api/colaboradores/login
+
+Formulário (JSON):
+
+json
+{
+  "cpf": "123.456.789-00",
+  "senha": "password",
+  "local_trabalho": "Presencial"
+}
+Parâmetro local_trabalho opcional. Valores válidos: "Presencial", "Home_Office", "Evento", "Treinamento".
+
+Sistema mantém automaticamente apenas os últimos 30 registros por colaborador.
+
+--X--
+
+Colaboradores
+Listar Colaboradores
+
+GET http://localhost:3001/api/colaboradores?ativo=true&perfil=Operador
+
+Parâmetros opcionais na URL (query params): ativo (true/false), perfil (ex: 'Operador').
+
+Buscar Colaborador por ID
+
+GET http://localhost:3001/api/colaboradores/:id
+
+Cadastrar Colaborador
+
+POST http://localhost:3001/api/colaboradores
+
+Formulário (JSON):
+
+json
+{
+  "nome": "José",
+  "cpf": "123.456.789-99",
+  "email": "jose@empresa.com",
+  "senha": "123456",
+  "telefone": "1199999999",
+  "perfil": "Operador",
+  "logradouro": "Rua Teste",
+  "numero": "10",
+  "complemento": "Apto 1",
+  "bairro": "Centro",
+  "cidade": "São Paulo",
+  "uf": "SP",
+  "cep": "01000-000"
+}
+Atualizar Colaborador
+
+PUT http://localhost:3001/api/colaboradores/:id
+
+Formulário (JSON):
+
+json
+{
+  "nome": "José da Silva",
+  "telefone": "11988887777",
+  "perfil": "Gerente",
+  "ativo": true,
+  "logradouro": "Rua Nova",
+  "numero": "15",
+  "complemento": null,
+  "bairro": "Vila Nova",
+  "cidade": "São Paulo",
+  "uf": "SP",
+  "cep": "01001-000"
+}
+Alterar Senha
+
+PATCH http://localhost:3001/api/colaboradores/:id/change-password
+
+Formulário (JSON):
+
+json
+{
+  "senhaAtual": "123456",
+  "novaSenha": "nova_senha_123"
+}
+Desativar Colaborador (Soft Delete)
+
+DELETE http://localhost:3001/api/colaboradores/:id
+
+--X--
+
+Localizações
+Registrar Localização Manualmente
+
+POST http://localhost:3001/api/localizacoes/
+
+Headers: Authorization: Bearer TOKEN
+
+Formulário (JSON):
+
+json
+{
+  "colaborador_id": 1,
+  "tipo_localizacao": "Home_Office"
+}
+Valores válidos para tipo_localizacao: "Presencial", "Home_Office", "Evento", "Treinamento".
+
+Buscar Localização Atual do Colaborador
+
+GET http://localhost:3001/api/localizacoes/colaborador/:colaborador_id/atual
+
+Headers: Authorization: Bearer TOKEN
+
+Listar Histórico de Localizações (Últimas 30)
+
+GET http://localhost:3001/api/localizacoes/colaborador/:colaborador_id/historico
+
+Headers: Authorization: Bearer TOKEN
+
+Listar Todas as Localizações (Admin/Gerente)
+
+GET http://localhost:3001/api/localizacoes/?tipo_localizacao=Presencial&data_inicio=2025-09-01&data_fim=2025-09-30
+
+Headers: Authorization: Bearer TOKEN
+
+Parâmetros opcionais: tipo_localizacao, data_inicio, data_fim. Limitado a 100 registros.
+
+Acesso restrito a perfis: Administrador e Gerente.
+
+Estatísticas de Localizações Atuais (Admin/Gerente)
+
+GET http://localhost:3001/api/localizacoes/estatisticas
+
+Headers: Authorization: Bearer TOKEN
+
+--X--
+
+Clientes
+Listar Clientes
+
+GET http://localhost:3001/api/clientes?tipo_pessoa=F&ativo=true
+
+Parâmetros opcionais: tipo_pessoa ('F' ou 'J'), ativo (true/false).
+
+Buscar Cliente por ID
+
+GET http://localhost:3001/api/clientes/:id
+
+Buscar Cliente por Documento
+
+GET http://localhost:3001/api/clientes/documento/:documento
+
+Criar Cliente
+
+POST http://localhost:3001/api/clientes
+
+Formulário (JSON):
+
+json
+{
+  "tipo_pessoa": "F",
+  "nome": "Maria",
+  "documento": "123.456.789-00",
+  "email": "maria@email.com",
+  "telefone": "11987654321",
+  "logradouro": "Av Brasil",
+  "numero": "200",
+  "complemento": "Sala 10",
+  "bairro": "Bairro Azul",
+  "cidade": "São Paulo",
+  "uf": "SP",
+  "cep": "02000-000"
+}
+Atualizar Cliente
+
+PUT http://localhost:3001/api/clientes/:id
+
+Formulário (JSON):
+
+json
+{
+  "nome": "Maria de Sousa",
+  "email": "maria.sousa@email.com",
+  "telefone": "11987654322",
+  "ativo": true,
+  "logradouro": "Avenida Brasil",
+  "numero": "210",
+  "complemento": "",
+  "bairro": "Bairro Azul",
+  "cidade": "São Paulo",
+  "uf": "SP",
+  "cep": "02000-000"
+}
+Desativar Cliente (Soft Delete)
+
+DELETE http://localhost:3001/api/clientes/:id
+
+Listar Interações do Cliente
+
+GET http://localhost:3001/api/clientes/:clientId/interactions
+
+Criar Interação para Cliente
+
+POST http://localhost:3001/api/clientes/:clientId/interactions
+
+Formulário (JSON):
+
+json
+{
+  "tipo_interacao": "Ligação",
+  "data_interacao": "2025-09-17T11:00:00Z",
+  "assunto": "Proposta de frete",
+  "detalhes": "Cliente solicitou cotação para transporte de carga pesada."
+}
+--X--
+
+Agregados
+Cadastrar Agregado (Público)
+
+POST http://localhost:3001/api/public/agregados
+
+Formulário (JSON):
+
+json
+{
+  "nome_motorista": "José da Silva",
+  "cnh": "12345678901",
+  "placa_veiculo": "ABC1D23",
+  "modelo_veiculo": "Scania R450",
+  "telefone": "11987654321",
+  "email": "jose.agregado@email.com"
+}
+Listar Agregados
+
+GET http://localhost:3001/api/agregados?page=1&limit=10&search=jose
+
+Parâmetros opcionais: page, limit, search.
+
+Buscar Agregado por ID
+
+GET http://localhost:3001/api/agregados/:id
+
+--X--
+
+Veículos
+Listar Veículos
+
+GET http://localhost:3001/api/veiculos?disponivel=true&tipo=Caminhão
+
+Parâmetros opcionais: disponivel (true/false), tipo (ex: 'Caminhão').
+
+Buscar Veículo por ID
+
+GET http://localhost:3001/api/veiculos/:id
+
+Buscar Veículo por Placa
+
+GET http://localhost:3001/api/veiculos/placa/:placa
+
+Criar Veículo
+
+POST http://localhost:3001/api/veiculos
+
+Formulário (JSON):
+
+json
+{
+  "placa": "XYZ-1234",
+  "modelo": "Mercedes Atego",
+  "capacidade_kg": 12000,
+  "tipo": "Caminhão"
+}
+Atualizar Veículo
+
+PUT http://localhost:3001/api/veiculos/:id
+
+Formulário (JSON):
+
+json
+{
+  "modelo": "Mercedes-Benz Atego 2426",
+  "capacidade_kg": 12500,
+  "tipo": "Caminhão Truck",
+  "disponivel": true
+}
+Deletar Veículo
+
+DELETE http://localhost:3001/api/veiculos/:id
+
+--X--
+
+Motoristas
+Listar Motoristas
+
+GET http://localhost:3001/api/motoristas
+
+Listar Motoristas Disponíveis
+
+GET http://localhost:3001/api/motoristas/disponiveis
+
+Buscar Motorista por ID (Colaborador)
+
+GET http://localhost:3001/api/motoristas/:id
+
+Criar Motorista
+
+POST http://localhost:3001/api/motoristas
+
+Formulário (JSON):
+
+json
+{
+  "colaborador_id": 2,
+  "cnh": "12345678900",
+  "categoria_cnh": "E",
+  "validade_cnh": "2026-12-31",
+  "veiculo_id": 1
+}
+Atualizar Motorista
+
+PUT http://localhost:3001/api/motoristas/:id
+
+Formulário (JSON):
+
+json
+{
+  "cnh": "00987654321",
+  "categoria_cnh": "AE",
+  "validade_cnh": "2028-12-31",
+  "veiculo_id": 2
+}
+Deletar Motorista
+
+DELETE http://localhost:3001/api/motoristas/:id
+
+--X--
+
+Fretes
+Listar Fretes
+
+GET http://localhost:3001/api/fretes?status=Transito&data_inicio=2025-01-01&data_fim=2025-12-31
+
+Parâmetros opcionais: status, cliente_id, motorista_id, data_inicio, data_fim.
+
+Buscar Frete por ID
+
+GET http://localhost:3001/api/fretes/:id
+
+Buscar Frete por Código
+
+GET http://localhost:3001/api/fretes/codigo/:codigo
+
+Criar Frete
+
+POST http://localhost:3001/api/fretes
+
+Formulário (JSON):
+
+json
+{
+  "cliente_id": 1,
+  "motorista_id": 2,
+  "veiculo_id": 1,
+  "origem_cidade": "São Paulo",
+  "origem_uf": "SP",
+  "destino_cidade": "Rio de Janeiro",
+  "destino_uf": "RJ",
+  "distancia_km": 450,
+  "valor": 2000.50,
+  "peso_kg": 5000,
+  "data_coleta": "2025-09-10",
+  "data_entrega_prevista": "2025-09-12",
+  "observacoes": "Carga frágil"
+}
+Atualizar Frete
+
+PUT http://localhost:3001/api/fretes/:id
+
+Formulário (JSON):
+
+json
+{
+  "motorista_id": 2,
+  "veiculo_id": 1,
+  "status": "Transito",
+  "distancia_km": 455,
+  "valor": 2100.00,
+  "peso_kg": 5100,
+  "data_entrega_prevista": "2025-09-13",
+  "data_entrega": null,
+  "observacoes": "Carga frágil. Cuidado extra."
+}
+Atualizar Status do Frete
+
+PATCH http://localhost:3001/api/fretes/:id/status
+
+Formulário (JSON):
+
+json
+{
+  "status": "Entregue"
+}
+Relatório de Fretes
+
+GET http://localhost:3001/api/fretes/relatorio?data_inicio=2025-01-01&data_fim=2025-12-31
+
+--X--
+
+Rastreamento
+Rastreamento Público por Código
+
+GET http://localhost:3001/api/rastreamento/publico/:codigo
+
+Listar Posições do Frete
+
+GET http://localhost:3001/api/rastreamento/frete/:frete_id
+
+Última Posição do Frete
+
+GET http://localhost:3001/api/rastreamento/frete/:frete_id/ultima
+
+Registrar Posição do Frete
+
+POST http://localhost:3001/api/rastreamento/frete/:frete_id
+
+Formulário (JSON):
+
+json
+{
+  "latitude": -23.550520,
+  "longitude": -46.633308
+}
+--X--
+
+Checklist
+Upload de Anexo
+
+POST http://localhost:3001/api/checklist/upload
+
+O corpo da requisição deve ser do tipo multipart/form-data, não JSON.
+
+Salvar Registro de Checklist
+
+POST http://localhost:3001/api/checklist/salvar
+
+Formulário (JSON):
+
+json
+{
+    "template_id": 1,
+    "colaborador_id": 2,
+    "ativo_relacionado_id": 5,
+    "respostas": [
         {
-          "cpf": "123.456.789-00",
-          "senha": "password"
-        }
-        ```
-
----
-
-## Colaboradores
-
-* **Listar Colaboradores**
-    * `GET http://localhost:3001/api/colaboradores?ativo=true&perfil=Operador`
-    * *Parâmetros opcionais na URL (query params): `ativo` (true/false), `perfil` (ex: 'Operador').*
-
-* **Buscar Colaborador por ID**
-    * `GET http://localhost:3001/api/colaboradores/:id`
-
-* **Cadastrar Colaborador**
-    * `POST http://localhost:3001/api/colaboradores`
-    * **Formulário (JSON):**
-        ```json
+            "pergunta_id": 101,
+            "valor_resposta": "Conforme"
+        },
         {
-          "nome": "José",
-          "cpf": "123.456.789-99",
-          "email": "jose@empresa.com",
-          "senha": "123456",
-          "telefone": "1199999999",
-          "perfil": "Operador",
-          "logradouro": "Rua Teste",
-          "numero": "10",
-          "complemento": "Apto 1",
-          "bairro": "Centro",
-          "cidade": "São Paulo",
-          "uf": "SP",
-          "cep": "01000-000"
+            "pergunta_id": 102,
+            "valor_resposta": "Não Conforme"
         }
-        ```
-
-* **Atualizar Colaborador**
-    * `PUT http://localhost:3001/api/colaboradores/:id`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "nome": "José da Silva",
-          "telefone": "11988887777",
-          "perfil": "Gerente",
-          "ativo": true,
-          "logradouro": "Rua Nova",
-          "numero": "15",
-          "complemento": null,
-          "bairro": "Vila Nova",
-          "cidade": "São Paulo",
-          "uf": "SP",
-          "cep": "01001-000"
-        }
-        ```
-
-* **Alterar Senha**
-    * `PATCH http://localhost:3001/api/colaboradores/:id/change-password`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "senhaAtual": "123456",
-          "novaSenha": "nova_senha_123"
-        }
-        ```
-
-* **Desativar Colaborador (Soft Delete)**
-    * `DELETE http://localhost:3001/api/colaboradores/:id`
-
----
-
-## Clientes
-
-* **Listar Clientes**
-    * `GET http://localhost:3001/api/clientes?tipo_pessoa=F&ativo=true`
-    * *Parâmetros opcionais: `tipo_pessoa` ('F' ou 'J'), `ativo` (true/false).*
-
-* **Buscar Cliente por ID**
-    * `GET http://localhost:3001/api/clientes/:id`
-
-* **Buscar Cliente por Documento**
-    * `GET http://localhost:3001/api/clientes/documento/:documento`
-
-* **Criar Cliente**
-    * `POST http://localhost:3001/api/clientes`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "tipo_pessoa": "F",
-          "nome": "Maria",
-          "documento": "123.456.789-00",
-          "email": "maria@email.com",
-          "telefone": "11987654321",
-          "logradouro": "Av Brasil",
-          "numero": "200",
-          "complemento": "Sala 10",
-          "bairro": "Bairro Azul",
-          "cidade": "São Paulo",
-          "uf": "SP",
-          "cep": "02000-000"
-        }
-        ```
-
-* **Atualizar Cliente**
-    * `PUT http://localhost:3001/api/clientes/:id`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "nome": "Maria de Sousa",
-          "email": "maria.sousa@email.com",
-          "telefone": "11987654322",
-          "ativo": true,
-          "logradouro": "Avenida Brasil",
-          "numero": "210",
-          "complemento": "",
-          "bairro": "Bairro Azul",
-          "cidade": "São Paulo",
-          "uf": "SP",
-          "cep": "02000-000"
-        }
-        ```
-
-* **Desativar Cliente (Soft Delete)**
-    * `DELETE http://localhost:3001/api/clientes/:id`
-
-* **Listar Interações do Cliente**
-    * `GET http://localhost:3001/api/clientes/:clientId/interactions`
-
-* **Criar Interação para Cliente**
-    * `POST http://localhost:3001/api/clientes/:clientId/interactions`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "tipo_interacao": "Ligação",
-          "data_interacao": "2025-09-17T11:00:00Z",
-          "assunto": "Proposta de frete",
-          "detalhes": "Cliente solicitou cotação para transporte de carga pesada."
-        }
-        ```
-
----
-
-## Agregados
-
-* **Cadastrar Agregado (Público)**
-    * `POST http://localhost:3001/api/public/agregados`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "nome_motorista": "José da Silva",
-          "cnh": "12345678901",
-          "placa_veiculo": "ABC1D23",
-          "modelo_veiculo": "Scania R450",
-          "telefone": "11987654321",
-          "email": "jose.agregado@email.com"
-        }
-        ```
-
-* **Listar Agregados**
-    * `GET http://localhost:3001/api/agregados?page=1&limit=10&search=jose`
-    * *Parâmetros opcionais: `page`, `limit`, `search`.*
-
-* **Buscar Agregado por ID**
-    * `GET http://localhost:3001/api/agregados/:id`
-
----
-
-## Veículos
-
-* **Listar Veículos**
-    * `GET http://localhost:3001/api/veiculos?disponivel=true&tipo=Caminhão`
-    * *Parâmetros opcionais: `disponivel` (true/false), `tipo` (ex: 'Caminhão').*
-
-* **Buscar Veículo por ID**
-    * `GET http://localhost:3001/api/veiculos/:id`
-
-* **Buscar Veículo por Placa**
-    * `GET http://localhost:3001/api/veiculos/placa/:placa`
-
-* **Criar Veículo**
-    * `POST http://localhost:3001/api/veiculos`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "placa": "XYZ-1234",
-          "modelo": "Mercedes Atego",
-          "capacidade_kg": 12000,
-          "tipo": "Caminhão"
-        }
-        ```
-
-* **Atualizar Veículo**
-    * `PUT http://localhost:3001/api/veiculos/:id`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "modelo": "Mercedes-Benz Atego 2426",
-          "capacidade_kg": 12500,
-          "tipo": "Caminhão Truck",
-          "disponivel": true
-        }
-        ```
-
-* **Deletar Veículo**
-    * `DELETE http://localhost:3001/api/veiculos/:id`
-
----
-
-## Motoristas
-
-* **Listar Motoristas**
-    * `GET http://localhost:3001/api/motoristas`
-
-* **Listar Motoristas Disponíveis**
-    * `GET http://localhost:3001/api/motoristas/disponiveis`
-
-* **Buscar Motorista por ID (Colaborador)**
-    * `GET http://localhost:3001/api/motoristas/:id`
-
-* **Criar Motorista**
-    * `POST http://localhost:3001/api/motoristas`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "colaborador_id": 2,
-          "cnh": "12345678900",
-          "categoria_cnh": "E",
-          "validade_cnh": "2026-12-31",
-          "veiculo_id": 1
-        }
-        ```
-
-* **Atualizar Motorista**
-    * `PUT http://localhost:3001/api/motoristas/:id`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "cnh": "00987654321",
-          "categoria_cnh": "AE",
-          "validade_cnh": "2028-12-31",
-          "veiculo_id": 2
-        }
-        ```
-
-* **Deletar Motorista**
-    * `DELETE http://localhost:3001/api/motoristas/:id`
-
----
-
-## Fretes
-
-* **Listar Fretes**
-    * `GET http://localhost:3001/api/fretes?status=Transito&data_inicio=2025-01-01&data_fim=2025-12-31`
-    * *Parâmetros opcionais: `status`, `cliente_id`, `motorista_id`, `data_inicio`, `data_fim`.*
-
-* **Buscar Frete por ID**
-    * `GET http://localhost:3001/api/fretes/:id`
-
-* **Buscar Frete por Código**
-    * `GET http://localhost:3001/api/fretes/codigo/:codigo`
-
-* **Criar Frete**
-    * `POST http://localhost:3001/api/fretes`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "cliente_id": 1,
-          "motorista_id": 2,
-          "veiculo_id": 1,
-          "origem_cidade": "São Paulo",
-          "origem_uf": "SP",
-          "destino_cidade": "Rio de Janeiro",
-          "destino_uf": "RJ",
-          "distancia_km": 450,
-          "valor": 2000.50,
-          "peso_kg": 5000,
-          "data_coleta": "2025-09-10",
-          "data_entrega_prevista": "2025-09-12",
-          "observacoes": "Carga frágil"
-        }
-        ```
-
-* **Atualizar Frete**
-    * `PUT http://localhost:3001/api/fretes/:id`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "motorista_id": 2,
-          "veiculo_id": 1,
-          "status": "Transito",
-          "distancia_km": 455,
-          "valor": 2100.00,
-          "peso_kg": 5100,
-          "data_entrega_prevista": "2025-09-13",
-          "data_entrega": null,
-          "observacoes": "Carga frágil. Cuidado extra."
-        }
-        ```
-
-* **Atualizar Status do Frete**
-    * `PATCH http://localhost:3001/api/fretes/:id/status`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "status": "Entregue"
-        }
-        ```
-
-* **Relatório de Fretes**
-    * `GET http://localhost:3001/api/fretes/relatorio?data_inicio=2025-01-01&data_fim=2025-12-31`
-
----
-
-## Rastreamento
-
-* **Rastreamento Público por Código**
-    * `GET http://localhost:3001/api/rastreamento/publico/:codigo`
-
-* **Listar Posições do Frete**
-    * `GET http://localhost:3001/api/rastreamento/frete/:frete_id`
-
-* **Última Posição do Frete**
-    * `GET http://localhost:3001/api/rastreamento/frete/:frete_id/ultima`
-
-* **Registrar Posição do Frete**
-    * `POST http://localhost:3001/api/rastreamento/frete/:frete_id`
-    * **Formulário (JSON):**
-        ```json
-        {
-          "latitude": -23.550520,
-          "longitude": -46.633308
-        }
-        ```
-
----
-
-## Checklist
-
-* **Upload de Anexo**
-    * `POST http://localhost:3001/api/checklist/upload`
-    * *O corpo da requisição deve ser do tipo `multipart/form-data`, não JSON.*
-
-* **Salvar Registro de Checklist**
-    * `POST http://localhost:3001/api/checklist/salvar`
-    * **Formulário (JSON):**
-        ```json
-        {
-            "template_id": 1,
-            "colaborador_id": 2,
-            "ativo_relacionado_id": 5,
-            "respostas": [
-                {
-                    "pergunta_id": 101,
-                    "valor_resposta": "Conforme"
-                },
-                {
-                    "pergunta_id": 102,
-                    "valor_resposta": "Não Conforme"
-                }
-            ],
-            "filePaths": [
-                "uploads/2025-09-23T12-30-00.jpg"
-            ]
-        }
-        ```
+    ],
+    "filePaths": [
+        "uploads/2025-09-23T12-30-00.jpg"
+    ]
+}
