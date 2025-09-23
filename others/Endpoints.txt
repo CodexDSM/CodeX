@@ -1,839 +1,372 @@
-{
-  "info": {
-    "name": "API NEWE",
-    "description": "Coleção completa de endpoints da API"
-  },
-  "item": [
-    {
-      "name": "Saúde da API",
-      "item": [
+## Autenticação
+
+* **Login de Colaborador**
+    * `POST http://localhost:3001/api/colaboradores/login`
+    * **Formulário (JSON):**
+        ```json
         {
-          "name": "Verificar Saúde",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "http://localhost:3001/api/health"
-          }
+          "cpf": "123.456.789-00",
+          "senha": "password"
         }
-      ]
-    },
-    {
-      "name": "Autenticação",
-      "item": [
+        ```
+
+---
+
+## Colaboradores
+
+* **Listar Colaboradores**
+    * `GET http://localhost:3001/api/colaboradores?ativo=true&perfil=Operador`
+    * *Parâmetros opcionais na URL (query params): `ativo` (true/false), `perfil` (ex: 'Operador').*
+
+* **Buscar Colaborador por ID**
+    * `GET http://localhost:3001/api/colaboradores/:id`
+
+* **Cadastrar Colaborador**
+    * `POST http://localhost:3001/api/colaboradores`
+    * **Formulário (JSON):**
+        ```json
         {
-          "name": "Login de Colaborador",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@sistema.com\",\n  \"senha\": \"password\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:3001/api/colaboradores/login",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3001",
-              "path": [
-                "api",
-                "colaboradores",
-                "login"
-              ]
-            }
-          }
+          "nome": "José",
+          "cpf": "123.456.789-99",
+          "email": "jose@empresa.com",
+          "senha": "123456",
+          "telefone": "1199999999",
+          "perfil": "Operador",
+          "logradouro": "Rua Teste",
+          "numero": "10",
+          "complemento": "Apto 1",
+          "bairro": "Centro",
+          "cidade": "São Paulo",
+          "uf": "SP",
+          "cep": "01000-000"
         }
-      ]
-    },
-    {
-      "name": "Colaboradores",
-      "item": [
+        ```
+
+* **Atualizar Colaborador**
+    * `PUT http://localhost:3001/api/colaboradores/:id`
+    * **Formulário (JSON):**
+        ```json
         {
-          "name": "Listar Colaboradores",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/colaboradores"
-          }
-        },
-        {
-          "name": "Buscar por ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/colaboradores/1"
-          }
-        },
-        {
-          "name": "Cadastrar Colaborador",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome\": \"José\",\n  \"cpf\": \"123.456.789-99\",\n  \"email\": \"jose@empresa.com\",\n  \"senha\": \"123456\",\n  \"telefone\": \"1199999999\",\n  \"perfil\": \"Operador\",\n  \"logradouro\": \"Rua Teste\",\n  \"numero\": \"10\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"São Paulo\",\n  \"uf\": \"SP\",\n  \"cep\": \"01000-000\"\n}"
-            },
-            "url": "http://localhost:3001/api/colaboradores"
-          }
-        },
-        {
-          "name": "Atualizar Colaborador",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw":     {
-                          "id": 3,
-                          "nome": "José",
-                          "cpf": "12345678999",
-                          "email": "jose11@empresa.com",
-                          "telefone": "1199999999",
-                          "perfil": "Operador",
-                          "ativo": 1,
-                          "logradouro": "Rua Teste",
-                          "numero": "10",
-                          "complemento": null,
-                          "bairro": "Centro",
-                          "cidade": "São Paulo",
-                          "uf": "SP",
-                          "cep": "01000-000",
-                          "criado_em": "2025-09-23T20:34:54.000Z"
-                        }
-            },
-            "url": "http://localhost:3001/api/colaboradores/1"
-          }
-        },
-        {
-          "name": "Deletar Colaborador",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/colaboradores/1"
-          }
-        },
-        {
-          "name": "Atualizar Senha",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw":     {
-                          "senhaAtual": "password",
-                          "novaSenha": "1231"
-                         }
-            },
-            "url": "http://localhost:3001/api/colaboradores/1/senha"
-          }
+          "nome": "José da Silva",
+          "telefone": "11988887777",
+          "perfil": "Gerente",
+          "ativo": true,
+          "logradouro": "Rua Nova",
+          "numero": "15",
+          "complemento": null,
+          "bairro": "Vila Nova",
+          "cidade": "São Paulo",
+          "uf": "SP",
+          "cep": "01001-000"
         }
-      ]
-    },
-    {
-      "name": "Clientes",
-      "item": [
+        ```
+
+* **Alterar Senha**
+    * `PATCH http://localhost:3001/api/colaboradores/:id/change-password`
+    * **Formulário (JSON):**
+        ```json
         {
-          "name": "Listar Clientes",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/clientes"
-          }
-        },
-        {
-          "name": "Buscar por ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/clientes/1"
-          }
-        },
-        {
-          "name": "Buscar por Documento",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/clientes/documento/123.456.789-00"
-          }
-        },
-        {
-          "name": "Criar Cliente",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"tipo_pessoa\": \"F\",\n  \"nome\": \"Maria\",\n  \"documento\": \"123.456.789-00\",\n  \"email\": \"maria@email.com\",\n  \"telefone\": \"11987654321\",\n  \"logradouro\": \"Av Brasil\",\n  \"numero\": \"200\",\n  \"bairro\": \"Bairro Azul\",\n  \"cidade\": \"São Paulo\",\n  \"uf\": \"SP\",\n  \"cep\": \"02000-000\"\n}"
-            },
-            "url": "http://localhost:3001/api/clientes"
-          }
-        },
-        {
-          "name": "Atualizar Cliente",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome\": \"Maria de Sousa\"\n}"
-            },
-            "url": "http://localhost:3001/api/clientes/1"
-          }
-        },
-        {
-          "name": "Deletar Cliente",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/clientes/1"
-          }
-        },
-        {
-          "name": "Criar Interação",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"tipo_interacao\": \"Ligação\",\n  \"data_interacao\": \"2025-09-17 11:00:00\",\n  \"assunto\": \"Proposta de frete\",\n  \"detalhes\": \"Cliente solicitou cotação para transporte de carga pesada.\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:3001/api/clients/{{clientId}}/interactions",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3001",
-              "path": [
-                "api",
-                "clients",
-                "{{clientId}}",
-                "interactions"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Listar Interações do Cliente",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3001/api/clients/{{clientId}}/interactions",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3001",
-              "path": [
-                "api",
-                "clients",
-                "{{clientId}}",
-                "interactions"
-              ]
-            }
-          }
+          "senhaAtual": "123456",
+          "novaSenha": "nova_senha_123"
         }
-      ]
-    },
-    {
-      "name": "Agregados",
-      "item": [
+        ```
+
+* **Desativar Colaborador (Soft Delete)**
+    * `DELETE http://localhost:3001/api/colaboradores/:id`
+
+---
+
+## Clientes
+
+* **Listar Clientes**
+    * `GET http://localhost:3001/api/clientes?tipo_pessoa=F&ativo=true`
+    * *Parâmetros opcionais: `tipo_pessoa` ('F' ou 'J'), `ativo` (true/false).*
+
+* **Buscar Cliente por ID**
+    * `GET http://localhost:3001/api/clientes/:id`
+
+* **Buscar Cliente por Documento**
+    * `GET http://localhost:3001/api/clientes/documento/:documento`
+
+* **Criar Cliente**
+    * `POST http://localhost:3001/api/clientes`
+    * **Formulário (JSON):**
+        ```json
         {
-          "name": "Cadastrar Agregado (Público)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome_motorista\": \"José da Silva\",\n  \"cnh\": \"12345678901\",\n  \"placa_veiculo\": \"ABC1234\",\n  \"modelo_veiculo\": \"Scania R450\",\n  \"telefone\": \"11987654321\",\n  \"email\": \"jose@email.com\"\n}"
-            },
-            "url": "http://localhost:3001/api/public/agregados"
-          }
-        },
+          "tipo_pessoa": "F",
+          "nome": "Maria",
+          "documento": "123.456.789-00",
+          "email": "maria@email.com",
+          "telefone": "11987654321",
+          "logradouro": "Av Brasil",
+          "numero": "200",
+          "complemento": "Sala 10",
+          "bairro": "Bairro Azul",
+          "cidade": "São Paulo",
+          "uf": "SP",
+          "cep": "02000-000"
+        }
+        ```
+
+* **Atualizar Cliente**
+    * `PUT http://localhost:3001/api/clientes/:id`
+    * **Formulário (JSON):**
+        ```json
         {
-          "name": "Listar Agregados",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/agregados"
-          }
-        },
+          "nome": "Maria de Sousa",
+          "email": "maria.sousa@email.com",
+          "telefone": "11987654322",
+          "ativo": true,
+          "logradouro": "Avenida Brasil",
+          "numero": "210",
+          "complemento": "",
+          "bairro": "Bairro Azul",
+          "cidade": "São Paulo",
+          "uf": "SP",
+          "cep": "02000-000"
+        }
+        ```
+
+* **Desativar Cliente (Soft Delete)**
+    * `DELETE http://localhost:3001/api/clientes/:id`
+
+* **Listar Interações do Cliente**
+    * `GET http://localhost:3001/api/clientes/:clientId/interactions`
+
+* **Criar Interação para Cliente**
+    * `POST http://localhost:3001/api/clientes/:clientId/interactions`
+    * **Formulário (JSON):**
+        ```json
         {
-          "name": "Listar com Paginação",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3001/api/agregados?page=1&limit=5",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3001",
-              "path": [
-                "api",
-                "agregados"
-              ],
-              "query": [
+          "tipo_interacao": "Ligação",
+          "data_interacao": "2025-09-17T11:00:00Z",
+          "assunto": "Proposta de frete",
+          "detalhes": "Cliente solicitou cotação para transporte de carga pesada."
+        }
+        ```
+
+---
+
+## Agregados
+
+* **Cadastrar Agregado (Público)**
+    * `POST http://localhost:3001/api/public/agregados`
+    * **Formulário (JSON):**
+        ```json
+        {
+          "nome_motorista": "José da Silva",
+          "cnh": "12345678901",
+          "placa_veiculo": "ABC1D23",
+          "modelo_veiculo": "Scania R450",
+          "telefone": "11987654321",
+          "email": "jose.agregado@email.com"
+        }
+        ```
+
+* **Listar Agregados**
+    * `GET http://localhost:3001/api/agregados?page=1&limit=10&search=jose`
+    * *Parâmetros opcionais: `page`, `limit`, `search`.*
+
+* **Buscar Agregado por ID**
+    * `GET http://localhost:3001/api/agregados/:id`
+
+---
+
+## Veículos
+
+* **Listar Veículos**
+    * `GET http://localhost:3001/api/veiculos?disponivel=true&tipo=Caminhão`
+    * *Parâmetros opcionais: `disponivel` (true/false), `tipo` (ex: 'Caminhão').*
+
+* **Buscar Veículo por ID**
+    * `GET http://localhost:3001/api/veiculos/:id`
+
+* **Buscar Veículo por Placa**
+    * `GET http://localhost:3001/api/veiculos/placa/:placa`
+
+* **Criar Veículo**
+    * `POST http://localhost:3001/api/veiculos`
+    * **Formulário (JSON):**
+        ```json
+        {
+          "placa": "XYZ-1234",
+          "modelo": "Mercedes Atego",
+          "capacidade_kg": 12000,
+          "tipo": "Caminhão"
+        }
+        ```
+
+* **Atualizar Veículo**
+    * `PUT http://localhost:3001/api/veiculos/:id`
+    * **Formulário (JSON):**
+        ```json
+        {
+          "modelo": "Mercedes-Benz Atego 2426",
+          "capacidade_kg": 12500,
+          "tipo": "Caminhão Truck",
+          "disponivel": true
+        }
+        ```
+
+* **Deletar Veículo**
+    * `DELETE http://localhost:3001/api/veiculos/:id`
+
+---
+
+## Motoristas
+
+* **Listar Motoristas**
+    * `GET http://localhost:3001/api/motoristas`
+
+* **Listar Motoristas Disponíveis**
+    * `GET http://localhost:3001/api/motoristas/disponiveis`
+
+* **Buscar Motorista por ID (Colaborador)**
+    * `GET http://localhost:3001/api/motoristas/:id`
+
+* **Criar Motorista**
+    * `POST http://localhost:3001/api/motoristas`
+    * **Formulário (JSON):**
+        ```json
+        {
+          "colaborador_id": 2,
+          "cnh": "12345678900",
+          "categoria_cnh": "E",
+          "validade_cnh": "2026-12-31",
+          "veiculo_id": 1
+        }
+        ```
+
+* **Atualizar Motorista**
+    * `PUT http://localhost:3001/api/motoristas/:id`
+    * **Formulário (JSON):**
+        ```json
+        {
+          "cnh": "00987654321",
+          "categoria_cnh": "AE",
+          "validade_cnh": "2028-12-31",
+          "veiculo_id": 2
+        }
+        ```
+
+* **Deletar Motorista**
+    * `DELETE http://localhost:3001/api/motoristas/:id`
+
+---
+
+## Fretes
+
+* **Listar Fretes**
+    * `GET http://localhost:3001/api/fretes?status=Transito&data_inicio=2025-01-01&data_fim=2025-12-31`
+    * *Parâmetros opcionais: `status`, `cliente_id`, `motorista_id`, `data_inicio`, `data_fim`.*
+
+* **Buscar Frete por ID**
+    * `GET http://localhost:3001/api/fretes/:id`
+
+* **Buscar Frete por Código**
+    * `GET http://localhost:3001/api/fretes/codigo/:codigo`
+
+* **Criar Frete**
+    * `POST http://localhost:3001/api/fretes`
+    * **Formulário (JSON):**
+        ```json
+        {
+          "cliente_id": 1,
+          "motorista_id": 2,
+          "veiculo_id": 1,
+          "origem_cidade": "São Paulo",
+          "origem_uf": "SP",
+          "destino_cidade": "Rio de Janeiro",
+          "destino_uf": "RJ",
+          "distancia_km": 450,
+          "valor": 2000.50,
+          "peso_kg": 5000,
+          "data_coleta": "2025-09-10",
+          "data_entrega_prevista": "2025-09-12",
+          "observacoes": "Carga frágil"
+        }
+        ```
+
+* **Atualizar Frete**
+    * `PUT http://localhost:3001/api/fretes/:id`
+    * **Formulário (JSON):**
+        ```json
+        {
+          "motorista_id": 2,
+          "veiculo_id": 1,
+          "status": "Transito",
+          "distancia_km": 455,
+          "valor": 2100.00,
+          "peso_kg": 5100,
+          "data_entrega_prevista": "2025-09-13",
+          "data_entrega": null,
+          "observacoes": "Carga frágil. Cuidado extra."
+        }
+        ```
+
+* **Atualizar Status do Frete**
+    * `PATCH http://localhost:3001/api/fretes/:id/status`
+    * **Formulário (JSON):**
+        ```json
+        {
+          "status": "Entregue"
+        }
+        ```
+
+* **Relatório de Fretes**
+    * `GET http://localhost:3001/api/fretes/relatorio?data_inicio=2025-01-01&data_fim=2025-12-31`
+
+---
+
+## Rastreamento
+
+* **Rastreamento Público por Código**
+    * `GET http://localhost:3001/api/rastreamento/publico/:codigo`
+
+* **Listar Posições do Frete**
+    * `GET http://localhost:3001/api/rastreamento/frete/:frete_id`
+
+* **Última Posição do Frete**
+    * `GET http://localhost:3001/api/rastreamento/frete/:frete_id/ultima`
+
+* **Registrar Posição do Frete**
+    * `POST http://localhost:3001/api/rastreamento/frete/:frete_id`
+    * **Formulário (JSON):**
+        ```json
+        {
+          "latitude": -23.550520,
+          "longitude": -46.633308
+        }
+        ```
+
+---
+
+## Checklist
+
+* **Upload de Anexo**
+    * `POST http://localhost:3001/api/checklist/upload`
+    * *O corpo da requisição deve ser do tipo `multipart/form-data`, não JSON.*
+
+* **Salvar Registro de Checklist**
+    * `POST http://localhost:3001/api/checklist/salvar`
+    * **Formulário (JSON):**
+        ```json
+        {
+            "template_id": 1,
+            "colaborador_id": 2,
+            "ativo_relacionado_id": 5,
+            "respostas": [
                 {
-                  "key": "page",
-                  "value": "1"
+                    "pergunta_id": 101,
+                    "valor_resposta": "Conforme"
                 },
                 {
-                  "key": "limit",
-                  "value": "5"
+                    "pergunta_id": 102,
+                    "valor_resposta": "Não Conforme"
                 }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Buscar Agregados",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
             ],
-            "url": {
-              "raw": "http://localhost:3001/api/agregados?search=jose",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3001",
-              "path": [
-                "api",
-                "agregados"
-              ],
-              "query": [
-                {
-                  "key": "search",
-                  "value": "jose"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Buscar por ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/agregados/1"
-          }
+            "filePaths": [
+                "uploads/2025-09-23T12-30-00.jpg"
+            ]
         }
-      ]
-    },
-    {
-      "name": "Veículos",
-      "item": [
-        {
-          "name": "Listar Veículos",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/veiculos"
-          }
-        },
-        {
-          "name": "Buscar por ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/veiculos/1"
-          }
-        },
-        {
-          "name": "Buscar por Placa",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/veiculos/placa/XYZ-1234"
-          }
-        },
-        {
-          "name": "Criar Veículo",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"placa\": \"XYZ-1234\",\n  \"modelo\": \"Mercedes Atego\",\n  \"capacidade_kg\": 12000,\n  \"tipo\": \"Caminhão\"\n}"
-            },
-            "url": "http://localhost:3001/api/veiculos"
-          }
-        },
-        {
-          "name": "Atualizar Veículo",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"disponivel\": true\n}"
-            },
-            "url": "http://localhost:3001/api/veiculos/1"
-          }
-        },
-        {
-          "name": "Deletar Veículo",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/veiculos/1"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Motoristas",
-      "item": [
-        {
-          "name": "Listar Motoristas",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/motoristas"
-          }
-        },
-        {
-          "name": "Listar Disponíveis",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/motoristas/disponiveis"
-          }
-        },
-        {
-          "name": "Buscar por ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/motoristas/1"
-          }
-        },
-        {
-          "name": "Criar Motorista",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"colaborador_id\": 2,\n  \"cnh\": \"12345678900\",\n  \"categoria_cnh\": \"E\",\n  \"validade_cnh\": \"2026-12-31\",\n  \"veiculo_id\": 1\n}"
-            },
-            "url": "http://localhost:3001/api/motoristas"
-          }
-        },
-        {
-          "name": "Atualizar Motorista",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"veiculo_id\": 2\n}"
-            },
-            "url": "http://localhost:3001/api/motoristas/1"
-          }
-        },
-        {
-          "name": "Deletar Motorista",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/motoristas/1"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Fretes",
-      "item": [
-        {
-          "name": "Listar Fretes",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/fretes"
-          }
-        },
-        {
-          "name": "Relatório de Fretes",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/fretes/relatorio"
-          }
-        },
-        {
-          "name": "Buscar por ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/fretes/1"
-          }
-        },
-        {
-          "name": "Buscar por Código",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/fretes/codigo/FRT1699991234567"
-          }
-        },
-        {
-          "name": "Criar Frete",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"cliente_id\": 1,\n  \"motorista_id\": 2,\n  \"veiculo_id\": 1,\n  \"origem_cidade\": \"São Paulo\",\n  \"origem_uf\": \"SP\",\n  \"destino_cidade\": \"Rio de Janeiro\",\n  \"destino_uf\": \"RJ\",\n  \"distancia_km\": 450,\n  \"valor\": 2000.5,\n  \"peso_kg\": 5000,\n  \"data_coleta\": \"2025-09-10\",\n  \"data_entrega_prevista\": \"2025-09-12\",\n  \"observacoes\": \"Carga frágil\"\n}"
-            },
-            "url": "http://localhost:3001/api/fretes"
-          }
-        },
-        {
-          "name": "Atualizar Frete",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"valor\": 2100.00\n}"
-            },
-            "url": "http://localhost:3001/api/fretes/1"
-          }
-        },
-        {
-          "name": "Atualizar Status do Frete",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"Transito\"\n}"
-            },
-            "url": "http://localhost:3001/api/fretes/1/status"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Rastreamento",
-      "item": [
-        {
-          "name": "Rastreamento Público (por Código)",
-          "request": {
-            "method": "GET",
-            "url": "http://localhost:3001/api/rastreamento/publico/FRT1699991234567"
-          }
-        },
-        {
-          "name": "Listar Posições do Frete",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/rastreamento/frete/1"
-          }
-        },
-        {
-          "name": "Última Posição do Frete",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "http://localhost:3001/api/rastreamento/frete/1/ultima"
-          }
-        },
-        {
-          "name": "Registrar Posição",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"latitude\": -23.55052,\n  \"longitude\": -46.633308\n}"
-            },
-            "url": "http://localhost:3001/api/rastreamento/frete/1"
-          }
-        }
-      ]
-    }
-  ],
-  "variable": [
-    {
-      "key": "token",
-      "value": ""
-    },
-    {
-      "key": "clientId",
-      "value": "1"
-    }
-  ]
-}
+        ```
