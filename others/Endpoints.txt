@@ -81,7 +81,7 @@
           }
         },
         {
-          "name": "Criar Colaborador",
+          "name": "Cadastrar Colaborador",
           "request": {
             "method": "POST",
             "header": [
