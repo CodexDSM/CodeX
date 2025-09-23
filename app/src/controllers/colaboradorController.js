@@ -112,9 +112,10 @@ class ColaboradorController {
     try {
       const { 
         nome, cpf, email, senha, telefone, perfil, 
-        logradouro, numero, complemento, bairro, cidade, uf, cep 
+        logradouro, numero, bairro, cidade, uf, cep 
       } = req.body;
 
+      const complemento = req.body.complemento || null;
       const cpfNormalizado = cpf ? cpf.replace(/[^0-9]/g, '') : null;
       const hashedSenha = await bcrypt.hash(senha, 10);
 
@@ -140,18 +141,18 @@ class ColaboradorController {
     try {
       const { id } = req.params;
       const { 
-        nome, telefone, perfil, ativo,
-        logradouro, numero, complemento, bairro, cidade, uf, cep 
+        nome, cpf, senha, telefone, perfil, ativo,
+        logradouro, numero, bairro, cidade, uf, cep 
       } = req.body;
 
+      const complemento = req.body.complemento || null;
       const [result] = await pool.execute(
         `UPDATE colaborador 
-          SET nome = ?, telefone = ?, perfil = ?, ativo = ?,
-              logradouro = ?, numero = ?, complemento = ?, 
+          SET nome = ?, cpf = ?, senha = ?, telefone = ?, perfil = ?, ativo = ?,
+              logradouro = ?, numero = ?, complemento = ?,
               bairro = ?, cidade = ?, uf = ?, cep = ?
           WHERE id = ?`,
-        [nome, telefone, perfil, ativo, logradouro, numero, 
-          complemento, bairro, cidade, uf, cep, id]
+        [nome, cpf, senha, telefone, perfil, ativo, logradouro, numero, complemento, bairro, cidade, uf, cep, id]
       );
 
       if (result.affectedRows === 0) {

@@ -50,9 +50,10 @@ class ClienteController {
     try {
       const { 
         tipo_pessoa, nome, documento, email, telefone,
-        logradouro, numero, complemento, bairro, cidade, uf, cep 
+        logradouro, numero, bairro, cidade, uf, cep 
       } = req.body;
 
+      const complemento = req.body.complemento || null;
       const [result] = await pool.execute(
         `INSERT INTO cliente 
         (tipo_pessoa, nome, documento, email, telefone, logradouro, numero, complemento, bairro, cidade, uf, cep) 

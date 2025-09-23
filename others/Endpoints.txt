@@ -81,7 +81,7 @@
           }
         },
         {
-          "name": "Criar Colaborador",
+          "name": "Cadastrar Colaborador",
           "request": {
             "method": "POST",
             "header": [
@@ -117,7 +117,23 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"José da Silva\"\n}"
+              "raw":     {
+                          "id": 3,
+                          "nome": "José",
+                          "cpf": "12345678999",
+                          "email": "jose11@empresa.com",
+                          "telefone": "1199999999",
+                          "perfil": "Operador",
+                          "ativo": 1,
+                          "logradouro": "Rua Teste",
+                          "numero": "10",
+                          "complemento": null,
+                          "bairro": "Centro",
+                          "cidade": "São Paulo",
+                          "uf": "SP",
+                          "cep": "01000-000",
+                          "criado_em": "2025-09-23T20:34:54.000Z"
+                        }
             },
             "url": "http://localhost:3001/api/colaboradores/1"
           }
@@ -151,7 +167,10 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"senha\": \"nova_senha_123\"\n}"
+              "raw":     {
+                          "senhaAtual": "password",
+                          "novaSenha": "1231"
+                         }
             },
             "url": "http://localhost:3001/api/colaboradores/1/senha"
           }
