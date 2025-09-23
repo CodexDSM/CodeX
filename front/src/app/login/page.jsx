@@ -23,7 +23,7 @@ export default function LoginPage() {
 
   const locaisSelect = [
     { value: 'presencial', label: 'Presencial' },
-    { value: 'homeOffice', label: 'Home Office' },
+    { value: 'home_Office', label: 'Home Office' },
     { value: 'evento', label: 'Evento' },
     { value: 'treinamento', label: 'Treinamento' }
   ];

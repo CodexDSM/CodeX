@@ -1,5 +1,5 @@
-CREATE SCHEMA newe_log_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE newe_log_db;
+CREATE SCHEMA newe_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE newe_db;
 
 -- =============================================
 -- Sistema de Gestão Newe - Banco de Dados
@@ -131,6 +131,22 @@ CREATE TABLE IF NOT EXISTS frete (
     INDEX idx_cliente (cliente_id),
     INDEX idx_status (status),
     INDEX idx_datas (data_coleta, data_entrega_prevista)
+);
+
+CREATE TABLE IF NOT EXISTS interacao_cliente (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    colaborador_id INT NOT NULL,
+    cliente_id INT NOT NULL,
+    tipo_interacao ENUM('Ligação', 'E-mail', 'Reunião Presencial', 'Mensagem', 'Outro') NOT NULL,
+    data_interacao DATETIME NOT NULL,
+    assunto VARCHAR(255),
+    detalhes TEXT,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (colaborador_id) REFERENCES colaborador(id) ON DELETE CASCADE,
+    FOREIGN KEY (cliente_id) REFERENCES cliente(id) ON DELETE CASCADE,
+    INDEX idx_colaborador (colaborador_id),
+    INDEX idx_cliente (cliente_id),
+    INDEX idx_data (data_interacao)
 );
 
 -- -----------------------------------------------------
