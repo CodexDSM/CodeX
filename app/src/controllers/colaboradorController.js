@@ -134,7 +134,7 @@ class ColaboradorController {
   async index(req, res, next) {
     try {
       const { ativo, perfil } = req.query;
-      let query = 'SELECT id, nome, cpf, email, telefone, perfil, ativo, logradouro, numero, complemento, bairro, cidade, uf, cep, criado_em FROM colaborador WHERE 1=1';
+      let query = `SELECT * FROM ( SELECT c.id, c.nome, c.cpf, c.email, c.telefone, c.perfil, c.ativo, c.logradouro, c.numero, c.complemento, c.bairro, c.cidade, c.uf, c.cep, c.criado_em, l.tipo_localizacao, l.data_hora, ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY l.data_hora DESC) as rn FROM colaborador c LEFT JOIN localizacao_colaborador l ON l.colaborador_id = c.id ) t WHERE rn = 1; `
       const params = [];
 
       // Adiciona filtro por status 'ativo'.

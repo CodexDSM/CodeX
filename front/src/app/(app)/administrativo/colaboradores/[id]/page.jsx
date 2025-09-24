@@ -19,15 +19,33 @@ export default function DetalheColaboradorPage({ params }) {
   const [initialData, setInitialData] = useState(null);
 
   useEffect(() => {
-    // Busca o colaborador nos dados mocados
-    const colaborador = testeColaboradores.find(
-      (col) => col.id.toString() === colaboradorId
-    );
-    if (colaborador) {
-      setFormData(colaborador);
-      setInitialData(colaborador); // Guarda o estado original
+    async function fetchColaborador() {
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`http://localhost:3001/api/colaboradores/${colaboradorId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+  
+        const data = await response.json();
+  
+        if (response.ok) {
+          setFormData(data);
+          setInitialData(data);
+        } else {
+          console.error("Erro ao buscar colaborador:", data.message);
+        }
+      } catch (err) {
+        console.error("Erro de rede:", err);
       }
-    }, [colaboradorId]);
+    }
+  
+    if (colaboradorId) {
+      fetchColaborador();
+    }
+  }, [colaboradorId]);
+  
 
   // Se os dados ainda não carregaram, mostre uma mensagem
     if (!formData) {
@@ -202,8 +220,9 @@ return (
                   placeholder="Apartamento, bloco, etc."
                   value={formData.complemento}
                   onChange={handleChange}
-                   readOnly={!isEditing}
+                  readOnly={!isEditing}
                   className={styles.input}
+                  defaultValue={null}
                 />
 
               </div>

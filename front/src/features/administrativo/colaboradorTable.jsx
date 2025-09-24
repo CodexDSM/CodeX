@@ -20,9 +20,9 @@ export function ColaboradorTable({colaboradores = [], requestSort, sortConfig}) 
                 <thead>
                     <tr>
                         <th><button className={styles.botao} onClick={() => requestSort('nome')}>Nome Completo {getSortIndicator("nome")}</button></th>
-                        <th><button className={styles.botao} onClick={() => requestSort('departamento')}>Departamento {getSortIndicator("departamento")} </button></th>
+                        <th><button className={styles.botao} onClick={() => requestSort('email')}>E-mail {getSortIndicator("email")} </button></th>
                         <th><button className={styles.botao} onClick={() => requestSort('cargo')}>Cargo {getSortIndicator("cargo")}</button></th>
-                        <th><button className={styles.botao} onClick={() => requestSort('dataInicio')}>Data de Início {getSortIndicator("dataInicio")}</button></th>
+                        <th><button className={styles.botao} onClick={() => requestSort('local')}>Local de Trabalho{getSortIndicator("local")}</button></th>
                        
                     </tr>
                 </thead>
@@ -30,9 +30,9 @@ export function ColaboradorTable({colaboradores = [], requestSort, sortConfig}) 
                     {colaboradores.map((colaborador) => 
                     <tr key={colaborador.id} onClick={() => handleRowClick(colaborador.id)} className={styles.clickableRow}>
                         <td> {colaborador.nome} </td>
-                        <td>{colaborador.departamento}</td>
-                        <td>{colaborador.cargo}</td>
-                        <td>{colaborador.dataInicio}</td>
+                        <td>{colaborador.email}</td>
+                        <td>{colaborador.perfil}</td>
+                        <td>{colaborador.tipo_localizacao}</td>
 
                     </tr>
                     )}  
