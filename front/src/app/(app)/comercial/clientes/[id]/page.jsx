@@ -7,29 +7,48 @@ import { Edit, Save, XCircle, MessageCircle } from "lucide-react";
 
 export default function DetalheClientePage({ params }) {
   const router = useRouter();
+  const [clienteId, setClienteId] = useState(null);
 
-  // ✅ Pegando o ID corretamente
-  const clienteId = params?.id;
+  useEffect(() => {
+    async function fetchParams() {
+      const resolved = await params;
+      setClienteId(resolved?.id);
+    }
+    fetchParams();
+  }, [params]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(null);
   const [initialData, setInitialData] = useState(null);
 
   useEffect(() => {
-    const cliente = testeClientes.find(
-      (cli) => cli.id.toString() === clienteId
-    );
-    if (cliente) {
-      setFormData(cliente);
-      setInitialData(cliente);
+    async function fetchCliente() {
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`http://localhost:3001/api/clientes/${clienteId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setFormData(data);
+          setInitialData(data);
+        } else {
+          console.error("Erro ao buscar cliente:", data.message);
+        }
+      } catch (err) {
+        console.error("Erro de rede:", err);
+      }
+    }
+    if (clienteId) {
+      fetchCliente();
     }
   }, [clienteId]);
 
   if (!formData) {
     return <div>Carregando...</div>;
   }
-
-  // ✅ Manipulação de mudanças nos campos
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -52,7 +71,6 @@ export default function DetalheClientePage({ params }) {
     alert("Dados salvos com sucesso!");
   };
 
-  // ✅ Navegação para interações
   const handleInteractionClick = () => {
     router.push(`/comercial/clientes/${clienteId}/interacoes`);
   };
@@ -63,7 +81,6 @@ export default function DetalheClientePage({ params }) {
         <div className={styles.header}>
           <h1 className={styles.nome}>Detalhes do Cliente</h1>
 
-          {/* ✅ Botões de Ação */}
           <div className={styles.actionButtons}>
             {isEditing ? (
               <>
@@ -99,7 +116,6 @@ export default function DetalheClientePage({ params }) {
           </div>
         </div>
 
-        {/* ✅ Grid de informações */}
         <div className={styles.infoGrid}>
           <div className={styles.inputWrapper}>
             <label className={styles.label}>Nome Completo</label>
@@ -205,7 +221,7 @@ export default function DetalheClientePage({ params }) {
             <input
               name="complemento"
               placeholder="Apartamento, bloco, etc."
-              value={formData.complemento}
+              value={formData.complemento ?? ""} 
               onChange={handleChange}
               readOnly={!isEditing}
               className={styles.input}

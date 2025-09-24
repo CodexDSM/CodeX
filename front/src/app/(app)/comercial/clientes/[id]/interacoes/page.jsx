@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import styles from "./interacoes.module.css";
+import React from 'react';
+
 
 export default function InteracoesClientePage() {
   const params = useParams();

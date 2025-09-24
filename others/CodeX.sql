@@ -304,5 +304,44 @@ INSERT INTO template_perguntas (template_id, pergunta_id, ordem_exibicao, obriga
 (2, 20, 50, true), (2, 21, 60, true), (2, 22, 70, true), (2, 23, 80, false),
 (2, 24, 90, true), (2, 25, 100, false);
 
+
+INSERT INTO cliente (
+  tipo_pessoa, nome, documento, email, telefone, logradouro, numero, bairro, cidade, uf, cep
+) VALUES
+('F', 'João da Silva', '123.456.789-00', 'joao@email.com', '11988887777', 'Rua Azul', '10', 'Centro', 'São Paulo', 'SP', '01200-000'),
+('J', 'Empresa Alpha LTDA', '12.345.678/0001-99', 'contato@alpha.com.br', '11988880000', 'Av. Paulista', '1000', 'Bela Vista', 'São Paulo', 'SP', '01310-000'),
+('F', 'Maria Oliveira', '987.654.321-00', 'maria@exemplo.com', '11991234567', 'Rua Verde', '102', 'Jardins', 'São Paulo', 'SP', '01490-000'),
+('J', 'Beta Logística S/A', '22.444.888/0001-55', 'comercial@betalogi.com.br', '1125643000', 'Rua dos Transportes', '101', 'Parque Novo', 'Barueri', 'SP', '06465-300'),
+('F', 'Carlos Pereira', '789.123.456-00', 'carlospereira@gmail.com', '11987654321', 'Av. Brasil', '500', 'Jabaquara', 'São Paulo', 'SP', '04345-030');
+
+INSERT INTO interacao_cliente (
+  colaborador_id, cliente_id, tipo_interacao, data_interacao, assunto, detalhes
+) VALUES
+(1, 1, 'E-mail', '2025-09-21 09:15:00', 'Envio de Proposta', 'Envio de proposta comercial referente ao transporte de cargas'),
+(2, 2, 'Ligação', '2025-09-21 10:30:00', 'Negociação de valores', 'Negociação de valores do contrato anual'),
+(1, 3, 'Mensagem', '2025-09-22 15:42:00', 'Dúvida sobre coleta', 'Cliente perguntou horário limite para coleta'),
+(2, 4, 'Reunião Presencial', '2025-09-23 11:00:00', 'Apresentação de sistema', 'Demonstração do sistema de gestão para diretoria Beta Logística'),
+(1, 2, 'E-mail', '2025-09-24 08:30:00', 'Envio de checklist', 'Checklist de frete enviado ao cliente'),
+(2, 5, 'Outro', '2025-09-20 17:00:00', 'Atendimento pós-venda', 'Cliente relatou elogios ao atendimento e pediu programa de fidelidade'),
+(1, 4, 'Mensagem', '2025-09-23 16:45:00', 'Dúvida sobre documento', 'Cliente solicitou segunda via da nota de transporte'),
+(2, 3, 'Ligação', '2025-09-24 19:02:00', 'Cobrança de inadimplente', 'Contato para cobrança de parcela em atraso'),
+(1, 5, 'E-mail', '2025-09-24 10:21:00', 'Envio de contrato', 'Contrato formal enviado ao cliente via e-mail');
+
+
+INSERT INTO veiculo (
+  placa, modelo, capacidade_kg, tipo
+) VALUES
+('ABC1D23', 'Mercedes Actros', 12000.00, 'Caminhão'),
+('DEF4G56', 'Volkswagen Delivery', 3000.00, 'Van'),
+('HIJ7K89', 'Volvo FH', 18000.00, 'Carreta');
+
+INSERT INTO frete (
+  codigo, cliente_id, colaborador_id, veiculo_id, origem_cidade, origem_uf, destino_cidade, destino_uf, valor, data_coleta, data_entrega_prevista
+) VALUES
+('FRT0001', 1, 1, 1, 'São Paulo', 'SP', 'Campinas', 'SP', 1500.00, '2025-09-28', '2025-09-29'),
+('FRT0002', 2, 2, 3, 'Santos', 'SP', 'Ribeirão Preto', 'SP', 2500.00, '2025-09-25', '2025-09-26');
+
+
+
 -- Verificação
 SELECT 'Banco Newe criado com sucesso!' as status;

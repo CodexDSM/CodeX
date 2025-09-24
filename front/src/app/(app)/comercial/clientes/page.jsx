@@ -1,61 +1,75 @@
-'use client'
-
-import { useState, useMemo } from "react"
-import { ClienteTable } from "@/features/comercial/clientesTable"   // nome do componente em PascalCase
-import { CardContent } from "@/components/ui/card"
-import { testeClientes } from "./[id]/listaClientes"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+          
+"use client";
+import { useState, useEffect, useMemo } from "react";
+import { ClienteTable } from "@/features/comercial/clientesTable";
+import { CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { UserRoundPlus } from "lucide-react";
-import styles from "./cliente.module.css"
+import styles from "./cliente.module.css";
 
 export default function PaginaClientes() {
-  const [sortConfig, setSortConfig] = useState({ key: "nome", direction: "ascending" })
+  const [clientes, setClientes] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: "nome", direction: "ascending" });
+
+  useEffect(() => {
+    async function fetchClientes() {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch("http://localhost:3001/api/clientes", { // ajuste a rota conforme sua API
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setClientes(data);
+        } else {
+          console.error("Erro ao carregar clientes:", data.message);
+        }
+      } catch (err) {
+        console.error("Erro de rede:", err);
+      }
+    }
+    fetchClientes();
+  }, []);
 
   const sortedClientes = useMemo(() => {
-    let sortableItems = [...testeClientes]
-
+    let sortableItems = [...clientes];
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
         if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === "ascending" ? -1 : 1
+          return sortConfig.direction === "ascending" ? -1 : 1;
         }
         if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === "ascending" ? 1 : -1
+          return sortConfig.direction === "ascending" ? 1 : -1;
         }
-        return 0
-      })
+        return 0;
+      });
     }
-
-    return sortableItems
-  }, [sortConfig]) // não precisa de testeClientes aqui, já é importado fixo
+    return sortableItems;
+  }, [clientes, sortConfig]);
 
   const requestSort = (key) => {
-    let direction = "ascending"
+    let direction = "ascending";
     if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending"
+      direction = "descending";
     }
-    setSortConfig({ key, direction })
-  }
+    setSortConfig({ key, direction });
+  };
 
   return (
-    <div>
-      <CardContent>
-
-          <header className={styles.header}>
-          <Link href="/comercial/clientes/novo">
-            <Button variant="add"><UserRoundPlus size={20}/>  Adicionar</Button>
-          </Link>
-
-        </header>
-
-
-        <ClienteTable
-          clientes={sortedClientes}
-          requestSort={requestSort}
-          sortConfig={sortConfig}
-        />
-      </CardContent>
-    </div>
-  )
+    <CardContent>
+      <header className={styles.header}>
+        <Link href="/comercial/clientes/novo">
+          <Button variant="add"><UserRoundPlus size={20}/>  Adicionar</Button>
+        </Link>
+      </header>
+      <ClienteTable
+        clientes={sortedClientes}
+        onSort={requestSort}
+        sortConfig={sortConfig}
+      />
+    </CardContent>
+  );
 }
