@@ -26,7 +26,7 @@ export default function LoginPage() {
     { value: 'Presencial', label: 'Presencial' },
     { value: 'Home_Office', label: 'Home Office' },
     { value: 'Evento', label: 'Evento' },
-    { value: 'Treinamento', label: 'Treinamento' }
+    { value: 'Treinamento', label: 'Treinamento' },
     { value: 'Presencial', label: 'Presencial' },
     { value: 'Home_Office', label: 'Home Office' },
     { value: 'Evento', label: 'Evento' },
