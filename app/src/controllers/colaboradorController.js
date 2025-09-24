@@ -187,7 +187,7 @@ class ColaboradorController {
     try {
       const { 
         nome, cpf, email, senha, telefone, perfil, 
-        logradouro, numero, bairro, cidade, uf, cep 
+        cep, logradouro, numero, bairro, cidade, uf 
       } = req.body;
 
       const complemento = req.body.complemento || null;
@@ -196,10 +196,10 @@ class ColaboradorController {
 
       const [result] = await pool.execute(
         `INSERT INTO colaborador 
-        (nome, cpf, email, senha, telefone, perfil, logradouro, numero, complemento, bairro, cidade, uf, cep) 
+        (nome, cpf, email, senha, telefone, perfil, cep, logradouro, numero, complemento, bairro, cidade, uf) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [nome, cpfNormalizado, email, hashedSenha, telefone, perfil || 'Operador', 
-          logradouro, numero, complemento, bairro, cidade, uf, cep]
+          cep, logradouro, numero, complemento, bairro, cidade, uf]
       );
 
       res.status(201).json({ 

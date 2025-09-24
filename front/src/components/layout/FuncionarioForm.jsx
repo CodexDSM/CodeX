@@ -37,7 +37,6 @@ export default function CadastroColaborador() {
   const [formData, setFormData] = useState(initialFormData);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
   const estados = [
     'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
   ];
@@ -46,6 +45,23 @@ export default function CadastroColaborador() {
     'Administrador', 'Gerente', 'Operador', 'Motorista'
   ];
 
+  function FuncionarioForm() {
+    const [formData, setFormData] = useState({
+      nome: '',
+      cpf: '',
+      email: '',
+      senha: '',
+      telefone: '',
+      perfil: '',
+      logradouro: '',
+      numero: '',
+      complemento: '',
+      bairro: '',
+      cidade: '',
+      uf: '',
+      cep: '',
+    });
+  }
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -81,27 +97,30 @@ export default function CadastroColaborador() {
     setError(null);
   };
 
-  const handleSubmit = async (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
+    // Enviar dados para o backend no endpoint criado
     try {
-      // Aqui viria a chamada API para cadastrar o colaborador
-      console.log('Dados do formulário:', formData);
-      
-      // Simulação de sucesso no cadastro
-      setTimeout(() => {
-        alert('Colaborador cadastrado com sucesso!');
-        router.push('/colaboradores');
-      }, 1000);
-      
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+      const authToken = localStorage.getItem('authToken');  
+  
+      const response = await fetch('http://localhost:3001/api/colaboradores', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`, // manda no header
+        },
+        body: JSON.stringify(formData),
+      });
+      if (response.ok) {
+        alert('Cadastro realizado com sucesso!');
+      } else {
+        const err = await response.json();
+        alert('Erro: ' + err.message);
+      }
+    } catch (error) {
+      alert('Erro ao enviar dados: ' + error.message);
     }
-  };
+  }
 
   return (
     

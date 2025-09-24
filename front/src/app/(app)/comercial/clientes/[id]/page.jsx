@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { testeClientes } from './listaClientes';
 import styles from '../../../administrativo/colaboradores/[id]/detalhe.module.css'; 
 import { Edit, Save, XCircle } from 'lucide-react';
+import React from 'react';
 
 // 2. Renomeia o componente para refletir que é sobre Clientes
 export default function DetalheClientePage({ params }) {
