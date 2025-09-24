@@ -115,4 +115,24 @@
   box-shadow: 0 6px 12px rgba(87,87,86,0.3);
   background-color: blue;
   
+
+}
+
+.localizar{
+  font-family: 'Inter',sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  background-color: #ffffff;
+  color: #575756;
+  border-color: #5757561c;
+  font-size:medium;
+  font-weight: 500;
+}
+
+.localizar:hover{
+  transform: scale(1.03);
+  background-color: #ffffff;
+  transition-delay: 100ms;
 }
