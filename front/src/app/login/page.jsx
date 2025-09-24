@@ -26,10 +26,6 @@ export default function LoginPage() {
     { value: 'Presencial', label: 'Presencial' },
     { value: 'Home_Office', label: 'Home Office' },
     { value: 'Evento', label: 'Evento' },
-    { value: 'Treinamento', label: 'Treinamento' },
-    { value: 'Presencial', label: 'Presencial' },
-    { value: 'Home_Office', label: 'Home Office' },
-    { value: 'Evento', label: 'Evento' },
     { value: 'Treinamento', label: 'Treinamento' }
   ];
 
@@ -52,8 +48,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           cpf: cpf.trim(),
           senha: senha.trim(),
-          local_trabalho: localTrabalho, // ✅ CORREÇÃO 3: Nome do campo ajustado
-          local_trabalho: localTrabalho, // ✅ CORREÇÃO 3: Nome do campo ajustado
+          local_trabalho: localTrabalho, 
         }),
       });
 
@@ -61,22 +56,13 @@ export default function LoginPage() {
 
       if (!response.ok) throw new Error(data.message || 'Ocorreu um erro desconhecido.');
 
-      // ✅ MELHORIA: Salva mais informações do colaborador
-      // ✅ MELHORIA: Salva mais informações do colaborador
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('colaborador', JSON.stringify(data.colaborador));
       
-      // ✅ LOG: Para debug - mostra se a localização foi registrada
       if (data.localizacao_registrada) {
-        console.log(`✅ Localização registrada: ${data.local_trabalho}`);
+        console.log(`Localização registrada: ${data.local_trabalho}`);
       }
 
-      localStorage.setItem('colaborador', JSON.stringify(data.colaborador));
-      
-      // ✅ LOG: Para debug - mostra se a localização foi registrada
-      if (data.localizacao_registrada) {
-        console.log(`✅ Localização registrada: ${data.local_trabalho}`);
-      }
 
       router.push('/administrativo/colaboradores');
     } catch (err) {
