@@ -66,6 +66,9 @@ export default function PaginaRH() {
     <div>
       <CardContent>
         <header className={styles.header}>
+          <Link href="/administrativo/painel-localizacao">
+            <Button variant="localizar"><MapPin size={20} />Localização Trabalho</Button>
+        </Link>
           <Link href="/administrativo/colaboradores/novo">
             <Button variant="add"><UserRoundPlus size={20}/>  Adicionar</Button>
           </Link>
@@ -78,4 +81,5 @@ export default function PaginaRH() {
       </CardContent>
     </div>
   );
+
 }
