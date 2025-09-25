@@ -1,16 +1,111 @@
-.container {
-    padding: 20px;
-  }
-  
-  .list {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .item {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 6px;
-  }
-  
+.pageContainer {
+  min-height: 80vh;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  gap: 2.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.cardForm {
+  min-width: 320px;
+  max-width: 400px;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 34px #0055FF26;
+  border-radius: 18px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+.formGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  align-items: flex-start;
+}
+
+.label {
+  font-weight: 500;
+  margin-bottom: 0.15em;
+  color: #103080;
+}
+
+.input, .select, .textarea {
+  font-size: 1rem;
+  padding: 0.7em;
+  border-radius: 9px;
+  border: 1.5px solid #B4CCFE;
+  outline: none;
+  background: #fff;
+  box-shadow: 0 3px 14px #0055FF18;
+  transition: border .2s, box-shadow .2s;
+  width: 100%;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  border: 1.9px solid #3561e6;
+  box-shadow: 0 4px 16px #0055FF21;
+}
+
+.listaCol {
+  flex: 1;
+  min-width: 340px;
+  max-width: 690px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lista {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
+}
+
+.item {
+  background: #fff;
+  border-radius: 13px;
+  padding: 1.14rem 1.12rem;
+  margin-bottom: 1.24rem;
+  box-shadow: 0 4px 28px #0055FF28, 0 1px 6px #0001;
+  font-size: 1rem;
+}
+
+.error {
+  color: #d00;
+  padding: 0.4rem 0;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .row { flex-direction: column; align-items: center; }
+  .cardForm, .listaCol { min-width: 95vw; max-width: 98vw; }
+}

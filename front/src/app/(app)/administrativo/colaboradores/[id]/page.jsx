@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { testeColaboradores } from "../listaColaboradores";
 import styles from './detalhe.module.css';
 import { Edit, Save, XCircle } from 'lucide-react';
 import React from 'react';
+import { Header } from '@/components/layout/header'; // ajuste o caminho conforme seu projeto
+
 
 
 
@@ -66,20 +67,36 @@ const handleCancelClick = () => {
   setIsEditing(false); // Trava os campos novamente
 };
 
+
 const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  console.log("Salvando dados:", formData);
-  setInitialData(formData); // Atualiza o estado inicial com os novos dados
-  setIsEditing(false); 
-  alert("Dados salvos com sucesso!");
-};
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`http://localhost:3001/api/colaboradores/${colaboradorId}`, {
+        method: "PUT",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setIsEditing(false);
+        setInitialData(formData);
+        alert("Colaborador atualizado com sucesso!");
+      } else {
+        alert("Erro ao salvar: " + data.message);
+      }
+    } catch (err) {
+      alert("Erro de rede ao salvar colaborador.");
+    }
+  };
 
-
-
+<Header customTitle={formData.nome} />
 return (
-  <div className={styles.container}>
-    <form onSubmit={handleSubmit}>
+    <div className={styles.container}>
+      <form onSubmit={handleSubmit}>
       <div className={styles.header}>
         <h1 className={styles.nome}>Detalhes do Colaborador</h1>
         
@@ -139,7 +156,7 @@ return (
           <input
             name="senha"
             type='password'
-            value={formData.senha}
+            value={formData.senha ?? ""}
             onChange={handleChange}
             readOnly={!isEditing} 
             className={styles.input}
@@ -171,9 +188,6 @@ return (
 
         <h3 className={styles.subtitle}>Endereço</h3>
         <h3></h3>
-
-
-            
               <div className={styles.inputWrapper}>
                 <label className={styles.label}>CEP </label>
                 <input
@@ -181,7 +195,7 @@ return (
                   placeholder="Digite apenas números"
                   value={formData.cep}
                   onChange={handleChange}
-                   readOnly={!isEditing}
+                  readOnly={!isEditing}
                   inputMode="numeric"
                   maxLength={8}
                   className={styles.input}
@@ -195,7 +209,7 @@ return (
                   placeholder="Rua, Avenida, etc."
                   value={formData.logradouro}
                   onChange={handleChange}
-                   readOnly={!isEditing}
+                  readOnly={!isEditing}
                   className={styles.input}
                 />
               </div>
@@ -208,7 +222,6 @@ return (
                   value={formData.numero}
                   onChange={handleChange}
                   readOnly={!isEditing}
-                  required
                   className={styles.input}
                 />
               </div>
@@ -218,35 +231,34 @@ return (
                 <input
                   name="complemento"
                   placeholder="Apartamento, bloco, etc."
-                  value={formData.complemento}
+                  value={formData.complemento ?? ""}
                   onChange={handleChange}
                   readOnly={!isEditing}
                   className={styles.input}
-                  defaultValue={null}
                 />
 
               </div>
 
               <div className={styles.inputWrapper}>
-                <label className={styles.label}>Bairro *</label>
+                <label className={styles.label}>Bairro</label>
                 <input
                   name="bairro"
                   placeholder="Bairro"
                   value={formData.bairro}
                   onChange={handleChange}
-                   readOnly={!isEditing}
+                  readOnly={!isEditing}
                   className={styles.input}
                 />
               </div>
 
               <div className={styles.inputWrapper}>
-                <label className={styles.label}>Cidade *</label>
+                <label className={styles.label}>Cidade</label>
                 <input
                   name="cidade"
                   placeholder="Cidade"
                   value={formData.cidade}
                   onChange={handleChange}
-                   readOnly={!isEditing}
+                  readOnly={!isEditing}
                   className={styles.input}
                 />
               </div>
@@ -258,7 +270,7 @@ return (
                   placeholder="SP"
                   value={formData.cidade}
                   onChange={handleChange}
-                   readOnly={!isEditing}
+                  readOnly={!isEditing}
                   className={styles.input}
                 />
               </div>

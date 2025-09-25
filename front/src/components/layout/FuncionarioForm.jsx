@@ -37,12 +37,10 @@ export default function CadastroColaborador() {
   const [formData, setFormData] = useState(initialFormData);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const estados = [
-    'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
-  ];
+
 
   const perfis = [
-    'Administrador', 'Gerente', 'Operador', 'Motorista'
+    'Administrador', 'Gerente', 'Operador', 'Motorista','Comercial'
   ];
 
   function FuncionarioForm() {
@@ -99,7 +97,7 @@ export default function CadastroColaborador() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    // Enviar dados para o backend no endpoint criado
+    setIsLoading(true);
     try {
       const authToken = localStorage.getItem('authToken');  
   
@@ -111,9 +109,10 @@ export default function CadastroColaborador() {
         },
         body: JSON.stringify(formData),
       });
-      if (response.ok) {
-        alert('Cadastro realizado com sucesso!');
-      } else {
+      setIsLoading(false);
+        if (response.ok) {
+          router.push('/administrativo/colaboradores');
+        }else {
         const err = await response.json();
         alert('Erro: ' + err.message);
       }
@@ -260,7 +259,7 @@ export default function CadastroColaborador() {
                 <input
                   name="complemento"
                   placeholder="Apartamento, bloco, etc."
-                  value={formData.complemento}
+                  value={formData.complemento ?? ""} 
                   onChange={handleChange}
                   className={styles.input}
                 />
@@ -293,21 +292,20 @@ export default function CadastroColaborador() {
 
               <div className={styles.inputWrapper}>
                 <label className={styles.label}>UF *</label>
-                <Select 
-                  onValueChange={(value) => handleSelectChange('uf', value)} 
-                  value={formData.uf}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a UF" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {estados.map((estado) => (
-                      <SelectItem key={estado} value={estado}>
-                        {estado}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <input
+                  name="uf"
+                  placeholder='SP'
+                  value={formData.uf ?? ""}
+                  onChange={e => {
+                    const newUf = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2);
+                    setFormData(prev => ({ ...prev, uf: newUf }));
+                  }}
+                  required
+                  className={styles.input}
+                  maxLength={2}
+                  style={{ textTransform: "uppercase" }}
+                  autoComplete="off"
+                />
               </div>
             </div>
 

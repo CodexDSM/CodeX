@@ -17,7 +17,7 @@ CREATE TABLE colaborador (
     email VARCHAR(100) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL,
     telefone VARCHAR(15),
-    perfil ENUM('Administrador', 'Gerente', 'Operador', 'Motorista') DEFAULT 'Operador',
+    perfil ENUM('Administrador', 'Gerente', 'Operador', 'Motorista','Comercial') DEFAULT 'Operador',
     ativo BOOLEAN DEFAULT TRUE,
     logradouro VARCHAR(150) NOT NULL,
     numero VARCHAR(10) NOT NULL,
@@ -104,7 +104,7 @@ CREATE TABLE agregados (
 CREATE TABLE localizacao_colaborador (
     id INT AUTO_INCREMENT PRIMARY KEY,
     colaborador_id INT NOT NULL,
-    tipo_localizacao ENUM('Presencial', 'Home_Office', 'Evento', 'Treinamento') NOT NULL,
+    tipo_localizacao ENUM('Presencial', 'Home Office', 'Evento', 'Treinamento') NOT NULL,
     data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (colaborador_id) REFERENCES colaborador(id) ON DELETE CASCADE,

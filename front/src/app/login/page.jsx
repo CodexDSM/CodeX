@@ -24,7 +24,7 @@ export default function LoginPage() {
 
   const locaisSelect = [
     { value: 'Presencial', label: 'Presencial' },
-    { value: 'Home_Office', label: 'Home Office' },
+    { value: 'Home Office', label: 'Home Office' },
     { value: 'Evento', label: 'Evento' },
     { value: 'Treinamento', label: 'Treinamento' }
   ];
@@ -58,6 +58,11 @@ export default function LoginPage() {
 
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('colaborador', JSON.stringify(data.colaborador));
+      localStorage.setItem('userNome', data.colaborador.nome);
+      localStorage.setItem('userEmail', data.colaborador.email);
+      localStorage.setItem('colaboradorId', data.colaborador.id);
+
+
       
       if (data.localizacao_registrada) {
         console.log(`Localização registrada: ${data.local_trabalho}`);

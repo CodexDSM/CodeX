@@ -184,7 +184,7 @@ class LocalizacaoController {
       `);
 
       // Formatar resposta com totais zerados para tipos não utilizados
-      const tiposLocalizacao = ['Presencial', 'Home_Office', 'Evento', 'Treinamento'];
+      const tiposLocalizacao = ['Presencial', 'Home Office', 'Evento', 'Treinamento'];
       const resultado = tiposLocalizacao.map(tipo => {
         const estatistica = estatisticas.find(est => est.tipo_localizacao === tipo);
         return {

@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import styles from './sidebar.module.css';
-import {ClipboardList,ListChecks,Cog, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings } from 'lucide-react';
+import {ClipboardList,ListChecks,Cog, MapPinned, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
@@ -38,11 +38,10 @@ export function Sidebar() {
               className= {pathname === '/administrativo/colaboradores' ? styles.activeLink : ''}>
               <Users size={16}/> Colaboradores</Link>
           </li>
-
           <li className={styles.navItem}>
-            <Link href="/administrativo/painel-localizacao"
-              className= {pathname === '/administrativo/painel-local-trabalho' ? styles.activeLink : ''}>
-              <Users size={16}/>Painel Localização</Link>
+            <Link href="/administrativo/painelLocalizacao"
+              className= {pathname === '/administrativo/painelLocalizacao' ? styles.activeLink : ''}>
+              <MapPinned  size={16}/> Painel Localização</Link>
           </li>
         </ul>
         )}
