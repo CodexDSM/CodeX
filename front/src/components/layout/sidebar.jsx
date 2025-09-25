@@ -38,6 +38,12 @@ export function Sidebar() {
               className= {pathname === '/administrativo/colaboradores' ? styles.activeLink : ''}>
               <Users size={16}/> Colaboradores</Link>
           </li>
+
+          <li className={styles.navItem}>
+            <Link href="/administrativo/painel-localizacao"
+              className= {pathname === '/administrativo/painel-local-trabalho' ? styles.activeLink : ''}>
+              <Users size={16}/>Painel Localização</Link>
+          </li>
         </ul>
         )}
         </li>
@@ -100,4 +106,5 @@ export function Sidebar() {
       </ul>
     </aside>
   );
+
 }
