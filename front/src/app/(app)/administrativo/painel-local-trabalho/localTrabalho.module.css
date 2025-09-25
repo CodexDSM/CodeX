@@ -76,5 +76,6 @@
   font-family: Arial, sans-serif;
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centraliza o conteúdo interno */
+  align-items: center;
 }
+
