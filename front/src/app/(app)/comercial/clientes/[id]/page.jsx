@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { testeClientes } from "./listaClientes";
 import styles from "../../../administrativo/colaboradores/[id]/detalhe.module.css";
 import { Edit, Save, XCircle, MessageCircle } from "lucide-react";
 
@@ -49,26 +48,42 @@ export default function DetalheClientePage({ params }) {
   if (!formData) {
     return <div>Carregando...</div>;
   }
+  const handleEdit = () => setIsEditing(true);
+  const handleCancel = () => {
+    setIsEditing(false);
+    setFormData(initialData);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancelClick = () => {
-    setFormData(initialData);
-    setIsEditing(false);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("Salvando dados:", formData);
-    setInitialData(formData);
-    setIsEditing(false);
-    alert("Dados salvos com sucesso!");
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(
+        `http://localhost:3001/api/clientes/${clienteId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setIsEditing(false);
+        setInitialData(formData);
+        router.refresh();
+      } else {
+        alert("Erro ao salvar: " + (data.message ?? "Verifique campos"));
+      }
+    } catch (err) {
+      alert("Erro de rede ao salvar.");
+    }
   };
 
   const handleInteractionClick = () => {
@@ -77,7 +92,7 @@ export default function DetalheClientePage({ params }) {
 
   return (
     <div className={styles.container}>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSave}>
         <div className={styles.header}>
           <h1 className={styles.nome}>Detalhes do Cliente</h1>
 
@@ -86,7 +101,7 @@ export default function DetalheClientePage({ params }) {
               <>
                 <button
                   type="button"
-                  onClick={handleCancelClick}
+                  onClick={handleCancel}
                   className={styles.cancelButton}
                 >
                   <XCircle size={18} /> Cancelar
@@ -99,7 +114,7 @@ export default function DetalheClientePage({ params }) {
               <>
                 <button
                   type="button"
-                  onClick={handleEditClick}
+                  onClick={handleEdit}
                   className={styles.editButton}
                 >
                   <Edit size={18} /> Editar
@@ -253,16 +268,16 @@ export default function DetalheClientePage({ params }) {
           </div>
 
           <div className={styles.inputWrapper}>
-            <label className={styles.label}>UF</label>
-            <input
-              name="uf"
-              placeholder="SP"
-              value={formData.uf}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
+                <label className={styles.label}>UF</label>
+                <input
+                  name="UF"
+                  placeholder="SP"
+                  value={formData.cidade}
+                  onChange={handleChange}
+                  readOnly={!isEditing}
+                  className={styles.input}
+                />
+              </div>
         </div>
       </form>
     </div>

@@ -151,17 +151,7 @@ return (
           />
         </div>
 
-        <div className={styles.inputWrapper}>
-          <label className={styles.label}>Senha</label>
-          <input
-            name="senha"
-            type='password'
-            value={formData.senha ?? ""}
-            onChange={handleChange}
-            readOnly={!isEditing} 
-            className={styles.input}
-          />
-        </div>
+
         <div className={styles.inputWrapper}>
             <label className={styles.label}>Telefone</label>
               <input
@@ -185,6 +175,7 @@ return (
                 className={styles.input}
               />
         </div>  
+        <br></br>
 
         <h3 className={styles.subtitle}>Endereço</h3>
         <h3></h3>

@@ -223,11 +223,11 @@ class ColaboradorController {
       const complemento = req.body.complemento || null;
       const [result] = await pool.execute(
         `UPDATE colaborador 
-          SET nome = ?, cpf = ?, senha = ?, telefone = ?, perfil = ?, ativo = ?,
+          SET nome = ?, cpf = ?, telefone = ?, perfil = ?, ativo = ?,
               logradouro = ?, numero = ?, complemento = ?,
               bairro = ?, cidade = ?, uf = ?, cep = ?
           WHERE id = ?`,
-        [nome, cpf, senha, telefone, perfil, ativo, logradouro, numero, complemento, bairro, cidade, uf, cep, id]
+        [nome, cpf, telefone, perfil, ativo, logradouro, numero, complemento, bairro, cidade, uf, cep, id]
       );
 
       if (result.affectedRows === 0) {

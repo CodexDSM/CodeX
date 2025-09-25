@@ -4,7 +4,7 @@ import { Button, ButtonEstatico } from "@/components/ui/button";
 import { ColaboradorTable } from "@/features/administrativo/colaboradorTable";
 import { CardContent } from "@/components/ui/card";
 import styles from "./colaborador.module.css"
-import { UserRoundPlus } from "lucide-react";
+import { UserRoundPlus, MapPin } from "lucide-react";
 import Link from "next/link";
 
 
@@ -66,8 +66,8 @@ export default function PaginaRH() {
     <div>
       <CardContent>
         <header className={styles.header}>
-          <Link href="/administrativo/painel-localizacao">
-            <Button variant="localizar"><MapPin size={20} />Localização Trabalho</Button>
+          <Link href="/administrativo/painelLocalizacao">
+            <Button variant="localizar"><MapPin size={20} />Painel Localização</Button>
         </Link>
           <Link href="/administrativo/colaboradores/novo">
             <Button variant="add"><UserRoundPlus size={20}/>  Adicionar</Button>
