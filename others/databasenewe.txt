@@ -1,0 +1,3 @@
+Endpoint: databasenewe.cjusauuycpe7.us-east-2.rds.amazonaws.com
+User: admin
+Password: rYMBV1INY&QpogZ53cdu
