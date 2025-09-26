@@ -1,54 +1,80 @@
-          
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { ClienteTable } from "@/features/comercial/clientesTable";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
-import { UserRoundPlus } from "lucide-react";
+import { UserRoundPlus, Search, RefreshCcw } from "lucide-react";
 import styles from "./cliente.module.css";
+import clienteService from "@/services/clienteService";
 
 export default function PaginaClientes() {
+  const router = useRouter();
   const [clientes, setClientes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    per_page: 10,
+    total_records: 0,
+    total_pages: 0,
+    has_next: false,
+    has_prev: false
+  });
+
+  const [filters, setFilters] = useState({
+    search: '',
+    tipo_pessoa: '',
+    ativo: 'true'
+  });
+
   const [sortConfig, setSortConfig] = useState({ key: "nome", direction: "ascending" });
 
-  useEffect(() => {
-    async function fetchClientes() {
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await fetch("http://localhost:3001/api/clientes", { // ajuste a rota conforme sua API
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setClientes(data);
-        } else {
-          console.error("Erro ao carregar clientes:", data.message);
-        }
-      } catch (err) {
-        console.error("Erro de rede:", err);
-      }
-    }
-    fetchClientes();
-  }, []);
-
-  const sortedClientes = useMemo(() => {
-    let sortableItems = [...clientes];
-    if (sortConfig !== null) {
-      sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === "ascending" ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === "ascending" ? 1 : -1;
-        }
-        return 0;
+  const fetchClientes = async (page = 1) => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await clienteService.getClientes({
+        page,
+        limit: pagination.per_page,
+        ...filters
       });
+      
+      setClientes(response.data);
+      setPagination(response.pagination);
+    } catch (err) {
+      setError(err.message);
+      console.error('Erro ao carregar clientes:', err);
+      
+      if (err.message.includes('Não autorizado') || err.message.includes('Token')) {
+        alert('Sessão expirada. Faça login novamente.');
+        router.push('/login');
+      }
+    } finally {
+      setLoading(false);
     }
-    return sortableItems;
-  }, [clientes, sortConfig]);
+  };
+
+  useEffect(() => {
+    fetchClientes(1);
+  }, [filters]);
+
+  const handleSearch = () => {
+    fetchClientes(1);
+  };
+
+  const handlePageChange = (newPage) => {
+    fetchClientes(newPage);
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value === 'EMPTY_VALUE' ? '' : value
+    }));
+  };
 
   const requestSort = (key) => {
     let direction = "ascending";
@@ -60,16 +86,136 @@ export default function PaginaClientes() {
 
   return (
     <CardContent>
-      <header className={styles.header}>
-        <Link href="/comercial/clientes/novo">
-          <Button variant="add"><UserRoundPlus size={20}/>  Adicionar</Button>
-        </Link>
-      </header>
+<header>
+  <div style={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '1rem'
+  }}>
+    <div style={{
+      display: 'flex',
+      gap: '2rem',
+      alignItems: 'center'
+    }}>
+      <Select 
+        value={filters.tipo_pessoa || undefined} 
+        onValueChange={(value) => handleFilterChange('tipo_pessoa', value)}
+      >
+        <SelectTrigger style={{ width: '120px' }}>
+          <SelectValue placeholder="Tipo" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="EMPTY_VALUE">Todos</SelectItem>
+          <SelectItem value="F">Pessoa Física</SelectItem>
+          <SelectItem value="J">Pessoa Jurídica</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select 
+        value={filters.ativo || undefined} 
+        onValueChange={(value) => handleFilterChange('ativo', value)}
+      >
+        <SelectTrigger style={{ width: '120px' }}>
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="EMPTY_VALUE">Todos</SelectItem>
+          <SelectItem value="true">Ativos</SelectItem>
+          <SelectItem value="false">Inativos</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+
+    <Link href="/comercial/clientes/novo">
+      <Button variant="add">
+        <UserRoundPlus size={20} />
+        Adicionar
+      </Button>
+    </Link>
+  </div>
+</header>
+
+
+
+      {/* MENSAGEM DE ERRO */}
+      {error && (
+        <div style={{ 
+          backgroundColor: '#fee', 
+          border: '1px solid #fcc', 
+          color: '#c00', 
+          padding: '1rem', 
+          borderRadius: '4px', 
+          marginBottom: '1rem' 
+        }}>
+          {error}
+        </div>
+      )}
+
+      {/* TABELA DE CLIENTES */}
       <ClienteTable
-        clientes={sortedClientes}
+        clientes={clientes}
+        loading={loading}
         onSort={requestSort}
         sortConfig={sortConfig}
       />
+
+      {/* PAGINAÇÃO */}
+      {pagination.total_pages > 1 && (
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          marginTop: '1rem' 
+        }}>
+          <div style={{ fontSize: '0.875rem', color: '#666' }}>
+            Mostrando {((pagination.current_page - 1) * pagination.per_page) + 1} a{' '}
+            {Math.min(pagination.current_page * pagination.per_page, pagination.total_records)} de{' '}
+            {pagination.total_records} registros
+          </div>
+          
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <Button
+              variant="primary"
+              disabled={!pagination.has_prev}
+              onClick={() => handlePageChange(pagination.current_page - 1)}
+            >
+              Anterior
+            </Button>
+            
+            {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
+              let pageNum;
+              if (pagination.total_pages <= 5) {
+                pageNum = i + 1;
+              } else if (pagination.current_page <= 3) {
+                pageNum = i + 1;
+              } else if (pagination.current_page >= pagination.total_pages - 2) {
+                pageNum = pagination.total_pages - 4 + i;
+              } else {
+                pageNum = pagination.current_page - 2 + i;
+              }
+
+              return (
+                <Button
+                  key={pageNum}
+                  variant={pageNum === pagination.current_page ? "add" : "primary"}
+                  onClick={() => handlePageChange(pageNum)}
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+            
+            <Button
+              variant="primary"
+              disabled={!pagination.has_next}
+              onClick={() => handlePageChange(pagination.current_page + 1)}
+            >
+              Próxima
+            </Button>
+          </div>
+        </div>
+      )}
     </CardContent>
   );
 }

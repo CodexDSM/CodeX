@@ -1,35 +1,61 @@
 const pool = require('../config/database');
 
 class ClienteController {
-  // Lista clientes, com filtros opcionais
   async index(req, res, next) {
     try {
-      const { tipo_pessoa, ativo } = req.query;
+      console.log('Recebendo requisição:', req.query); // Debug
+      
+      const { 
+        tipo_pessoa, 
+        ativo, 
+        search, 
+        page = 1, 
+        limit = 10 
+      } = req.query;
+
+      // Query básica primeiro - SEM PAGINAÇÃO PARA TESTAR
       let query = 'SELECT * FROM cliente WHERE 1=1';
       const params = [];
 
-      // Filtra por tipo de pessoa (Física ou Jurídica)
+      // Filtro simples
       if (tipo_pessoa) {
         query += ' AND tipo_pessoa = ?';
         params.push(tipo_pessoa);
       }
 
-      // Filtra por status de 'ativo'
-      if (ativo !== undefined) {
+      if (ativo !== undefined && ativo !== '') {
         query += ' AND ativo = ?';
         params.push(ativo === 'true');
       }
 
-      query += ' ORDER BY nome';
+      query += ' ORDER BY nome LIMIT 10'; // Limite fixo para teste
+
+      console.log('Query SQL:', query); // Debug
+      console.log('Params:', params); // Debug
 
       const [rows] = await pool.execute(query, params);
-      res.json(rows);
+      
+      console.log('Resultados encontrados:', rows.length); // Debug
+
+      // Resposta simples para teste
+      res.json({
+        data: rows,
+        pagination: {
+          current_page: 1,
+          per_page: 10,
+          total_records: rows.length,
+          total_pages: 1,
+          has_next: false,
+          has_prev: false
+        }
+      });
     } catch (error) {
+      console.error('ERRO NO CONTROLLER:', error); // Debug
       next(error);
     }
   }
 
-  // Busca um cliente pelo ID
+  // ... resto dos métodos permanecem iguais
   async show(req, res, next) {
     try {
       const { id } = req.params;
@@ -45,7 +71,6 @@ class ClienteController {
     }
   }
 
-  // Cria um novo cliente
   async create(req, res, next) {
     try {
       const { 
@@ -71,7 +96,6 @@ class ClienteController {
     }
   }
 
-  // Atualiza um cliente existente
   async update(req, res, next) {
     try {
       const { id } = req.params;
@@ -100,7 +124,6 @@ class ClienteController {
     }
   }
 
-  // Desativa um cliente (não o remove do banco)
   async destroy(req, res, next) {
     try {
       const { id } = req.params;
@@ -117,7 +140,6 @@ class ClienteController {
     }
   }
 
-  // Busca um cliente pelo número de documento (CPF/CNPJ)
   async findByDocumento(req, res, next) {
     try {
       const { documento } = req.params;

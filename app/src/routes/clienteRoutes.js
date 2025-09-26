@@ -1,20 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const clienteController = require('../controllers/clienteController');
-const { authenticateToken, authorizeRoles } = require('../middlewares/auth');
+const { authenticateToken } = require('../middlewares/auth');
 
-// Aplica o middleware de autenticação a todas as rotas de cliente.
-router.use(authenticateToken);
-
-// Rotas públicas para qualquer usuário autenticado.
-router.get('/', clienteController.index);
-router.get('/:id', clienteController.show);
-router.get('/documento/:documento', clienteController.findByDocumento);
-
-// Rotas exclusivas para o gerenciamento de clientes.
-// Apenas administradores e gerentes podem criar, atualizar ou desativar clientes.
-router.post('/', authorizeRoles('Administrador', 'Gerente'), clienteController.create);
-router.put('/:id', authorizeRoles('Administrador', 'Gerente'), clienteController.update);
-router.delete('/:id', authorizeRoles('Administrador', 'Gerente'), clienteController.destroy);
+// Todas as rotas com autenticação
+router.get('/', authenticateToken, clienteController.index);
+router.get('/:id', authenticateToken, clienteController.show);
+router.post('/', authenticateToken, clienteController.create);
+router.put('/:id', authenticateToken, clienteController.update);
+router.delete('/:id', authenticateToken, clienteController.destroy);
+router.get('/documento/:documento', authenticateToken, clienteController.findByDocumento);
 
 module.exports = router;
