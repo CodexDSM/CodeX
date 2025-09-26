@@ -120,13 +120,13 @@ export function ClienteTable({
                 Telefone {getSortIndicator("telefone")}
               </button>
             </th>
-            <th>Status</th>
+            {/* <th>Status</th> <- REMOVIDO */}
           </tr>
         </thead>
         <tbody>
           {sortedClientes.length === 0 ? (
             <tr>
-              <td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>
+              <td colSpan="4" style={{ textAlign: 'center', padding: '2rem' }}> {/* MUDOU DE 5 PARA 4 */}
                 Nenhum cliente encontrado
               </td>
             </tr>
@@ -142,6 +142,7 @@ export function ClienteTable({
                 <td>{cliente.tipo_pessoa === 'F' ? 'Pessoa Física' : 'Pessoa Jurídica'}</td>
                 <td>{formatDocument(cliente.documento)}</td>
                 <td>{formatPhone(cliente.telefone)}</td>
+                {/* REMOVIDA A COLUNA DE STATUS:
                 <td>
                   <span style={{ 
                     color: cliente.ativo ? 'green' : 'red',
@@ -150,6 +151,7 @@ export function ClienteTable({
                     {cliente.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </td>
+                */}
               </tr>
             ))
           )}

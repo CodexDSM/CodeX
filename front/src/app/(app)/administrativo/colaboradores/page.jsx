@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Link from "next/link";
 import { UserRoundPlus, MapPin } from "lucide-react";
 import styles from "./colaborador.module.css";
-import colaboradorService from "@/services/colaboradorService";
 
 export default function PaginaColaboradores() {
   const router = useRouter();
@@ -27,7 +26,8 @@ export default function PaginaColaboradores() {
   const [filters, setFilters] = useState({
     search: '',
     perfil: '',
-    ativo: 'true'
+    ativo: 'true',
+    tipo_localizacao: ''
   });
 
   const [sortConfig, setSortConfig] = useState({ key: "nome", direction: "ascending" });
@@ -36,14 +36,40 @@ export default function PaginaColaboradores() {
     setLoading(true);
     setError('');
     try {
-      const response = await colaboradorService.getColaboradores({
-        page,
-        limit: pagination.per_page,
-        ...filters
+      const token = localStorage.getItem('authToken');
+      const params = new URLSearchParams();
+      
+      params.append('page', page);
+      params.append('limit', pagination.per_page);
+      
+      if (filters.search) params.append('search', filters.search);
+      if (filters.perfil) params.append('perfil', filters.perfil);
+      if (filters.ativo !== '') params.append('ativo', filters.ativo);
+      if (filters.tipo_localizacao) params.append('tipo_localizacao', filters.tipo_localizacao);
+      
+      console.log('Enviando parâmetros:', Object.fromEntries(params));
+      
+      const response = await fetch(`http://localhost:3001/api/colaboradores?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       
-      setColaboradores(response.data);
-      setPagination(response.pagination);
+      if (response.ok) {
+        const data = await response.json();
+        setColaboradores(data);
+        setPagination(prev => ({
+          ...prev,
+          total_records: data.length,
+          total_pages: Math.ceil(data.length / pagination.per_page) || 1,
+          has_next: false,
+          has_prev: false
+        }));
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao carregar colaboradores');
+      }
     } catch (err) {
       setError(err.message);
       console.error('Erro ao carregar colaboradores:', err);
@@ -66,6 +92,7 @@ export default function PaginaColaboradores() {
   };
 
   const handleFilterChange = (key, value) => {
+    console.log(`Alterando filtro ${key} para:`, value);
     setFilters(prev => ({
       ...prev,
       [key]: value === 'EMPTY_VALUE' ? '' : value
@@ -91,7 +118,7 @@ export default function PaginaColaboradores() {
         }}>
           <div style={{
             display: 'flex',
-            gap: '2rem',
+            gap: '1rem',
             alignItems: 'center'
           }}>
             <Select 
@@ -121,6 +148,22 @@ export default function PaginaColaboradores() {
                 <SelectItem value="EMPTY_VALUE">Todos</SelectItem>
                 <SelectItem value="true">Ativos</SelectItem>
                 <SelectItem value="false">Inativos</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select 
+              value={filters.tipo_localizacao || undefined} 
+              onValueChange={(value) => handleFilterChange('tipo_localizacao', value)}
+            >
+              <SelectTrigger style={{ width: '200px' }}>
+                <SelectValue placeholder="Localização" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="EMPTY_VALUE">Todas</SelectItem>
+                <SelectItem value="Presencial">Presencial</SelectItem>
+                <SelectItem value="Home_Office">Home Office</SelectItem>
+                <SelectItem value="Evento">Evento</SelectItem>
+                <SelectItem value="Treinamento">Treinamento</SelectItem>
               </SelectContent>
             </Select>
           </div>

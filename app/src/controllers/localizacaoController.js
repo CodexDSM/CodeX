@@ -1,13 +1,11 @@
 const pool = require('../config/database');
 
 class LocalizacaoController {
-  // Registra uma nova localização para um colaborador
   async create(req, res, next) {
     try {
       const { colaborador_id, tipo_localizacao } = req.body;
       const usuarioLogado = req.user;
 
-      // Apenas admins/gerentes podem registrar para outros, ou o próprio usuário
       if (usuarioLogado.perfil !== 'Administrador' && 
           usuarioLogado.perfil !== 'Gerente' && 
           usuarioLogado.id !== parseInt(colaborador_id)) {
@@ -16,7 +14,6 @@ class LocalizacaoController {
         });
       }
 
-      // Verifica se o colaborador existe
       const [colaboradorRows] = await pool.execute(
         'SELECT id FROM colaborador WHERE id = ? AND ativo = true',
         [colaborador_id]
@@ -43,13 +40,11 @@ class LocalizacaoController {
     }
   }
 
-  // Lista as últimas 30 localizações de um colaborador
   async getHistorico(req, res, next) {
     try {
       const { colaborador_id } = req.params;
       const usuarioLogado = req.user;
 
-      // Controle de acesso: apenas admins/gerentes ou o próprio usuário
       if (usuarioLogado.perfil !== 'Administrador' && 
           usuarioLogado.perfil !== 'Gerente' && 
           usuarioLogado.id !== parseInt(colaborador_id)) {
@@ -78,13 +73,11 @@ class LocalizacaoController {
     }
   }
 
-  // Busca a localização atual (mais recente) de um colaborador
   async getAtual(req, res, next) {
     try {
       const { colaborador_id } = req.params;
       const usuarioLogado = req.user;
 
-      // Controle de acesso
       if (usuarioLogado.perfil !== 'Administrador' && 
           usuarioLogado.perfil !== 'Gerente' && 
           usuarioLogado.id !== parseInt(colaborador_id)) {
@@ -117,7 +110,6 @@ class LocalizacaoController {
     }
   }
 
-  // Lista todas as localizações com filtros (apenas para admins/gerentes)
   async index(req, res, next) {
     try {
       const { tipo_localizacao, data_inicio, data_fim } = req.query;
@@ -135,19 +127,16 @@ class LocalizacaoController {
       `;
       const params = [];
 
-      // Filtro por tipo de localização
       if (tipo_localizacao) {
         query += ' AND l.tipo_localizacao = ?';
         params.push(tipo_localizacao);
       }
 
-      // Filtro por data de início
       if (data_inicio) {
         query += ' AND DATE(l.data_hora) >= ?';
         params.push(data_inicio);
       }
 
-      // Filtro por data fim
       if (data_fim) {
         query += ' AND DATE(l.data_hora) <= ?';
         params.push(data_fim);
@@ -163,7 +152,6 @@ class LocalizacaoController {
     }
   }
 
-  // Conta quantos colaboradores estão em cada localização atualmente
   async getEstatisticasAtuais(req, res, next) {
     try {
       const [estatisticas] = await pool.execute(`
@@ -183,8 +171,7 @@ class LocalizacaoController {
         ORDER BY total_colaboradores DESC
       `);
 
-      // Formatar resposta com totais zerados para tipos não utilizados
-      const tiposLocalizacao = ['Presencial', 'Home Office', 'Evento', 'Treinamento'];
+      const tiposLocalizacao = ['Presencial', 'Home_Office', 'Evento', 'Treinamento'];
       const resultado = tiposLocalizacao.map(tipo => {
         const estatistica = estatisticas.find(est => est.tipo_localizacao === tipo);
         return {
@@ -194,7 +181,6 @@ class LocalizacaoController {
         };
       });
 
-      // Adicionar total geral
       const totalGeral = estatisticas.reduce((total, est) => total + est.total_colaboradores, 0);
 
       res.json({

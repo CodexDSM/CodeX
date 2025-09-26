@@ -1,13 +1,11 @@
 'use client';
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import styles from "./interacoes.module.css";
 
 export default function InteracoesClientePage() {
   const { id: clientId } = useParams();
-
   const [interacoes, setInteracoes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,13 +40,11 @@ export default function InteracoesClientePage() {
     fetchInteracoes();
   }, [clientId, isSubmitting]);
 
-  // Handler universal
   const handleChange = e => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // Submissão conectada ao backend
   const handleSubmit = async e => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -87,22 +83,27 @@ export default function InteracoesClientePage() {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <h2 className={styles.pageTitle}>Interações do Cliente</h2>
-      <div className={styles.row}>
-        <Card className={styles.cardForm}>
-          <CardContent>
-            <form className={styles.form} onSubmit={handleSubmit} autoComplete="off">
-              <div className={styles.formGroup}>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Interações do Cliente</h1>
+      </div>
+
+      <div className={styles.layout}>
+        {/* FORMULÁRIO */}
+        <div className={styles.formColumn}>
+          <div className={styles.formBox}>
+            <h2 className={styles.sectionTitle}>Nova Interação</h2>
+            <form onSubmit={handleSubmit} className={styles.form}>
+              <div className={styles.field}>
                 <label className={styles.label}>Tipo de Interação</label>
                 <select
                   name="tipo_interacao"
                   value={form.tipo_interacao}
                   onChange={handleChange}
                   required
-                  className={styles.select}
+                  className={styles.input}
                 >
-                  <option value="" disabled>Selecione...</option>
+                  <option value="">Selecione...</option>
                   <option value="Ligação">Ligação</option>
                   <option value="E-mail">E-mail</option>
                   <option value="Reunião Presencial">Reunião Presencial</option>
@@ -110,7 +111,8 @@ export default function InteracoesClientePage() {
                   <option value="Outro">Outro</option>
                 </select>
               </div>
-              <div className={styles.formGroup}>
+
+              <div className={styles.field}>
                 <label className={styles.label}>Assunto</label>
                 <input
                   name="assunto"
@@ -119,10 +121,10 @@ export default function InteracoesClientePage() {
                   required
                   placeholder="Digite o assunto"
                   className={styles.input}
-                  autoComplete="off"
                 />
               </div>
-              <div className={styles.formGroup}>
+
+              <div className={styles.field}>
                 <label className={styles.label}>Detalhes</label>
                 <textarea
                   name="detalhes"
@@ -132,10 +134,10 @@ export default function InteracoesClientePage() {
                   rows={3}
                   placeholder="Descreva a interação"
                   className={styles.textarea}
-                  autoComplete="off"
                 />
               </div>
-              <div className={styles.formGroup}>
+
+              <div className={styles.field}>
                 <label className={styles.label}>Data e Hora</label>
                 <input
                   type="datetime-local"
@@ -146,35 +148,58 @@ export default function InteracoesClientePage() {
                   className={styles.input}
                 />
               </div>
-              <Button variant="adicionar" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Salvando..." : "Adicionar Interação"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
 
-        <div className={styles.listaCol}>
-          <Card>
-            <CardContent>
-              {loading ? <p>Carregando...</p>
-                : error ? <p className={styles.error}>Erro: {error}</p>
-                : interacoes.length === 0 ?
-                  <p>Nenhuma interação encontrada.</p>
-                :
-                  <ul className={styles.lista}>
-                    {interacoes.map(item => (
-                      <li key={item.id} className={styles.item}>
-                        <b>Data:</b> {new Date(item.data_interacao).toLocaleString()}<br />
-                        <b>Tipo:</b> {item.tipo_interacao}<br />
-                        <b>Assunto:</b> {item.assunto}<br />
-                        <b>Detalhes:</b> {item.detalhes}<br />
-                        <b>Colaborador:</b> {(item.nome_colaborador || item.colaborador_nome || "N/A")}
-                      </li>
-                    ))}
-                  </ul>
-              }
-            </CardContent>
-          </Card>
+              <div className={styles.buttonContainer}>
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className={styles.submitButton}
+                >
+                  {isSubmitting ? "Salvando..." : "Adicionar Interação"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {/* LISTA */}
+        <div className={styles.listColumn}>
+          <div className={styles.listBox}>
+            <h2 className={styles.sectionTitle}>Histórico de Interações</h2>
+            <div className={styles.listContent}>
+              {loading ? (
+                <div className={styles.message}>Carregando...</div>
+              ) : error ? (
+                <div className={styles.error}>Erro: {error}</div>
+              ) : interacoes.length === 0 ? (
+                <div className={styles.message}>Nenhuma interação encontrada.</div>
+              ) : (
+                <div className={styles.list}>
+                  {interacoes.map(item => (
+                    <div key={item.id} className={styles.item}>
+                      <div className={styles.itemHeader}>
+                        <div className={styles.itemDate}>
+                          {new Date(item.data_interacao).toLocaleDateString('pt-BR')} às {new Date(item.data_interacao).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}
+                        </div>
+                        <div className={styles.itemType}>{item.tipo_interacao}</div>
+                      </div>
+                      <div className={styles.itemContent}>
+                        <div className={styles.itemField}>
+                          <span className={styles.fieldLabel}>Assunto:</span> {item.assunto}
+                        </div>
+                        <div className={styles.itemField}>
+                          <span className={styles.fieldLabel}>Detalhes:</span> {item.detalhes}
+                        </div>
+                        <div className={styles.itemField}>
+                          <span className={styles.fieldLabel}>Por:</span> {item.nome_colaborador || item.colaborador_nome || "N/A"}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
