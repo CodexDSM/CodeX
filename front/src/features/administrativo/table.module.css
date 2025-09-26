@@ -1,12 +1,22 @@
+.container {
+  width: 100%;
+  overflow-x: auto;
+}
+
 .table {
   width: 100%;
+  min-width: 1000px;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .table th, .table td {
   padding: 1rem 1.5rem;
-  text-align: left;
+  text-align: left; 
   border-bottom: 1px solid #E5E7EB;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .table th {
@@ -14,8 +24,10 @@
   font-weight: 700;
   color: #028BBF;
   text-transform: uppercase;
+  background-color: #f9fafb;
 }
-.table th:hover{
+
+.table th:hover {
   transform: scale(1.02);
 }
 
@@ -25,11 +37,54 @@
   vertical-align: middle;
 }
 
-.botao{
-  cursor: pointer;
-
+/* LARGURAS ESPECÍFICAS DAS COLUNAS */
+.table th:nth-child(1), 
+.table td:nth-child(1) {
+  width: 200px;
+  min-width: 200px;
 }
 
+.table th:nth-child(2), 
+.table td:nth-child(2) {
+  width: 120px;
+  min-width: 120px;
+}
+
+.table th:nth-child(3), 
+.table td:nth-child(3) {
+  width: 140px;
+  min-width: 140px;
+}
+
+.table th:nth-child(4), 
+.table td:nth-child(4) {
+  width: 130px;
+  min-width: 130px;
+}
+
+.table th:nth-child(5), 
+.table td:nth-child(5) {
+  width: 150px;
+  min-width: 150px;
+}
+
+.table th:nth-child(6), 
+.table td:nth-child(6) {
+  width: 100px;
+  min-width: 100px;
+}
+
+.botao {
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
 
 .clickableRow {
   cursor: pointer;
@@ -37,5 +92,5 @@
 }
 
 .clickableRow:hover {
-  background-color: #f9fafb; /* Um cinza bem claro */
+  background-color: #e3f6fd;
 }

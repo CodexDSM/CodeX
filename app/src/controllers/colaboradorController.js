@@ -130,31 +130,69 @@ class ColaboradorController {
     }
   }
 
-  // Lista todos os colaboradores com filtros.
-  async index(req, res, next) {
-    try {
-      const { ativo, perfil } = req.query;
-      let query = `SELECT * FROM ( SELECT c.id, c.nome, c.cpf, c.email, c.telefone, c.perfil, c.ativo, c.logradouro, c.numero, c.complemento, c.bairro, c.cidade, c.uf, c.cep, c.criado_em, l.tipo_localizacao, l.data_hora, ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY l.data_hora DESC) as rn FROM colaborador c LEFT JOIN localizacao_colaborador l ON l.colaborador_id = c.id ) t WHERE rn = 1; `
-      const params = [];
+// Lista todos os colaboradores com filtros e paginação.
+async index(req, res, next) {
+  try {
+    console.log('Recebendo requisição colaboradores:', req.query);
+    
+    const { 
+      ativo, 
+      perfil, 
+      search, 
+      page = 1, 
+      limit = 10 
+    } = req.query;
 
-      // Adiciona filtro por status 'ativo'.
-      if (ativo !== undefined) {
-        query += ' AND ativo = ?';
-        params.push(ativo === 'true');
-      }
+    // Query básica com localização mais recente
+    let query = `
+      SELECT c.id, c.nome, c.cpf, c.email, c.telefone, c.perfil, c.ativo, 
+             c.logradouro, c.numero, c.complemento, c.bairro, c.cidade, c.uf, c.cep, 
+             c.criado_em, l.tipo_localizacao, l.data_hora
+      FROM colaborador c 
+      LEFT JOIN (
+        SELECT colaborador_id, tipo_localizacao, data_hora,
+               ROW_NUMBER() OVER (PARTITION BY colaborador_id ORDER BY data_hora DESC) as rn
+        FROM localizacao_colaborador
+      ) l ON c.id = l.colaborador_id AND l.rn = 1
+      WHERE 1=1
+    `;
+    
+    const params = [];
 
-      // Adiciona filtro por perfil.
-      if (perfil) {
-        query += ' AND perfil = ?';
-        params.push(perfil);
-      }
-
-      const [rows] = await pool.execute(query, params);
-      res.json(rows);
-    } catch (error) {
-      next(error);
+    // Filtro por busca
+    if (search) {
+      query += ' AND (c.nome LIKE ? OR c.cpf LIKE ? OR c.email LIKE ?)';
+      const searchParam = `%${search}%`;
+      params.push(searchParam, searchParam, searchParam);
     }
+
+    // Adiciona filtro por status 'ativo'.
+    if (ativo !== undefined && ativo !== '') {
+      query += ' AND c.ativo = ?';
+      params.push(ativo === 'true');
+    }
+
+    // Adiciona filtro por perfil.
+    if (perfil && perfil !== '') {
+      query += ' AND c.perfil = ?';
+      params.push(perfil);
+    }
+
+    query += ' ORDER BY c.nome LIMIT 50'; // Limite fixo para teste
+
+    console.log('Query SQL:', query);
+    console.log('Params:', params);
+
+    const [rows] = await pool.execute(query, params);
+    
+    console.log('Resultados encontrados:', rows.length);
+
+    res.json(rows);
+  } catch (error) {
+    console.error('ERRO NO CONTROLLER:', error);
+    next(error);
   }
+}
 
   // Busca um colaborador pelo ID.
   async show(req, res, next) {

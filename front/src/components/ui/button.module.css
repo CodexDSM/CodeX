@@ -127,13 +127,13 @@
   width: 100%;
   background-color: #ffffff;
   color: #575756;
-  border-color: #5757561c;
+  border-color: #028BBF;
   font-size:medium;
   font-weight: 500;
 }
 
 .localizar:hover{
   transform: scale(1.03);
-  background-color: #ffffff;
+  background-color: #d1edf8;
   transition-delay: 100ms;
 }

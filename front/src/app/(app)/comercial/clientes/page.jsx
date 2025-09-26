@@ -6,7 +6,7 @@ import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
-import { UserRoundPlus, Search, RefreshCcw } from "lucide-react";
+import { UserRoundPlus, RefreshCcw } from "lucide-react";
 import styles from "./cliente.module.css";
 import clienteService from "@/services/clienteService";
 
@@ -26,8 +26,7 @@ export default function PaginaClientes() {
 
   const [filters, setFilters] = useState({
     search: '',
-    tipo_pessoa: '',
-    ativo: 'true'
+    tipo_pessoa: ''
   });
 
   const [sortConfig, setSortConfig] = useState({ key: "nome", direction: "ascending" });
@@ -61,10 +60,6 @@ export default function PaginaClientes() {
     fetchClientes(1);
   }, [filters]);
 
-  const handleSearch = () => {
-    fetchClientes(1);
-  };
-
   const handlePageChange = (newPage) => {
     fetchClientes(newPage);
   };
@@ -86,59 +81,43 @@ export default function PaginaClientes() {
 
   return (
     <CardContent>
-<header>
-  <div style={{
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '1rem'
-  }}>
-    <div style={{
-      display: 'flex',
-      gap: '2rem',
-      alignItems: 'center'
-    }}>
-      <Select 
-        value={filters.tipo_pessoa || undefined} 
-        onValueChange={(value) => handleFilterChange('tipo_pessoa', value)}
-      >
-        <SelectTrigger style={{ width: '120px' }}>
-          <SelectValue placeholder="Tipo" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="EMPTY_VALUE">Todos</SelectItem>
-          <SelectItem value="F">Pessoa Física</SelectItem>
-          <SelectItem value="J">Pessoa Jurídica</SelectItem>
-        </SelectContent>
-      </Select>
+      <header>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1rem'
+        }}>
+          <div style={{
+            display: 'flex',
+            gap: '2rem',
+            alignItems: 'center'
+          }}>
+            <Select 
+              value={filters.tipo_pessoa || undefined} 
+              onValueChange={(value) => handleFilterChange('tipo_pessoa', value)}
+            >
+              <SelectTrigger style={{ width: '180px' }}>
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="EMPTY_VALUE">Todos</SelectItem>
+                <SelectItem value="F">Pessoa Física</SelectItem>
+                <SelectItem value="J">Pessoa Jurídica</SelectItem>
+              </SelectContent>
+            </Select>
 
-      <Select 
-        value={filters.ativo || undefined} 
-        onValueChange={(value) => handleFilterChange('ativo', value)}
-      >
-        <SelectTrigger style={{ width: '120px' }}>
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="EMPTY_VALUE">Todos</SelectItem>
-          <SelectItem value="true">Ativos</SelectItem>
-          <SelectItem value="false">Inativos</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
+          </div>
 
-    <Link href="/comercial/clientes/novo">
-      <Button variant="add">
-        <UserRoundPlus size={20} />
-        Adicionar
-      </Button>
-    </Link>
-  </div>
-</header>
+          <Link href="/comercial/clientes/novo">
+            <Button variant="add">
+              <UserRoundPlus size={20} />
+              Adicionar
+            </Button>
+          </Link>
+        </div>
+      </header>
 
-
-
-      {/* MENSAGEM DE ERRO */}
       {error && (
         <div style={{ 
           backgroundColor: '#fee', 
@@ -152,7 +131,6 @@ export default function PaginaClientes() {
         </div>
       )}
 
-      {/* TABELA DE CLIENTES */}
       <ClienteTable
         clientes={clientes}
         loading={loading}
@@ -160,7 +138,6 @@ export default function PaginaClientes() {
         sortConfig={sortConfig}
       />
 
-      {/* PAGINAÇÃO */}
       {pagination.total_pages > 1 && (
         <div style={{ 
           display: 'flex', 
@@ -170,7 +147,7 @@ export default function PaginaClientes() {
         }}>
           <div style={{ fontSize: '0.875rem', color: '#666' }}>
             Mostrando {((pagination.current_page - 1) * pagination.per_page) + 1} a{' '}
-            {Math.min(pagination.current_page * pagination.per_page, pagination.total_records)} de{' '}
+            {Math.min(pagination.current_page * pagination.per_page, pagination.per_page * pagination.current_page)} de{' '}
             {pagination.total_records} registros
           </div>
           
