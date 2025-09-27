@@ -3,13 +3,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import clienteService from "@/services/clienteService";
 import styles from './funcionario.module.css';
 
@@ -51,13 +44,6 @@ export default function CadastroCliente({ clienteId = null, initialData = null }
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSelectChange = (name, value) => {
-    setFormData(prev => ({
-      ...prev,
       [name]: value,
       ...(name === 'tipo_pessoa' ? { documento: '' } : {})
     }));
@@ -89,11 +75,6 @@ export default function CadastroCliente({ clienteId = null, initialData = null }
     if (onlyNums.length <= 11) {
       setFormData(prev => ({ ...prev, telefone: onlyNums }));
     }
-  };
-
-  const handleClear = () => {
-    setFormData(initialFormData);
-    setError(null);
   };
 
   const validateForm = () => {
@@ -179,21 +160,20 @@ export default function CadastroCliente({ clienteId = null, initialData = null }
           <div className={styles.formGrid}>
             <div className={styles.inputWrapper}>
               <label className={styles.label}>Tipo de Pessoa *</label>
-              <Select 
-                value={formData.tipo_pessoa || undefined}
-                onValueChange={(value) => handleSelectChange('tipo_pessoa', value)} 
+              <select
+                name="tipo_pessoa"
+                value={formData.tipo_pessoa}
+                onChange={handleChange}
+                required
+                className={styles.select}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo de pessoa" />
-                </SelectTrigger>
-                <SelectContent>
-                  {tiposPessoa.map(({ label, value }) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <option value="" disabled>Selecione o tipo de pessoa</option>
+                {tiposPessoa.map(({ label, value }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className={styles.inputWrapper}>
@@ -328,33 +308,24 @@ export default function CadastroCliente({ clienteId = null, initialData = null }
 
             <div className={styles.inputWrapper}>
               <label className={styles.label}>UF *</label>
-              <Select 
-                value={formData.uf || undefined}
-                onValueChange={(value) => handleSelectChange('uf', value)} 
+              <select
+                name="uf"
+                value={formData.uf}
+                onChange={handleChange}
+                required
+                className={styles.select}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a UF" />
-                </SelectTrigger>
-                <SelectContent>
-                  {estados.map((estado) => (
-                    <SelectItem key={estado} value={estado}>
-                      {estado}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <option value="" disabled>Selecione a UF</option>
+                {estados.map((estado) => (
+                  <option key={estado} value={estado}>
+                    {estado}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
           <div className={styles.buttonContainer}>
-            <Button
-              type="button"
-              variant="clear"
-              onClick={handleClear}
-              disabled={isLoading}
-            >
-              Limpar
-            </Button>
             <Button 
               type="submit" 
               variant="adicionar" 
