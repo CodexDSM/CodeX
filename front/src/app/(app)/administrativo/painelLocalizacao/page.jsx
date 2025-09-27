@@ -145,7 +145,7 @@ export default function PainelLocalTrabalho() {
         <div className={styles.statsGrid}>
           <div className={styles.statCard}>
             <div className={styles.statIcon} style={{backgroundColor: '#06b6d4'}}>
-              <Home size={16} />
+              <Home size={20} />
             </div>
             <div className={styles.statContent}>
               <h3>Home Office</h3>
@@ -155,7 +155,7 @@ export default function PainelLocalTrabalho() {
 
           <div className={styles.statCard}>
             <div className={styles.statIcon} style={{backgroundColor: '#3b82f6'}}>
-              <Building size={16} />
+              <Building size={20} />
             </div>
             <div className={styles.statContent}>
               <h3>Presencial</h3>
@@ -165,7 +165,7 @@ export default function PainelLocalTrabalho() {
 
           <div className={styles.statCard}>
             <div className={styles.statIcon} style={{backgroundColor: '#8b5cf6'}}>
-              <Calendar size={16} />
+              <Calendar size={20} />
             </div>
             <div className={styles.statContent}>
               <h3>Eventos</h3>
@@ -175,7 +175,7 @@ export default function PainelLocalTrabalho() {
 
           <div className={styles.statCard}>
             <div className={styles.statIcon} style={{backgroundColor: '#10b981'}}>
-              <GraduationCap size={16} />
+              <GraduationCap size={20} />
             </div>
             <div className={styles.statContent}>
               <h3>Treinamento</h3>

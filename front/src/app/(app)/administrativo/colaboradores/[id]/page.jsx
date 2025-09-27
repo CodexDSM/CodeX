@@ -161,8 +161,7 @@ export default function DetalheColaboradorPage({ params }) {
     
     const tipos = {
       'Presencial': 'Presencial',
-      'Home_Office': 'Home Office',
-      'home_office': 'Home Office',
+      'Home Office': 'Home Office',
       'Evento': 'Evento',
       'Treinamento': 'Treinamento'
     };
@@ -299,7 +298,7 @@ export default function DetalheColaboradorPage({ params }) {
                                                                   >
                 <option value="">Selecione...</option>
                 <option value="Presencial">Presencial</option>
-                <option value="Home_Office">Home Office</option>
+                <option value="Home Office">Home Office</option>
                 <option value="Evento">Evento</option>
                 <option value="Treinamento">Treinamento</option>
               </select>

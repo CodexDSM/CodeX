@@ -161,7 +161,7 @@ export default function PaginaColaboradores() {
               <SelectContent>
                 <SelectItem value="EMPTY_VALUE">Todas</SelectItem>
                 <SelectItem value="Presencial">Presencial</SelectItem>
-                <SelectItem value="Home_Office">Home Office</SelectItem>
+                <SelectItem value="Home Office">Home Office</SelectItem>
                 <SelectItem value="Evento">Evento</SelectItem>
                 <SelectItem value="Treinamento">Treinamento</SelectItem>
               </SelectContent>

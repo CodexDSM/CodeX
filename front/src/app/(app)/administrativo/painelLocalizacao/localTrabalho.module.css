@@ -1,8 +1,8 @@
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1.5rem;
   background-color: #f8fafc;
   min-height: calc(100vh - 80px);
   box-sizing: border-box;
@@ -19,36 +19,40 @@
 
 .content {
   display: flex;
-  gap: 1.5rem;
+  gap: 2.5rem;
   width: 100%;
   align-items: stretch;
+  justify-content: center;
+  height: calc(100vh - 140px);
 }
 
 .chartSection {
   flex: 1;
   background-color: white;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 2.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .chartWrapper {
   width: 100%;
+  max-width: 500px;
+  height: 500px;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 1.5rem;
-  flex: 1;
+  margin-bottom: 2rem;
 }
 
 .chartContainer {
   position: relative;
-  width: 300px;
-  height: 300px;
-  margin: 0 auto;
+  width: 100%;
+  height: 100%;
 }
 
 .centerLabel {
@@ -62,7 +66,7 @@
 
 .centerNumber {
   display: block;
-  font-size: 1.5rem;
+  font-size: 3rem;
   font-weight: 700;
   color: #1f2937;
   line-height: 1;
@@ -71,68 +75,69 @@
 .legend {
   display: flex;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 2.5rem;
   flex-wrap: wrap;
-  margin-top: auto;
 }
 
 .legendItem {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: 0.75rem;
+  font-size: 1rem;
   color: #374151;
-  justify-content: flex-start;
+  font-weight: 500;
 }
 
 .legendColor {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
 .statsGrid {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  width: 280px;
+  gap: 1.5rem;
+  width: 350px;
   flex-shrink: 0;
   background-color: white;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 2.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   align-self: stretch;
+  justify-content: center;
 }
 
 .statCard {
   background-color: #f8fafc;
-  border-radius: 8px;
-  padding: 1rem;
+  border-radius: 12px;
+  padding: 1.5rem;
   display: grid;
-  grid-template-columns: 36px 1fr;
-  gap: 0.75rem;
+  grid-template-columns: 48px 1fr;
+  gap: 1rem;
   align-items: center;
   border: 1px solid #e5e7eb;
-  transition: box-shadow 0.2s ease;
+  transition: all 0.2s ease;
   width: 100%;
   box-sizing: border-box;
-  min-height: 60px;
+  min-height: 80px;
 }
 
 .statCard:hover {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   background-color: #f1f5f9;
+  transform: translateY(-2px);
 }
 
 .statIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
   color: white;
   grid-column: 1;
 }
@@ -143,24 +148,62 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  min-height: 36px;
+  min-height: 48px;
 }
 
 .statContent h3 {
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   color: #374151;
   margin: 0;
-  line-height: 1.1;
+  line-height: 1.2;
   padding: 0;
+  margin-bottom: 4px;
 }
 
 .statNumber {
-  font-size: 1.375rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #1f2937;
   line-height: 1;
   margin: 0;
   padding: 0;
-  margin-top: 2px;
+}
+
+@media (min-width: 1024px) {
+  .chartWrapper {
+    max-width: 600px;
+    height: 600px;
+  }
+  
+  .centerNumber {
+    font-size: 3.5rem;
+  }
+  
+  .statsGrid {
+    width: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+    gap: 1.5rem;
+    height: auto;
+  }
+  
+  .chartWrapper {
+    height: 400px;
+  }
+  
+  .statsGrid {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .statCard {
+    flex: 1;
+    min-width: 250px;
+  }
 }
