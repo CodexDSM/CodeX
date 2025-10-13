@@ -35,8 +35,8 @@ export function Header() {
 
   useEffect(() => {
     // Dados do usuário logado (sempre do localStorage, nunca mudam)
-    setNomeLogado(localStorage.getItem('userNome') || '');
-    setEmailLogado(localStorage.getItem('userEmail') || '');
+    setNomeLogado(localStorage.getItem('userNome') || 'Não logado');
+    setEmailLogado(localStorage.getItem('userEmail') || 'Não logado');
     
     // ID do colaborador logado - busca 'colaboradorId' (que é salvo no login)
     let userId = localStorage.getItem('colaboradorId');
