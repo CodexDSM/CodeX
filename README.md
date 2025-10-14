@@ -37,15 +37,15 @@ O desenvolvimento foi dividido em 3 Sprints, cada uma com um objetivo claro para
 
 ### **Sprint 1: Estrutura e Fluxo Principal**
 
-  * **Status:** *Em Andamento*
+  * **Status:** *Concluído*
   * **Período:** 08/09/2025 a 28/09/2025
   * **Foco:** Construir o esqueleto do sistema, permitindo que o fluxo principal (Venda \> Operação \> Faturamento) funcione de ponta a ponta.
 
 ### **Sprint 2:  <br>**
 
-  * **Status:** *Em Planejamento*
+  * **Status:** *Em Andamento*
   * **Período:** 06/10/2025 a 26/10/2025
-  * **Foco:** 
+  * **Foco:** Implementação de novas funções e melhorias no sistema conforme planejado, com integração dos módulos e ajustes a partir dos feedbacks da Sprint 1.
 
 ### **Sprint 3: <br>**
 
@@ -57,18 +57,21 @@ O desenvolvimento foi dividido em 3 Sprints, cada uma com um objetivo claro para
 
 ## 5\. Tabela Descritiva das Sprints
 
-| Sprint | Período da Sprint | Link para Documentação da Sprint | Link para Vídeo no YouTube do Incremento |
+| Sprint | Período da Sprint | Link para Documentação da Sprint | Entrega da Sprint |
 | :--- | :--- | :--- | :--- |
-| **Sprint 1** | 08/09/2025 a 28/09/2025 | [Documentação da Sprint 1](./docs/Sprint_1_Backlog.pdf) | [Vídeo da Entrega da Sprint 1]() |
-| **Sprint 2** | 06/10/2025 a 26/10/2025 | [Documentação da Sprint 2]() | [Vídeo da Entrega da Sprint 2]() |
-| **Sprint 3** | 03/11/2025 a 23/11/2025 | [Documentação da Sprint 3]() | [Vídeo da Entrega da Sprint 3]() |
-
+| **Sprint 1** | 08/09/2025 a 28/09/2025 | [Documentação da Sprint 1](./docs/Sprint_1_Backlog.pdf) | [Gif da Entrega da Sprint 1](./docs/Sprints/Sprint-1/EntregaSprint1.gif) |]
 -----
 
 ## 6\. Tecnologias Utilizadas
 
-  * **Frontend:** `HTML`, `CSS`, `JavaScript`
-  * **Backend:** `Node.js` com `TypeScript`
+<div align="center">
+
+[![HTML](https://img.shields.io/badge/-HTML-E34F26?style=flat&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML) [![CSS](https://img.shields.io/badge/-CSS-1572B6?style=flat&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS) [![React](https://img.shields.io/badge/-React-61DAFB?style=flat&logo=react&logoColor=black)](https://reactjs.org/) [![Node.js](https://img.shields.io/badge/-Node.js-6DA55F?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/) [![Next.js](https://img.shields.io/badge/-Next.js-000000?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/) [![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript) [![MySQL](https://img.shields.io/badge/-MySQL-4479A1?style=flat&logo=mysql&logoColor=white)](https://www.mysql.com/) [![Jira](https://img.shields.io/badge/-Jira-0052CC?style=flat&logo=jira&logoColor=white)](https://www.atlassian.com/software/jira) [![GitHub](https://img.shields.io/badge/-GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/)
+
+</div>
+
+  * **Frontend:** `HTML`, `CSS` e `React`
+  * **Backend:** `Node.js`, `Next` e`JavaScript`
   * **Banco de Dados:** Banco de Dados Relacional (MySQL)
   * **Gerenciamento:** `Jira` (para Backlog), `GitHub` (para versionamento)
 
@@ -79,12 +82,12 @@ O desenvolvimento foi dividido em 3 Sprints, cada uma com um objetivo claro para
 O projeto segue uma arquitetura cliente-servidor, com o código organizado da seguinte forma:
 
   - **/backend:** Contém toda a lógica de negócio e a conexão com o banco de dados.
-  - **/frontend:** Contém todos os arquivos relacionados à interface do usuário (HTML, CSS, JS).
+  - **/frontend:** Contém todos os arquivos relacionados à interface do usuário.
   - **/docs:** Pasta com toda a documentação do projeto, manuais e diagramas.
 
 -----
 
-## 8\. Como Executar, Usar e Testar o Projeto
+## 8\. Como Executar o Projeto
 
 ### Pré-requisitos
 
@@ -109,14 +112,10 @@ O projeto segue uma arquitetura cliente-servidor, com o código organizado da se
 
 Toda a documentação do projeto está centralizada e pode ser acessada nos links abaixo.
 
-  * **Estratégia de Branch:** [Documento de Estratégia de Branch (Git Flow)]()
+  * **Estratégia de Branch:** [Documento de Estratégia de Branch (Git Flow)](./docs/GitFlow.md)
   * **DoR e DoD (Definition of Ready & Definition of Done):**
       * [Checklist de DoR e DoD](./docs/U.S_Cenários_R.N._DoR.pptx)
-      * [DoR e DoD aplicados por Sprint]()
       * [Mockup / Protótipo](https://www.figma.com/proto/XwOWDv5ccjUUGrWecSSVFv/CodeX?node-id=10-634&p=f&t=wtTYc0qTYeluLbyq-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=10%3A634&show-proto-sidebar=1)
-  * **Manuais:**
-      * [Manual do Usuário]()
-      * [Manual de Instalação]()
 
 -----
 
