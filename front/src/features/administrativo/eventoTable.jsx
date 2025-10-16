@@ -78,9 +78,9 @@ export function EventoTable({
             <th>
               <button
                 className={styles.botao}
-                onClick={() => onSort && onSort('status')}
+                onClick={() => onSort && onSort('responsavel')}
               >
-                Status {getSortIndicator('status')}
+                Responsável {getSortIndicator('responsavel')}
               </button>
             </th>
             <th>
@@ -126,16 +126,7 @@ export function EventoTable({
                 className={styles.clickableRow}
               >
                 <td>{evento.titulo}</td>
-                <td>
-                  <span style={{ 
-                    color: evento.status === 'Ativo' ? 'green' : 
-                           evento.status === 'Encerrado' ? 'gray' : 
-                           'red',
-                    fontWeight: 'bold' 
-                  }}>
-                    {evento.status || '—'}
-                  </span>
-                </td>
+                <td>{evento.responsavel || '—'}</td>
                 <td>{formatDate(evento.data_inicio)}</td>
                 <td>{formatDate(evento.data_fim)}</td>
                 <td>{evento.local || 'Não definido'}</td>

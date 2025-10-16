@@ -129,6 +129,7 @@ export default function DetalheEventoPage({ params }) {
       alert("Erro de rede ao salvar evento.");
     }
   };
+
   const handleDelete = async () => {
     if (!confirm("Tem certeza que deseja deletar este evento?")) {
       return;
@@ -146,7 +147,7 @@ export default function DetalheEventoPage({ params }) {
       });
 
       if (response.ok) {
-        router.replace("/administrativo/eventos"); // Caminho correto
+        router.replace("/administrativo/eventos");
       } else {
         setLoading(false);
         const error = await response.json();
@@ -161,102 +162,123 @@ export default function DetalheEventoPage({ params }) {
 
   return (
     <>
-    <div className={styles.container}>
-      <form onSubmit={handleSubmit}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Detalhes do Evento</h1>
-          <div className={styles.headerButtons}>
-            <button
-              className={styles.deleteButton}
-              onClick={handleDelete}
-            >
-              <Trash2 size={20} />
-              Deletar
-            </button>
-            <button
-              className={styles.editButton}
-              onClick={() => setIsEditing(!isEditing)}
-            >
-              {isEditing ? <XCircle size={20} /> : <Edit size={20} />}
-              {isEditing ? "Cancelar" : "Editar"}
-            </button>
-          </div>
-        </div>
-        <div className={styles.infoGrid}>
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Título</label>
-            <input
-              name="titulo"
-              value={formData.titulo}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-              required
-            />
-          </div>
-
-          <div className={`${styles.inputWrapper} ${styles.span2}`}>
-            <label className={styles.label}>Descrição</label>
-            <textarea
-              name="descricao"
-              value={formData.descricao}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              rows={3}
-              className={styles.input}
-              style={{ resize: "vertical" }}
-            />
+      <div className={styles.container}>
+        <form onSubmit={handleSubmit}>
+          <div className={styles.header}>
+            <h1 className={styles.title}>Detalhes do Evento</h1>
+            <div className={styles.headerButtons}>
+              <button
+                type="button"
+                className={styles.deleteButton}
+                onClick={handleDelete}
+              >
+                <Trash2 size={20} />
+                Deletar
+              </button>
+              {isEditing ? (
+                <>
+                  <button
+                    type="button"
+                    className={styles.cancelButton}
+                    onClick={handleCancelClick}
+                  >
+                    <XCircle size={20} />
+                    Cancelar
+                  </button>
+                  <button type="submit" className={styles.saveButton}>
+                    <Save size={20} />
+                    Salvar
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.editButton}
+                  onClick={handleEditClick}
+                >
+                  <Edit size={20} />
+                  Editar
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className={styles.formGroup}>
-            <label>Responsável</label>
-            <input
-              type="text"
-              name="responsavel_nome"
-              value={formData.responsavel_nome}
-              disabled={true}
-              className={styles.input}
-            />
-          </div>
+          <div className={styles.infoGrid}>
+            <div className={styles.inputWrapper}>
+              <label className={styles.label}>Título</label>
+              <input
+                name="titulo"
+                value={formData.titulo}
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={styles.input}
+                required
+              />
+            </div>
 
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Data e Hora de Início</label>
-            <input
-              type="datetime-local"
-              name="data_inicio"
-              value={formData.data_inicio}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-              required
-            />
-          </div>
+            <div className={styles.inputWrapper}>
+              <label className={styles.label}>Responsável</label>
+              <input
+                name="responsavel_nome"
+                value={formData.responsavel_nome}
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={styles.input}
+                placeholder="Nome do responsável pelo evento"
+              />
+            </div>
 
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Data e Hora de Fim</label>
-            <input
-              type="datetime-local"
-              name="data_fim"
-              value={formData.data_fim}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
+            <div className={`${styles.inputWrapper} ${styles.span2}`}>
+              <label className={styles.label}>Descrição</label>
+              <textarea
+                name="descricao"
+                value={formData.descricao}
+                onChange={handleChange}
+                readOnly={!isEditing}
+                rows={3}
+                className={styles.input}
+                style={{ resize: "vertical" }}
+              />
+            </div>
 
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Local</label>
-            <input
-              name="local"
-              value={formData.local}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
+            <div className={styles.inputWrapper}>
+              <label className={styles.label}>Data e Hora de Início</label>
+              <input
+                type="datetime-local"
+                name="data_inicio"
+                value={formData.data_inicio}
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={styles.input}
+                required
+              />
+            </div>
+
+            <div className={styles.inputWrapper}>
+              <label className={styles.label}>Data e Hora de Fim</label>
+              <input
+                type="datetime-local"
+                name="data_fim"
+                value={formData.data_fim}
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={styles.input}
+              />
+            </div>
+
+            <div className={styles.inputWrapper}>
+              <label className={styles.label}>Local</label>
+              <input
+                name="local"
+                value={formData.local}
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={styles.input}
+              />
+            </div>
           </div>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
     </>
   );
 }
