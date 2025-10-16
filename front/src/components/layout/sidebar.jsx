@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import styles from './sidebar.module.css';
-import {ClipboardList,ListChecks,Cog, MapPinned, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings } from 'lucide-react';
+import {ClipboardList,ListChecks,Cog, MapPinned, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings, CalendarCheck } from 'lucide-react';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
@@ -42,6 +42,12 @@ export function Sidebar() {
             <Link href="/administrativo/painelLocalizacao"
               className= {pathname === '/administrativo/painelLocalizacao' ? styles.activeLink : ''}>
               <MapPinned  size={16}/> Painel Localização</Link>
+          </li>
+
+          <li className={styles.navItem}>
+            <Link href="/administrativo/eventos"
+              className= {pathname === '/administrativo/eventos' ? styles.activeLink : ''}>
+              <CalendarCheck  size={16}/> Eventos</Link>
           </li>
         </ul>
         )}
