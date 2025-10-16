@@ -16,7 +16,12 @@ class EventosController {
 
   async index(req, res, next) {
     try {
-      const [eventos] = await pool.execute('SELECT * FROM evento');
+      const [eventos] = await pool.execute(
+      `SELECT e.*, c.nome AS responsavel_nome, c.email AS responsavel_email
+       FROM evento e
+       LEFT JOIN colaborador c ON e.responsavel_id = c.id
+       ORDER BY e.data_inicio`
+      );
       return res.json(eventos);
     } catch (error) {
       return next(error);
@@ -26,10 +31,16 @@ class EventosController {
   async show(req, res, next) {
     try {
       const { id } = req.params;
-      const [eventos] = await pool.execute('SELECT * FROM evento WHERE id = ?', [id]);
-      if (eventos.length === 0) {
-        return res.status(404).json({ error: 'Evento não encontrado' });
-      }
+      const [eventos] = await pool.execute(
+      `SELECT e.*, c.nome AS responsavel_nome, c.email AS responsavel_email
+       FROM evento e
+       LEFT JOIN colaborador c ON e.responsavel_id = c.id
+       WHERE e.id = ?`,
+      [id]
+    );
+    if (eventos.length === 0) {
+      return res.status(404).json({ error: 'Evento não encontrado' });
+    }
       return res.json(eventos[0]);
     } catch (error) {
       return next(error);

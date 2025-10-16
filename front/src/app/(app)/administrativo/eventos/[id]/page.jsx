@@ -2,11 +2,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./detalhe.module.css";
-import { Edit, Save, XCircle } from "lucide-react";
+import { Edit, Save, XCircle, Trash2 } from "lucide-react";
+import React from 'react';
 
 export default function DetalheEventoPage({ params }) {
   const router = useRouter();
-  const eventoId = params?.id;
+  const unwrappedParams = React.use(params);
+  const eventoId = unwrappedParams.id;
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -17,6 +19,7 @@ export default function DetalheEventoPage({ params }) {
     data_inicio: "",
     data_fim: "",
     local: "",
+    responsavel_nome: ""
   });
 
   const [initialData, setInitialData] = useState(null);
@@ -55,6 +58,7 @@ export default function DetalheEventoPage({ params }) {
             data_inicio: formatDateToDateTimeLocal(data.data_inicio),
             data_fim: formatDateToDateTimeLocal(data.data_fim),
             local: data.local || "",
+            responsavel_nome: data.responsavel_nome || "Não atribuído"
           };
           setFormData(eventoData);
           setInitialData(eventoData);
@@ -125,38 +129,59 @@ export default function DetalheEventoPage({ params }) {
       alert("Erro de rede ao salvar evento.");
     }
   };
+  const handleDelete = async () => {
+    if (!confirm("Tem certeza que deseja deletar este evento?")) {
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`http://localhost:3001/api/eventos/${eventoId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        router.replace("/administrativo/eventos"); // Caminho correto
+      } else {
+        setLoading(false);
+        const error = await response.json();
+        alert(`Erro ao deletar: ${error.message || error.error}`);
+      }
+    } catch (err) {
+      setLoading(false);
+      console.error("Erro ao deletar:", err);
+      alert("Erro ao deletar evento");
+    }
+  };
 
   return (
+    <>
     <div className={styles.container}>
       <form onSubmit={handleSubmit}>
         <div className={styles.header}>
-          <h1 className={styles.nome}>Detalhes do Evento</h1>
-          <div className={styles.actionButtons}>
-            {isEditing ? (
-              <>
-                <button
-                  type="button"
-                  onClick={handleCancelClick}
-                  className={styles.cancelButton}
-                >
-                  <XCircle size={18} /> Cancelar
-                </button>
-                <button type="submit" className={styles.saveButton}>
-                  <Save size={18} /> Salvar
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={handleEditClick}
-                className={styles.editButton}
-              >
-                <Edit size={18} /> Editar
-              </button>
-            )}
+          <h1 className={styles.title}>Detalhes do Evento</h1>
+          <div className={styles.headerButtons}>
+            <button
+              className={styles.deleteButton}
+              onClick={handleDelete}
+            >
+              <Trash2 size={20} />
+              Deletar
+            </button>
+            <button
+              className={styles.editButton}
+              onClick={() => setIsEditing(!isEditing)}
+            >
+              {isEditing ? <XCircle size={20} /> : <Edit size={20} />}
+              {isEditing ? "Cancelar" : "Editar"}
+            </button>
           </div>
         </div>
-
         <div className={styles.infoGrid}>
           <div className={styles.inputWrapper}>
             <label className={styles.label}>Título</label>
@@ -180,6 +205,17 @@ export default function DetalheEventoPage({ params }) {
               rows={3}
               className={styles.input}
               style={{ resize: "vertical" }}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Responsável</label>
+            <input
+              type="text"
+              name="responsavel_nome"
+              value={formData.responsavel_nome}
+              disabled={true}
+              className={styles.input}
             />
           </div>
 
@@ -221,5 +257,6 @@ export default function DetalheEventoPage({ params }) {
         </div>
       </form>
     </div>
+    </>
   );
 }
