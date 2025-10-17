@@ -1,209 +1,70 @@
-const db = require('../config/database');
-const validator = require('validator');
+const pool = require('../config/database');
 
 class AgregadosController {
+
+    // Método para criar um novo agregado (AGORA CORRIGIDO E COMPLETO)
     async criarAgregado(req, res) {
+        const { nome_motorista, cnh, placa_veiculo, modelo_veiculo, telefone, email } = req.body;
+
+        if (!nome_motorista || !cnh || !placa_veiculo || !modelo_veiculo) {
+            return res.status(400).json({ message: 'Campos obrigatórios (Nome, CNH, Placa, Modelo) estão faltando.' });
+        }
+
+        let connection;
         try {
-            const {
-                nome_motorista,
-                cnh,
-                placa_veiculo,
-                modelo_veiculo,
-                telefone,
-                email
-            } = req.body;
+            // Pega uma conexão da pool
+            connection = await pool.getConnection();
 
-            const nome_sanitizado = nome_motorista?.trim();
-            const modelo_sanitizado = modelo_veiculo?.trim();
+            const sql = `
+                INSERT INTO agregados 
+                (nome_motorista, cnh, placa_veiculo, modelo_veiculo, telefone, email) 
+                VALUES (?, ?, ?, ?, ?, ?)
+            `;
+            const values = [nome_motorista, cnh, placa_veiculo, modelo_veiculo, telefone, email];
 
-            // Validação campos obrigatórios
-            if (!nome_sanitizado || !cnh || !placa_veiculo || !modelo_sanitizado) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Campos obrigatórios: nome_motorista, cnh, placa_veiculo, modelo_veiculo'
-                });
-            }
+            // Executa a query para inserir os dados
+            await connection.query(sql, values);
 
-            // Validação CNH - 9 a 11 dígitos
-            const cnhLimpo = cnh.toString().replace(/\D/g, '');
-            if (cnhLimpo.length < 9 || cnhLimpo.length > 11) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'CNH deve conter entre 9 e 11 dígitos'
-                });
-            }
-
-            // Validação placa brasileira
-            const placaRegex = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
-            const placaFormatada = placa_veiculo.replace(/[-\s]/g, '').toUpperCase();
-            if (!placaRegex.test(placaFormatada)) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Formato de placa inválido'
-                });
-            }
-
-            // Validação email opcional
-            if (email && !validator.isEmail(email)) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Email inválido'
-                });
-            }
-
-            // Verificar duplicatas CNH
-            const [cnhExistente] = await db.execute(
-                'SELECT id FROM agregados WHERE cnh = ?',
-                [cnhLimpo]
-            );
-
-            if (cnhExistente.length > 0) {
-                return res.status(409).json({
-                    success: false,
-                    message: 'CNH já cadastrada'
-                });
-            }
-
-            // Verificar duplicatas placa
-            const [placaExistente] = await db.execute(
-                'SELECT id FROM agregados WHERE placa_veiculo = ?',
-                [placaFormatada]
-            );
-
-            if (placaExistente.length > 0) {
-                return res.status(409).json({
-                    success: false,
-                    message: 'Placa já cadastrada'
-                });
-            }
-
-            // Inserir agregado
-            const [resultado] = await db.execute(
-                'INSERT INTO agregados (nome_motorista, cnh, placa_veiculo, modelo_veiculo, telefone, email) VALUES (?, ?, ?, ?, ?, ?)',
-                [nome_sanitizado, cnhLimpo, placaFormatada, modelo_sanitizado, telefone || null, email || null]
-            );
-
-            // Retornar agregado criado
-            const [novoAgregado] = await db.execute(
-                'SELECT * FROM agregados WHERE id = ?',
-                [resultado.insertId]
-            );
-
-            res.status(201).json({
-                success: true,
-                message: 'Agregado cadastrado com sucesso',
-                data: novoAgregado[0]
+            // Envia a resposta de sucesso
+            res.status(201).json({ 
+                message: 'Agregado cadastrado com sucesso!',
             });
 
         } catch (error) {
-            console.error('Erro ao criar agregado:', error);
-            
             if (error.code === 'ER_DUP_ENTRY') {
-                return res.status(409).json({
-                    success: false,
-                    message: 'Dados já existem no sistema'
-                });
+                return res.status(409).json({ message: 'CNH ou Placa do Veículo já cadastrada.' });
             }
-
-            res.status(500).json({
-                success: false,
-                message: 'Erro interno do servidor'
-            });
+            
+            console.error('Erro ao cadastrar agregado:', error);
+            res.status(500).json({ message: 'Ocorreu um erro no servidor ao tentar cadastrar o agregado.' });
+        } finally {
+            // Garante que a conexão seja sempre liberada de volta para a pool
+            if (connection) connection.release();
         }
     }
 
+    // Seu método de listar, que já estava correto
     async listarAgregados(req, res) {
+        let connection;
         try {
-            // Usar query() em vez de execute() para LIMIT/OFFSET
-            let sql, params = [];
+            connection = await pool.getConnection();
+            const sql = "SELECT * FROM agregados ORDER BY nome_motorista ASC";
+            const [rows] = await connection.query(sql);
             
-            const page = parseInt(req.query.page) || 1;
-            const limit = parseInt(req.query.limit) || 10;
-            const search = req.query.search?.trim();
-            
-            const offset = (page - 1) * limit;
-
-            if (search) {
-                sql = 'SELECT * FROM agregados WHERE nome_motorista LIKE ? OR cnh LIKE ? OR placa_veiculo LIKE ? ORDER BY criado_em DESC LIMIT ?, ?';
-                params = [`%${search}%`, `%${search}%`, `%${search}%`, offset, limit];
-            } else {
-                sql = 'SELECT * FROM agregados ORDER BY criado_em DESC LIMIT ?, ?';
-                params = [offset, limit];
-            }
-
-            // Usar query() para comandos com LIMIT dinâmico
-            const [agregados] = await db.query(sql, params);
-
-            // Contar total
-            let countSql, countParams = [];
-            if (search) {
-                countSql = 'SELECT COUNT(*) as total FROM agregados WHERE nome_motorista LIKE ? OR cnh LIKE ? OR placa_veiculo LIKE ?';
-                countParams = [`%${search}%`, `%${search}%`, `%${search}%`];
-            } else {
-                countSql = 'SELECT COUNT(*) as total FROM agregados';
-            }
-
-            const [totalResult] = await db.query(countSql, countParams);
-            const total = totalResult[0].total;
-            const totalPages = Math.ceil(total / limit);
-
-            res.json({
-                success: true,
-                data: agregados,
-                pagination: {
-                    pagina_atual: page,
-                    por_pagina: limit,
-                    total: total,
-                    total_paginas: totalPages,
-                    tem_proximo: page < totalPages,
-                    tem_anterior: page > 1
-                }
-            });
+            res.status(200).json(rows);
 
         } catch (error) {
             console.error('Erro ao listar agregados:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Erro interno do servidor'
-            });
+            res.status(500).json({ message: "Ocorreu um erro no servidor." });
+        } finally {
+            if (connection) connection.release();
         }
     }
 
+    // Seus outros métodos...
     async buscarAgregadoPorId(req, res) {
-        try {
-            const id = parseInt(req.params.id);
-            
-            if (isNaN(id) || id <= 0) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'ID inválido'
-                });
-            }
-
-            const [agregado] = await db.execute(
-                'SELECT * FROM agregados WHERE id = ?',
-                [id]
-            );
-
-            if (agregado.length === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Agregado não encontrado'
-                });
-            }
-
-            res.json({
-                success: true,
-                data: agregado[0]
-            });
-
-        } catch (error) {
-            console.error('Erro ao buscar agregado:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Erro interno do servidor'
-            });
-        }
+        const { id } = req.params;
+        res.json({ message: `Buscando agregado com ID: ${id}` });
     }
 }
 

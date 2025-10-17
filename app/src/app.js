@@ -4,6 +4,7 @@ const cors = require('cors');
 const errorHandler = require('./middlewares/errorHandler');
 
 // Importa os arquivos de rotas
+const agregadosRoutes = require('./routes/agregadosRoutes');
 const colaboradorRoutes = require('./routes/colaboradorRoutes');
 const clienteRoutes = require('./routes/clienteRoutes');
 const veiculoRoutes = require('./routes/veiculoRoutes');
@@ -12,13 +13,25 @@ const freteRoutes = require('./routes/freteRoutes');
 const rastreamentoRoutes = require('./routes/rastreamentoRoutes');
 const interactionRoutes = require('./routes/interactionRoutes');
 const checklistRoutes = require('./routes/checklistRoutes');
-const agregadosRoutes = require('./routes/agregadosRoutes');
 const localizacaoRoutes = require('./routes/localizacaoRoutes');
 
 const app = express();
 
+// --- INÍCIO DA ALTERAÇÃO ---
+
+// Configuração explícita do CORS para permitir o header 'Authorization'
+const corsOptions = {
+  origin: '*', // Você pode restringir para 'http://localhost:3000' para mais segurança
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: 'Content-Type,Authorization',
+};
+
+app.use(cors(corsOptions));
+
+// --- FIM DA ALTERAÇÃO ---
+
+
 // Middlewares globais da aplicação
-app.use(cors()); // Permite requisições de outras origens (frontend)
 app.use(express.json()); // Habilita o uso de JSON no corpo das requisições
 app.use(express.urlencoded({ extended: true })); // Habilita o uso de dados de formulário
 
@@ -31,7 +44,7 @@ app.use('/api/fretes', freteRoutes);
 app.use('/api/rastreamento', rastreamentoRoutes);
 app.use('/api', interactionRoutes);
 app.use(checklistRoutes);
-app.use('/api', agregadosRoutes);
+app.use('/api/agregados', agregadosRoutes);
 app.use('/api/localizacoes', localizacaoRoutes);
 
 // Rota de teste para verificar se a API está online
