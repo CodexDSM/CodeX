@@ -15,4 +15,8 @@ router.delete('/:id', authenticateToken, authorizeRoles('Administrador', 'Gerent
 
 router.get('/colaborador/:colaborador_id', authenticateToken, eventosController.getEventosByColaborador);
 
+router.post('/:evento_id/aceitar', authenticateToken, eventosController.aceitarEvento);
+
+router.post('/:evento_id/recusar', authenticateToken, eventosController.recusarEvento);
+
 module.exports = router;

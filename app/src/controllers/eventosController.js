@@ -98,6 +98,73 @@ class EventosController {
       return next(error);
     }
   }
+
+  async aceitarEvento(req, res, next) {
+    try {
+      const { evento_id } = req.params;
+      const colaborador_id = req.user.id;
+
+      const [convite] = await pool.execute(
+        'SELECT * FROM evento_colaborador WHERE evento_id = ? AND colaborador_id = ?',
+        [evento_id, colaborador_id]
+      );
+
+      if (convite.length === 0) {
+        return res.status(404).json({ error: 'Convite para evento não encontrado' });
+      }
+
+      if (convite[0].status !== 'Pendente') {
+        return res.status(400).json({ error: 'Este convite já foi respondido anteriormente' });
+      }
+
+      const [result] = await pool.execute(
+        'UPDATE evento_colaborador SET status = ?, respondido_em = NOW() WHERE evento_id = ? AND colaborador_id = ?',
+        ['Aceito', evento_id, colaborador_id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(500).json({ error: 'Erro ao aceitar evento' });
+      }
+
+      return res.json({ message: 'Evento aceito com sucesso!' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async recusarEvento(req, res, next) {
+    try {
+      const { evento_id } = req.params;
+      const colaborador_id = req.user.id;
+      const { justificativa_recusa } = req.body;
+
+      const [convite] = await pool.execute(
+        'SELECT * FROM evento_colaborador WHERE evento_id = ? AND colaborador_id = ?',
+        [evento_id, colaborador_id]
+      );
+
+      if (convite.length === 0) {
+        return res.status(404).json({ error: 'Convite para evento não encontrado' });
+      }
+
+      if (convite[0].status !== 'Pendente') {
+        return res.status(400).json({ error: 'Este convite já foi respondido anteriormente' });
+      }
+
+      const [result] = await pool.execute(
+        'UPDATE evento_colaborador SET status = ?, justificativa_recusa = ?, respondido_em = NOW() WHERE evento_id = ? AND colaborador_id = ?',
+        ['Recusado', justificativa_recusa || null, evento_id, colaborador_id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(500).json({ error: 'Erro ao recusar evento' });
+      }
+
+      return res.json({ message: 'Evento recusado com sucesso!' });
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 module.exports = new EventosController();
