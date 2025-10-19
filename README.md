@@ -81,7 +81,7 @@ O desenvolvimento foi dividido em 3 Sprints, cada uma com um objetivo claro para
 
 O projeto segue uma arquitetura cliente-servidor, com o código organizado da seguinte forma:
 
-  - **/backend:** Contém toda a lógica de negócio e a conexão com o banco de dados.
+  - **/app:** Contém toda a lógica de negócio e a conexão com o banco de dados.
   - **/frontend:** Contém todos os arquivos relacionados à interface do usuário.
   - **/docs:** Pasta com toda a documentação do projeto, manuais e diagramas.
 

@@ -462,3 +462,46 @@ json
         "uploads/2025-09-23T12-30-00.jpg"
     ]
 }
+
+--X--
+
+
+Eventos
+Listar Eventos
+
+GET http://localhost:3001/api/eventos
+
+Headers: Accept: application/json
+
+Body: Vazio
+
+Buscar Evento por ID
+
+GET http://localhost:3001/api/eventos/:id
+
+Criar Evento
+
+POST http://localhost:3001/api/eventos
+
+Formulário (JSON):
+
+json
+{
+  "titulo": "Novo Evento",
+  "descricao": "Descrição do evento",
+  "data_inicio": "2025-11-01 09:00:00",
+  "data_fim": "2025-11-01 10:00:00",
+  "local": "Sala 2"
+}
+
+Listar Eventos do Colaborador
+
+GET http://localhost:3001/api/eventos/colaborador/:colaborador_id
+
+Retorna eventos onde o colaborador tem status 'Aceito' ou 'Pendente'.
+
+Deletar Evento
+
+DELETE http://localhost:3001/api/eventos/:id
+
+--X--

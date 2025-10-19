@@ -1,22 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const eventosController = require('../controllers/eventosController');
+const { authenticateToken, authorizeRoles } = require('../middlewares/auth');
 
-// Criar novo evento
-router.post('/', eventosController.create);
+router.post('/', authenticateToken, authorizeRoles('Administrador', 'Gerente'), eventosController.create);
 
-// Listar todos os eventos
-router.get('/', eventosController.index);
+router.get('/', authenticateToken, eventosController.index);
 
-// Consultar evento por id
-router.get('/:id', eventosController.show);
+router.get('/:id', authenticateToken, eventosController.show);
 
-// Apaga evento por id
-router.delete('/:id', eventosController.delete);
+router.put('/:id', authenticateToken, authorizeRoles('Administrador', 'Gerente'), eventosController.update);
 
-// Listar eventos de um colaborador específico (Aceito ou Pendente)
-router.get('/colaborador/:colaborador_id', eventosController.getEventosByColaborador);
+router.delete('/:id', authenticateToken, authorizeRoles('Administrador', 'Gerente'), eventosController.delete);
 
-
+router.get('/colaborador/:colaborador_id', authenticateToken, eventosController.getEventosByColaborador);
 
 module.exports = router;
