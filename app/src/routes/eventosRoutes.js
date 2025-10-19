@@ -19,4 +19,8 @@ router.post('/:evento_id/aceitar', authenticateToken, eventosController.aceitarE
 
 router.post('/:evento_id/recusar', authenticateToken, eventosController.recusarEvento);
 
+router.post('/:evento_id/concluir', authenticateToken, eventosController.marcarConcluido);
+
+router.post('/:evento_id/feedback', authenticateToken, eventosController.enviarFeedback);
+
 module.exports = router;

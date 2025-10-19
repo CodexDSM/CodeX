@@ -471,37 +471,120 @@ Listar Eventos
 
 GET http://localhost:3001/api/eventos
 
-Headers: Accept: application/json
-
-Body: Vazio
+Headers: Authorization: Bearer TOKEN
 
 Buscar Evento por ID
 
 GET http://localhost:3001/api/eventos/:id
 
-Criar Evento
+Headers: Authorization: Bearer TOKEN
+
+Criar Evento (Administrador/Gerente)
 
 POST http://localhost:3001/api/eventos
+
+Headers: Authorization: Bearer TOKEN
 
 Formulário (JSON):
 
 json
 {
-  "titulo": "Novo Evento",
-  "descricao": "Descrição do evento",
+  "titulo": "Reunião de Planejamento",
+  "descricao": "Planejamento estratégico do trimestre",
   "data_inicio": "2025-11-01 09:00:00",
-  "data_fim": "2025-11-01 10:00:00",
-  "local": "Sala 2"
+  "data_fim": "2025-11-01 12:00:00",
+  "local": "Sala de Conferências"
 }
+O campo responsavel_id é preenchido automaticamente com o ID do usuário autenticado.
+
+Acesso restrito a perfis: Administrador e Gerente.
+
+Atualizar Evento (Administrador/Gerente)
+
+PUT http://localhost:3001/api/eventos/:id
+
+Headers: Authorization: Bearer TOKEN
+
+Formulário (JSON):
+
+json
+{
+  "titulo": "Reunião de Planejamento - Atualizado",
+  "descricao": "Planejamento estratégico e revisão de metas",
+  "data_inicio": "2025-11-01 10:00:00",
+  "data_fim": "2025-11-01 13:00:00",
+  "local": "Sala de Conferências 2"
+}
+Acesso restrito a perfis: Administrador e Gerente.
+
+Deletar Evento (Administrador/Gerente)
+
+DELETE http://localhost:3001/api/eventos/:id
+
+Headers: Authorization: Bearer TOKEN
+
+Acesso restrito a perfis: Administrador e Gerente.
 
 Listar Eventos do Colaborador
 
 GET http://localhost:3001/api/eventos/colaborador/:colaborador_id
 
-Retorna eventos onde o colaborador tem status 'Aceito' ou 'Pendente'.
+Headers: Authorization: Bearer TOKEN
 
-Deletar Evento
+Retorna eventos onde o colaborador tem status 'Aceito' ou 'Pendente', incluindo informações de feedback e conclusão.
 
-DELETE http://localhost:3001/api/eventos/:id
+Aceitar Convite para Evento
+
+POST http://localhost:3001/api/eventos/:evento_id/aceitar
+
+Headers: Authorization: Bearer TOKEN
+
+Body: Vazio
+
+Colaborador confirma participação no evento. Atualiza status para 'Aceito' e registra data/hora da resposta.
+
+Recusar Convite para Evento
+
+POST http://localhost:3001/api/eventos/:evento_id/recusar
+
+Headers: Authorization: Bearer TOKEN
+
+Formulário (JSON):
+
+json
+{
+  "justificativa_recusa": "Conflito de agenda com outro compromisso"
+}
+O campo justificativa_recusa é opcional.
+
+Atualiza status para 'Recusado' e registra data/hora da resposta.
+
+Marcar Evento como Concluído
+
+POST http://localhost:3001/api/eventos/:evento_id/concluir
+
+Headers: Authorization: Bearer TOKEN
+
+Body: Vazio
+
+Colaborador marca sua participação no evento como concluída. Registra data/hora da conclusão automaticamente.
+
+Apenas eventos com status 'Aceito' podem ser marcados como concluídos.
+
+Enviar Feedback do Evento
+
+POST http://localhost:3001/api/eventos/:evento_id/feedback
+
+Headers: Authorization: Bearer TOKEN
+
+Formulário (JSON):
+
+json
+{
+  "feedback": "Evento muito produtivo, com boas discussões sobre as metas do próximo trimestre."
+}
+Colaborador envia feedback sobre sua participação no evento.
+
+Apenas eventos com status 'Aceito' podem receber feedback.
 
 --X--

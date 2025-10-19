@@ -86,7 +86,7 @@ class EventosController {
     try {
       const { colaborador_id } = req.params;
       const [eventos] = await pool.execute(
-        `SELECT e.*, ec.status, ec.respondido_em
+        `SELECT e.*, ec.status, ec.respondido_em, ec.feedback, ec.concluido, ec.data_conclusao
          FROM evento e
          INNER JOIN evento_colaborador ec ON ec.evento_id = e.id
          WHERE ec.colaborador_id = ? AND ec.status IN ('Aceito', 'Pendente')
@@ -161,6 +161,81 @@ class EventosController {
       }
 
       return res.json({ message: 'Evento recusado com sucesso!' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async marcarConcluido(req, res, next) {
+    try {
+      const { evento_id } = req.params;
+      const colaborador_id = req.user.id;
+
+      const [convite] = await pool.execute(
+        'SELECT * FROM evento_colaborador WHERE evento_id = ? AND colaborador_id = ?',
+        [evento_id, colaborador_id]
+      );
+
+      if (convite.length === 0) {
+        return res.status(404).json({ error: 'Você não está vinculado a este evento' });
+      }
+
+      if (convite[0].status !== 'Aceito') {
+        return res.status(400).json({ error: 'Apenas eventos aceitos podem ser marcados como concluídos' });
+      }
+
+      if (convite[0].concluido) {
+        return res.status(400).json({ error: 'Este evento já foi marcado como concluído' });
+      }
+
+      const [result] = await pool.execute(
+        'UPDATE evento_colaborador SET concluido = TRUE, data_conclusao = NOW() WHERE evento_id = ? AND colaborador_id = ?',
+        [evento_id, colaborador_id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(500).json({ error: 'Erro ao marcar evento como concluído' });
+      }
+
+      return res.json({ message: 'Evento marcado como concluído com sucesso!' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async enviarFeedback(req, res, next) {
+    try {
+      const { evento_id } = req.params;
+      const colaborador_id = req.user.id;
+      const { feedback } = req.body;
+
+      if (!feedback || feedback.trim() === '') {
+        return res.status(400).json({ error: 'O feedback não pode estar vazio' });
+      }
+
+      const [convite] = await pool.execute(
+        'SELECT * FROM evento_colaborador WHERE evento_id = ? AND colaborador_id = ?',
+        [evento_id, colaborador_id]
+      );
+
+      if (convite.length === 0) {
+        return res.status(404).json({ error: 'Você não está vinculado a este evento' });
+      }
+
+      if (convite[0].status !== 'Aceito') {
+        return res.status(400).json({ error: 'Apenas eventos aceitos podem receber feedback' });
+      }
+
+      const [result] = await pool.execute(
+        'UPDATE evento_colaborador SET feedback = ? WHERE evento_id = ? AND colaborador_id = ?',
+        [feedback, evento_id, colaborador_id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(500).json({ error: 'Erro ao enviar feedback' });
+      }
+
+      return res.json({ message: 'Feedback enviado com sucesso!' });
     } catch (error) {
       return next(error);
     }
