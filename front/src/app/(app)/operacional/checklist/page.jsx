@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { mockTemplates } from '../listaChecklists';
 import styles from './checklist.module.css';
+import FormAgregado from '@/components/layout/FormAgregado'; // Supondo que este seja o caminho correto
 
 // --- Componentes de Ícones (para manter o código limpo) ---
 const CheckIcon = () => (
@@ -132,6 +133,22 @@ export default function ChecklistPage() {
         </div>
       );
     }
+  
+    // --- NOVO BLOCO ADICIONADO AQUI ---
+    // Verifica se o template selecionado é o de agregado. Se for, mostra o formulário estático.
+    if (selectedTemplate.id === 'agregado_form') {
+      return (
+          <div>
+              <h1 className={styles.title}>{selectedTemplate.name}</h1>
+              <p className={styles.description}>{selectedTemplate.description}</p>
+
+              <FormAgregado />
+          </div>
+      );
+    }
+    // --- FIM DO NOVO BLOCO ---
+  
+    // Se não for o de agregado, continua com a lógica original para os outros checklists.
     return (
       <div>
         <h1 className={styles.title}>{selectedTemplate.name}</h1>

@@ -11,11 +11,11 @@ export const mockTemplates = [
         { id: 5, texto_pergunta: "Destino", tipo_pergunta: "TEXTO", obrigatoria: true },
         { id: 6, texto_pergunta: "KM Final", tipo_pergunta: "NUMERO", obrigatoria: true },
         { id: 7, texto_pergunta: "Teve Abastecimento?", tipo_pergunta: "SIM_NAO", obrigatoria: false },
-        { id: 8, texto_pergunta: "Comprovante de abastecimento enviado para gerência?", tipo_pergunta: "SIM_NAO", obrigatoria: false },       
+        { id: 8, texto_pergunta: "Comprovante de abastecimento enviado para gerência?", tipo_pergunta: "SIM_NAO", obrigatoria: false },
         { id: 9, texto_pergunta: "Óleo do Motor ok?", tipo_pergunta: "SIM_NAO", obrigatoria: false },
         { id: 10, texto_pergunta: "Reservatório de Água ok?", tipo_pergunta: "SIM_NAO", obrigatoria: false },
         { id: 11, texto_pergunta: "Sistema Elétrico ok?", tipo_pergunta: "SIM_NAO", obrigatoria: false }, 
-        { id: 12, texto_pergunta: "Estado dos Pneus ok?", tipo_pergunta: "SIM_NAO", obrigatoria: false },         
+        { id: 12, texto_pergunta: "Estado dos Pneus ok?", tipo_pergunta: "SIM_NAO", obrigatoria: false },
         { id: 13, texto_pergunta: "Limpeza Baú/Sider/Cabine ok ?", tipo_pergunta: "SIM_NAO", obrigatoria: false }, 
         { id: 14, texto_pergunta: "Observações que sejam pertinentes", tipo_pergunta: "TEXTO_LONGO", obrigatoria: false },
         { id: 15, texto_pergunta: "Anexar Fotos", tipo_pergunta: "ARQUIVO", obrigatoria: false },
@@ -48,10 +48,18 @@ export const mockTemplates = [
          { id: 28, texto_pergunta: "Condições do piso do escritório (ADM/ Diretoria/ Sala de reunião?", tipo_pergunta: "TEXTO", obrigatoria: false },
          { id: 29, texto_pergunta: "Condições do piso da Sala OPERACIONAL?", tipo_pergunta: "TEXTO", obrigatoria: false },
          { id: 30, texto_pergunta: "Condições do piso REFEITÓRIO?", tipo_pergunta: "TEXTO", obrigatoria: false },
-         { id: 31, texto_pergunta: "Verificação das lâmpadas - Sala Administrativo?", tipo_pergunta: "SIM_NAO", obrigatoria: false },         
+         { id: 31, texto_pergunta: "Verificação das lâmpadas - Sala Administrativo?", tipo_pergunta: "SIM_NAO", obrigatoria: false },
          { id: 32, texto_pergunta: "Verificação das lâmpadas - Sala Reunião?", tipo_pergunta: "SIM_NAO", obrigatoria: false },
          { id: 33, texto_pergunta: "Algum detalhe adicional? descreva abaixo", tipo_pergunta: "TEXTO_LONGO", obrigatoria: false },
          { id: 15, texto_pergunta: "Anexar Fotos", tipo_pergunta: "ARQUIVO", obrigatoria: false }
     ]
+  },
+  
+  
+  { 
+    id: 'agregado_form', 
+    name: 'Cadastro de Agregado', 
+    description: 'Use este formulário para cadastrar novos motoristas e veículos parceiros no sistema.',
+    questions: [] 
   }
 ];
