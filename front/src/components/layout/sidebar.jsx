@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import styles from './sidebar.module.css';
-import {ClipboardList,ListChecks,Cog, MapPinned, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings } from 'lucide-react';
+import {CalendarCheck,ListChecks,Cog, MapPinned, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
@@ -101,6 +101,18 @@ export function Sidebar() {
         </ul>
         )}
         </li>
+
+        {/* MENU DE EVENTOS*/}
+        <li className={styles.navItem}>
+            <Link href="/eventos"
+            className= {pathname === '/eventos' ? styles.activeLink : ''}>
+              <CalendarCheck size={16} /> Eventos</Link>
+          </li>
+     
+
+        
+        
+        
 
       </ul>
     </aside>
