@@ -108,6 +108,18 @@ export function Sidebar() {
         )}
         </li>
 
+        {/* MENU DE EVENTOS*/}
+        <li className={styles.navItem}>
+            <Link href="/eventos"
+            className= {pathname === '/eventos' ? styles.activeLink : ''}>
+              <CalendarCheck size={16} /> Eventos</Link>
+          </li>
+     
+
+        
+        
+        
+
       </ul>
     </aside>
   );
