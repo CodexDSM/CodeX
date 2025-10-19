@@ -47,11 +47,49 @@ class AgregadosController {
     async listarAgregados(req, res) {
         let connection;
         try {
-            connection = await pool.getConnection();
-            const sql = "SELECT * FROM agregados ORDER BY nome_motorista ASC";
-            const [rows] = await connection.query(sql);
+            let sql, params = [];
             
-            res.status(200).json(rows);
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+            const search = req.query.search?.trim();
+            
+            const offset = (page - 1) * limit;
+
+            if (search) {
+                sql = 'SELECT * FROM agregados WHERE nome_motorista LIKE ? OR cnh LIKE ? OR placa_veiculo LIKE ? ORDER BY criado_em DESC LIMIT ?, ?';
+                params = [`%${search}%`, `%${search}%`, `%${search}%`, offset, limit];
+            } else {
+                sql = 'SELECT * FROM agregados ORDER BY criado_em DESC LIMIT ?, ?';
+                params = [offset, limit];
+            }
+
+            const [agregados] = await db.query(sql, params);
+
+            // Contar total
+            let countSql, countParams = [];
+            if (search) {
+                countSql = 'SELECT COUNT(*) as total FROM agregados WHERE nome_motorista LIKE ? OR cnh LIKE ? OR placa_veiculo LIKE ?';
+                countParams = [`%${search}%`, `%${search}%`, `%${search}%`];
+            } else {
+                countSql = 'SELECT COUNT(*) as total FROM agregados';
+            }
+
+            const [totalResult] = await db.query(countSql, countParams);
+            const total = totalResult[0].total;
+            const totalPages = Math.ceil(total / limit);
+
+            res.json({
+                success: true,
+                data: agregados,
+                pagination: {
+                    pagina_atual: page,
+                    por_pagina: limit,
+                    total: total,
+                    total_paginas: totalPages,
+                    tem_proximo: page < totalPages,
+                    tem_anterior: page > 1
+                }
+            });
 
         } catch (error) {
             console.error('Erro ao listar agregados:', error);
@@ -65,6 +103,256 @@ class AgregadosController {
     async buscarAgregadoPorId(req, res) {
         const { id } = req.params;
         res.json({ message: `Buscando agregado com ID: ${id}` });
+    }
+
+    async buscarAgregadoPorCNH(req, res) {
+        try {
+            const cnh = req.params.cnh;
+            const cnhLimpo = cnh.toString().replace(/\D/g, '');
+
+            if (cnhLimpo.length < 9 || cnhLimpo.length > 11) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'CNH inválida'
+                });
+            }
+
+            const [agregado] = await db.execute(
+                'SELECT * FROM agregados WHERE cnh = ?',
+                [cnhLimpo]
+            );
+
+            if (agregado.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Agregado não encontrado'
+                });
+            }
+
+            res.json({
+                success: true,
+                data: agregado[0]
+            });
+
+        } catch (error) {
+            console.error('Erro ao buscar agregado por CNH:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Erro interno do servidor'
+            });
+        }
+    }
+
+    async buscarAgregadoPorPlaca(req, res) {
+        try {
+            const placa = req.params.placa;
+            const placaFormatada = placa.replace(/[-\s]/g, '').toUpperCase();
+
+            const placaRegex = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
+            if (!placaRegex.test(placaFormatada)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Formato de placa inválido'
+                });
+            }
+
+            const [agregado] = await db.execute(
+                'SELECT * FROM agregados WHERE placa_veiculo = ?',
+                [placaFormatada]
+            );
+
+            if (agregado.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Agregado não encontrado'
+                });
+            }
+
+            res.json({
+                success: true,
+                data: agregado[0]
+            });
+
+        } catch (error) {
+            console.error('Erro ao buscar agregado por placa:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Erro interno do servidor'
+            });
+        }
+    }
+
+    async atualizarAgregado(req, res) {
+        try {
+            const id = parseInt(req.params.id);
+
+            if (isNaN(id) || id <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'ID inválido'
+                });
+            }
+
+            // Verificar se agregado existe
+            const [agregadoExiste] = await db.execute(
+                'SELECT id FROM agregados WHERE id = ?',
+                [id]
+            );
+
+            if (agregadoExiste.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Agregado não encontrado'
+                });
+            }
+
+            const {
+                nome_motorista,
+                cnh,
+                placa_veiculo,
+                modelo_veiculo,
+                telefone,
+                email
+            } = req.body;
+
+            const nome_sanitizado = nome_motorista?.trim();
+            const modelo_sanitizado = modelo_veiculo?.trim();
+
+            // Validação campos obrigatórios
+            if (!nome_sanitizado || !cnh || !placa_veiculo || !modelo_sanitizado) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Campos obrigatórios: nome_motorista, cnh, placa_veiculo, modelo_veiculo'
+                });
+            }
+
+            // Validação CNH
+            const cnhLimpo = cnh.toString().replace(/\D/g, '');
+            if (cnhLimpo.length < 9 || cnhLimpo.length > 11) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'CNH deve conter entre 9 e 11 dígitos'
+                });
+            }
+
+            // Validação placa
+            const placaRegex = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
+            const placaFormatada = placa_veiculo.replace(/[-\s]/g, '').toUpperCase();
+            if (!placaRegex.test(placaFormatada)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Formato de placa inválido'
+                });
+            }
+
+            // Validação email opcional
+            if (email && !validator.isEmail(email)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Email inválido'
+                });
+            }
+
+            // Verificar duplicatas CNH em outro registro
+            const [cnhExistente] = await db.execute(
+                'SELECT id FROM agregados WHERE cnh = ? AND id != ?',
+                [cnhLimpo, id]
+            );
+
+            if (cnhExistente.length > 0) {
+                return res.status(409).json({
+                    success: false,
+                    message: 'CNH já cadastrada em outro agregado'
+                });
+            }
+
+            // Verificar duplicatas placa em outro registro
+            const [placaExistente] = await db.execute(
+                'SELECT id FROM agregados WHERE placa_veiculo = ? AND id != ?',
+                [placaFormatada, id]
+            );
+
+            if (placaExistente.length > 0) {
+                return res.status(409).json({
+                    success: false,
+                    message: 'Placa já cadastrada em outro agregado'
+                });
+            }
+
+            // Atualizar agregado
+            await db.execute(
+                'UPDATE agregados SET nome_motorista = ?, cnh = ?, placa_veiculo = ?, modelo_veiculo = ?, telefone = ?, email = ? WHERE id = ?',
+                [nome_sanitizado, cnhLimpo, placaFormatada, modelo_sanitizado, telefone || null, email || null, id]
+            );
+
+            // Retornar agregado atualizado
+            const [agregadoAtualizado] = await db.execute(
+                'SELECT * FROM agregados WHERE id = ?',
+                [id]
+            );
+
+            res.json({
+                success: true,
+                message: 'Agregado atualizado com sucesso',
+                data: agregadoAtualizado[0]
+            });
+
+        } catch (error) {
+            console.error('Erro ao atualizar agregado:', error);
+
+            if (error.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({
+                    success: false,
+                    message: 'Dados já existem no sistema'
+                });
+            }
+
+            res.status(500).json({
+                success: false,
+                message: 'Erro interno do servidor'
+            });
+        }
+    }
+
+    async deletarAgregado(req, res) {
+        try {
+            const id = parseInt(req.params.id);
+
+            if (isNaN(id) || id <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'ID inválido'
+                });
+            }
+
+            // Verificar se agregado existe
+            const [agregadoExiste] = await db.execute(
+                'SELECT id FROM agregados WHERE id = ?',
+                [id]
+            );
+
+            if (agregadoExiste.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Agregado não encontrado'
+                });
+            }
+
+            // Deletar agregado
+            await db.execute('DELETE FROM agregados WHERE id = ?', [id]);
+
+            res.json({
+                success: true,
+                message: 'Agregado removido com sucesso'
+            });
+
+        } catch (error) {
+            console.error('Erro ao deletar agregado:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Erro interno do servidor'
+            });
+        }
     }
 }
 

@@ -1,0 +1,14 @@
+.geral {
+      color: #4b5563;
+      font-weight: 650;
+}
+.title {
+    font-weight: 600;
+    color: #323841;
+    
+}
+.title >h1 {
+    font-size: large;
+    font-weight: 800;
+  
+}
