@@ -15,7 +15,7 @@ const checklistRoutes = require('./routes/checklistRoutes');
 const agregadosRoutes = require('./routes/agregadosRoutes');
 const localizacaoRoutes = require('./routes/localizacaoRoutes');
 const eventosRoutes = require('./routes/eventosRoutes');
-
+const notificacaoRoutes = require('./routes/notificacaoRoutes');
 
 
 const app = express();
@@ -37,6 +37,7 @@ app.use(checklistRoutes);
 app.use('/api', agregadosRoutes);
 app.use('/api/localizacoes', localizacaoRoutes);
 app.use('/api/eventos', eventosRoutes);
+app.use('/api/notificacoes', notificacaoRoutes);
 
 // Rota de teste para verificar se a API está online
 app.get('/api/health', (req, res) => {

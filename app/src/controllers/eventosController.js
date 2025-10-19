@@ -1,4 +1,5 @@
 const pool = require('../config/database');
+const notificacaoService = require('../services/notificacaoService');
 
 class EventosController {
   async create(req, res, next) {
@@ -63,6 +64,9 @@ class EventosController {
         return res.status(404).json({ error: 'Evento não encontrado para atualizar' });
       }
       
+      // Notificar colaboradores que aceitaram o evento sobre a atualização
+      await notificacaoService.notificarAtualizacaoEvento(id);
+      
       return res.json({ message: 'Evento atualizado com sucesso!' });
     } catch (error) {
       return next(error);
@@ -125,6 +129,8 @@ class EventosController {
       if (result.affectedRows === 0) {
         return res.status(500).json({ error: 'Erro ao aceitar evento' });
       }
+
+      await notificacaoService.notificarConviteEvento(evento_id, colaborador_id);
 
       return res.json({ message: 'Evento aceito com sucesso!' });
     } catch (error) {
