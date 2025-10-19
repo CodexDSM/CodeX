@@ -1,0 +1,251 @@
+const pool = require('../config/database');
+const notificacaoService = require('../services/notificacaoService');
+
+class EventosController {
+  async create(req, res, next) {
+    try {
+      const { titulo, descricao, data_inicio, data_fim, local } = req.body;
+      const responsavel_id = req.user.id;
+      
+      const [result] = await pool.execute(
+        'INSERT INTO evento (titulo, descricao, data_inicio, data_fim, local, responsavel_id) VALUES (?, ?, ?, ?, ?, ?)',
+        [titulo, descricao, data_inicio, data_fim, local, responsavel_id]
+      );
+      return res.status(201).json({ id: result.insertId, message: 'Evento criado com sucesso!' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async index(req, res, next) {
+    try {
+      const [eventos] = await pool.execute(
+        `SELECT e.*, c.nome AS responsavel_nome, c.email AS responsavel_email
+         FROM evento e
+         LEFT JOIN colaborador c ON e.responsavel_id = c.id
+         ORDER BY e.data_inicio`
+      );
+      return res.json(eventos);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async show(req, res, next) {
+    try {
+      const { id } = req.params;
+      const [eventos] = await pool.execute(
+        `SELECT e.*, c.nome AS responsavel_nome, c.email AS responsavel_email
+         FROM evento e
+         LEFT JOIN colaborador c ON e.responsavel_id = c.id
+         WHERE e.id = ?`,
+        [id]
+      );
+      if (eventos.length === 0) {
+        return res.status(404).json({ error: 'Evento não encontrado' });
+      }
+      return res.json(eventos[0]);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async update(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { titulo, descricao, data_inicio, data_fim, local } = req.body;
+      
+      const [result] = await pool.execute(
+        'UPDATE evento SET titulo = ?, descricao = ?, data_inicio = ?, data_fim = ?, local = ? WHERE id = ?',
+        [titulo, descricao, data_inicio, data_fim, local, id]
+      );
+      
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Evento não encontrado para atualizar' });
+      }
+      
+      // Notificar colaboradores que aceitaram o evento sobre a atualização
+      await notificacaoService.notificarAtualizacaoEvento(id);
+      
+      return res.json({ message: 'Evento atualizado com sucesso!' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async delete(req, res, next) {
+    try {
+      const { id } = req.params;
+      const [result] = await pool.execute('DELETE FROM evento WHERE id = ?', [id]);
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Evento não encontrado para deletar' });
+      }
+      return res.json({ message: 'Evento removido com sucesso!' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getEventosByColaborador(req, res, next) {
+    try {
+      const { colaborador_id } = req.params;
+      const [eventos] = await pool.execute(
+        `SELECT e.*, ec.status, ec.respondido_em, ec.feedback, ec.concluido, ec.data_conclusao
+         FROM evento e
+         INNER JOIN evento_colaborador ec ON ec.evento_id = e.id
+         WHERE ec.colaborador_id = ? AND ec.status IN ('Aceito', 'Pendente')
+         ORDER BY e.data_inicio`,
+        [colaborador_id]
+      );
+      return res.json(eventos);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async aceitarEvento(req, res, next) {
+    try {
+      const { evento_id } = req.params;
+      const colaborador_id = req.user.id;
+
+      const [convite] = await pool.execute(
+        'SELECT * FROM evento_colaborador WHERE evento_id = ? AND colaborador_id = ?',
+        [evento_id, colaborador_id]
+      );
+
+      if (convite.length === 0) {
+        return res.status(404).json({ error: 'Convite para evento não encontrado' });
+      }
+
+      if (convite[0].status !== 'Pendente') {
+        return res.status(400).json({ error: 'Este convite já foi respondido anteriormente' });
+      }
+
+      const [result] = await pool.execute(
+        'UPDATE evento_colaborador SET status = ?, respondido_em = NOW() WHERE evento_id = ? AND colaborador_id = ?',
+        ['Aceito', evento_id, colaborador_id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(500).json({ error: 'Erro ao aceitar evento' });
+      }
+
+      await notificacaoService.notificarConviteEvento(evento_id, colaborador_id);
+
+      return res.json({ message: 'Evento aceito com sucesso!' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async recusarEvento(req, res, next) {
+    try {
+      const { evento_id } = req.params;
+      const colaborador_id = req.user.id;
+      const { justificativa_recusa } = req.body;
+
+      const [convite] = await pool.execute(
+        'SELECT * FROM evento_colaborador WHERE evento_id = ? AND colaborador_id = ?',
+        [evento_id, colaborador_id]
+      );
+
+      if (convite.length === 0) {
+        return res.status(404).json({ error: 'Convite para evento não encontrado' });
+      }
+
+      if (convite[0].status !== 'Pendente') {
+        return res.status(400).json({ error: 'Este convite já foi respondido anteriormente' });
+      }
+
+      const [result] = await pool.execute(
+        'UPDATE evento_colaborador SET status = ?, justificativa_recusa = ?, respondido_em = NOW() WHERE evento_id = ? AND colaborador_id = ?',
+        ['Recusado', justificativa_recusa || null, evento_id, colaborador_id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(500).json({ error: 'Erro ao recusar evento' });
+      }
+
+      return res.json({ message: 'Evento recusado com sucesso!' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async marcarConcluido(req, res, next) {
+    try {
+      const { evento_id } = req.params;
+      const colaborador_id = req.user.id;
+
+      const [convite] = await pool.execute(
+        'SELECT * FROM evento_colaborador WHERE evento_id = ? AND colaborador_id = ?',
+        [evento_id, colaborador_id]
+      );
+
+      if (convite.length === 0) {
+        return res.status(404).json({ error: 'Você não está vinculado a este evento' });
+      }
+
+      if (convite[0].status !== 'Aceito') {
+        return res.status(400).json({ error: 'Apenas eventos aceitos podem ser marcados como concluídos' });
+      }
+
+      if (convite[0].concluido) {
+        return res.status(400).json({ error: 'Este evento já foi marcado como concluído' });
+      }
+
+      const [result] = await pool.execute(
+        'UPDATE evento_colaborador SET concluido = TRUE, data_conclusao = NOW() WHERE evento_id = ? AND colaborador_id = ?',
+        [evento_id, colaborador_id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(500).json({ error: 'Erro ao marcar evento como concluído' });
+      }
+
+      return res.json({ message: 'Evento marcado como concluído com sucesso!' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async enviarFeedback(req, res, next) {
+    try {
+      const { evento_id } = req.params;
+      const colaborador_id = req.user.id;
+      const { feedback } = req.body;
+
+      if (!feedback || feedback.trim() === '') {
+        return res.status(400).json({ error: 'O feedback não pode estar vazio' });
+      }
+
+      const [convite] = await pool.execute(
+        'SELECT * FROM evento_colaborador WHERE evento_id = ? AND colaborador_id = ?',
+        [evento_id, colaborador_id]
+      );
+
+      if (convite.length === 0) {
+        return res.status(404).json({ error: 'Você não está vinculado a este evento' });
+      }
+
+      if (convite[0].status !== 'Aceito') {
+        return res.status(400).json({ error: 'Apenas eventos aceitos podem receber feedback' });
+      }
+
+      const [result] = await pool.execute(
+        'UPDATE evento_colaborador SET feedback = ? WHERE evento_id = ? AND colaborador_id = ?',
+        [feedback, evento_id, colaborador_id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(500).json({ error: 'Erro ao enviar feedback' });
+      }
+
+      return res.json({ message: 'Feedback enviado com sucesso!' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+}
+
+module.exports = new EventosController();

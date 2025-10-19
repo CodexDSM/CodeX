@@ -14,6 +14,9 @@ const interactionRoutes = require('./routes/interactionRoutes');
 const checklistRoutes = require('./routes/checklistRoutes');
 const agregadosRoutes = require('./routes/agregadosRoutes');
 const localizacaoRoutes = require('./routes/localizacaoRoutes');
+const eventosRoutes = require('./routes/eventosRoutes');
+const notificacaoRoutes = require('./routes/notificacaoRoutes');
+const cotacoesRoutes = require('./routes/cotacoesRoutes');
 
 const app = express();
 
@@ -33,6 +36,9 @@ app.use('/api', interactionRoutes);
 app.use(checklistRoutes);
 app.use('/api', agregadosRoutes);
 app.use('/api/localizacoes', localizacaoRoutes);
+app.use('/api/eventos', eventosRoutes);
+app.use('/api/notificacoes', notificacaoRoutes);
+app.use('/api/cotacoes', cotacoesRoutes);
 
 // Rota de teste para verificar se a API está online
 app.get('/api/health', (req, res) => {
