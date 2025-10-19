@@ -1,38 +1,28 @@
-Autenticação
-Login de Colaborador (com Localização)
-
-POST http://localhost:3001/api/colaboradores/login
-
-Formulário (JSON):
+AUTENTICAÇÃO
+Login de Colaborador
+POST /api/colaboradores/login
 
 json
 {
   "cpf": "123.456.789-00",
-  "senha": "password",
+  "senha": "senha123",
   "local_trabalho": "Presencial"
 }
-Parâmetro local_trabalho opcional. Valores válidos: "Presencial", "Home_Office", "Evento", "Treinamento".
+local_trabalho: Opcional. Valores: Presencial, Home_Office, Evento, Treinamento
 
-Sistema mantém automaticamente apenas os últimos 30 registros por colaborador.
+Sistema mantém automaticamente os últimos 30 registros por colaborador
 
---X--
-
-Colaboradores
+COLABORADORES
 Listar Colaboradores
+GET /api/colaboradores?ativo=true&perfil=Operador
 
-GET http://localhost:3001/api/colaboradores?ativo=true&perfil=Operador
-
-Parâmetros opcionais na URL (query params): ativo (true/false), perfil (ex: 'Operador').
+Parâmetros opcionais: ativo (true/false), perfil
 
 Buscar Colaborador por ID
-
-GET http://localhost:3001/api/colaboradores/:id
+GET /api/colaboradores/:id
 
 Cadastrar Colaborador
-
-POST http://localhost:3001/api/colaboradores
-
-Formulário (JSON):
+POST /api/colaboradores
 
 json
 {
@@ -40,7 +30,7 @@ json
   "cpf": "123.456.789-99",
   "email": "jose@empresa.com",
   "senha": "123456",
-  "telefone": "1199999999",
+  "telefone": "11999999999",
   "perfil": "Operador",
   "logradouro": "Rua Teste",
   "numero": "10",
@@ -51,10 +41,7 @@ json
   "cep": "01000-000"
 }
 Atualizar Colaborador
-
-PUT http://localhost:3001/api/colaboradores/:id
-
-Formulário (JSON):
+PUT /api/colaboradores/:id
 
 json
 {
@@ -64,95 +51,59 @@ json
   "ativo": true,
   "logradouro": "Rua Nova",
   "numero": "15",
-  "complemento": null,
   "bairro": "Vila Nova",
   "cidade": "São Paulo",
   "uf": "SP",
   "cep": "01001-000"
 }
 Alterar Senha
-
-PATCH http://localhost:3001/api/colaboradores/:id/change-password
-
-Formulário (JSON):
+PATCH /api/colaboradores/:id/change-password
 
 json
 {
   "senhaAtual": "123456",
   "novaSenha": "nova_senha_123"
 }
-Desativar Colaborador (Soft Delete)
+Desativar Colaborador
+DELETE /api/colaboradores/:id
 
-DELETE http://localhost:3001/api/colaboradores/:id
-
---X--
-
-Localizações
-Registrar Localização Manualmente
-
-POST http://localhost:3001/api/localizacoes/
-
+LOCALIZAÇÕES
 Headers: Authorization: Bearer TOKEN
 
-Formulário (JSON):
+Registrar Localização
+POST /api/localizacoes
 
 json
 {
   "colaborador_id": 1,
   "tipo_localizacao": "Home_Office"
 }
-Valores válidos para tipo_localizacao: "Presencial", "Home_Office", "Evento", "Treinamento".
+Valores válidos: Presencial, Home_Office, Evento, Treinamento
 
-Buscar Localização Atual do Colaborador
+Localização Atual
+GET /api/localizacoes/colaborador/:colaborador_id/atual
 
-GET http://localhost:3001/api/localizacoes/colaborador/:colaborador_id/atual
+Histórico de Localizações (últimas 30)
+GET /api/localizacoes/colaborador/:colaborador_id/historico
 
-Headers: Authorization: Bearer TOKEN
+Listar Todas (Admin/Gerente)
+GET /api/localizacoes?tipo_localizacao=Presencial&data_inicio=2025-09-01&data_fim=2025-09-30
 
-Listar Histórico de Localizações (Últimas 30)
+Estatísticas (Admin/Gerente)
+GET /api/localizacoes/estatisticas
 
-GET http://localhost:3001/api/localizacoes/colaborador/:colaborador_id/historico
-
-Headers: Authorization: Bearer TOKEN
-
-Listar Todas as Localizações (Admin/Gerente)
-
-GET http://localhost:3001/api/localizacoes/?tipo_localizacao=Presencial&data_inicio=2025-09-01&data_fim=2025-09-30
-
-Headers: Authorization: Bearer TOKEN
-
-Parâmetros opcionais: tipo_localizacao, data_inicio, data_fim. Limitado a 100 registros.
-
-Acesso restrito a perfis: Administrador e Gerente.
-
-Estatísticas de Localizações Atuais (Admin/Gerente)
-
-GET http://localhost:3001/api/localizacoes/estatisticas
-
-Headers: Authorization: Bearer TOKEN
-
---X--
-
-Clientes
+CLIENTES
 Listar Clientes
+GET /api/clientes?tipo_pessoa=F&ativo=true
 
-GET http://localhost:3001/api/clientes?tipo_pessoa=F&ativo=true
+Buscar por ID
+GET /api/clientes/:id
 
-Parâmetros opcionais: tipo_pessoa ('F' ou 'J'), ativo (true/false).
-
-Buscar Cliente por ID
-
-GET http://localhost:3001/api/clientes/:id
-
-Buscar Cliente por Documento
-
-GET http://localhost:3001/api/clientes/documento/:documento
+Buscar por Documento
+GET /api/clientes/documento/:documento
 
 Criar Cliente
-
-POST http://localhost:3001/api/clientes
-
-Formulário (JSON):
+POST /api/clientes
 
 json
 {
@@ -163,61 +114,33 @@ json
   "telefone": "11987654321",
   "logradouro": "Av Brasil",
   "numero": "200",
-  "complemento": "Sala 10",
   "bairro": "Bairro Azul",
   "cidade": "São Paulo",
   "uf": "SP",
   "cep": "02000-000"
 }
 Atualizar Cliente
+PUT /api/clientes/:id
 
-PUT http://localhost:3001/api/clientes/:id
+Desativar Cliente
+DELETE /api/clientes/:id
 
-Formulário (JSON):
+Listar Interações
+GET /api/clientes/:clientId/interactions
 
-json
-{
-  "nome": "Maria de Sousa",
-  "email": "maria.sousa@email.com",
-  "telefone": "11987654322",
-  "ativo": true,
-  "logradouro": "Avenida Brasil",
-  "numero": "210",
-  "complemento": "",
-  "bairro": "Bairro Azul",
-  "cidade": "São Paulo",
-  "uf": "SP",
-  "cep": "02000-000"
-}
-Desativar Cliente (Soft Delete)
-
-DELETE http://localhost:3001/api/clientes/:id
-
-Listar Interações do Cliente
-
-GET http://localhost:3001/api/clientes/:clientId/interactions
-
-Criar Interação para Cliente
-
-POST http://localhost:3001/api/clientes/:clientId/interactions
-
-Formulário (JSON):
+Criar Interação
+POST /api/clientes/:clientId/interactions
 
 json
 {
   "tipo_interacao": "Ligação",
   "data_interacao": "2025-09-17T11:00:00Z",
   "assunto": "Proposta de frete",
-  "detalhes": "Cliente solicitou cotação para transporte de carga pesada."
+  "detalhes": "Cliente solicitou cotação."
 }
---X--
-
-Agregados
+AGREGADOS
 Cadastrar Agregado (Público)
-
-POST http://localhost:3001/api/public/agregados
-
-Formulário (JSON):
+POST /api/public/agregados
 
 json
 {
@@ -226,40 +149,70 @@ json
   "placa_veiculo": "ABC1D23",
   "modelo_veiculo": "Scania R450",
   "telefone": "11987654321",
-  "email": "jose.agregado@email.com"
+  "email": "jose@email.com"
 }
+Cadastrar Agregado (Autenticado)
+POST /api/agregados
+
+Headers: Authorization: Bearer TOKEN
+
+Acesso: Administrador, Gerente, Operador
+
 Listar Agregados
+GET /api/agregados?page=1&limit=10&search=jose
 
-GET http://localhost:3001/api/agregados?page=1&limit=10&search=jose
+Headers: Authorization: Bearer TOKEN
 
-Parâmetros opcionais: page, limit, search.
+Buscar por ID
+GET /api/agregados/:id
 
-Buscar Agregado por ID
+Headers: Authorization: Bearer TOKEN
 
-GET http://localhost:3001/api/agregados/:id
+Buscar por CNH
+GET /api/agregados/cnh/:cnh
 
---X--
+Headers: Authorization: Bearer TOKEN
 
-Veículos
+Buscar por Placa
+GET /api/agregados/placa/:placa
+
+Headers: Authorization: Bearer TOKEN
+
+Atualizar Agregado
+PUT /api/agregados/:id
+
+Headers: Authorization: Bearer TOKEN
+
+json
+{
+  "nome_motorista": "José da Silva",
+  "cnh": "12345678901",
+  "placa_veiculo": "ABC1D23",
+  "modelo_veiculo": "Scania R450 2024",
+  "telefone": "11987654999",
+  "email": "jose.novo@email.com"
+}
+Acesso: Administrador, Gerente, Operador
+
+Deletar Agregado
+DELETE /api/agregados/:id
+
+Headers: Authorization: Bearer TOKEN
+
+Acesso: Administrador, Gerente
+
+VEÍCULOS
 Listar Veículos
+GET /api/veiculos?disponivel=true&tipo=Caminhão
 
-GET http://localhost:3001/api/veiculos?disponivel=true&tipo=Caminhão
+Buscar por ID
+GET /api/veiculos/:id
 
-Parâmetros opcionais: disponivel (true/false), tipo (ex: 'Caminhão').
-
-Buscar Veículo por ID
-
-GET http://localhost:3001/api/veiculos/:id
-
-Buscar Veículo por Placa
-
-GET http://localhost:3001/api/veiculos/placa/:placa
+Buscar por Placa
+GET /api/veiculos/placa/:placa
 
 Criar Veículo
-
-POST http://localhost:3001/api/veiculos
-
-Formulário (JSON):
+POST /api/veiculos
 
 json
 {
@@ -269,42 +222,23 @@ json
   "tipo": "Caminhão"
 }
 Atualizar Veículo
+PUT /api/veiculos/:id
 
-PUT http://localhost:3001/api/veiculos/:id
-
-Formulário (JSON):
-
-json
-{
-  "modelo": "Mercedes-Benz Atego 2426",
-  "capacidade_kg": 12500,
-  "tipo": "Caminhão Truck",
-  "disponivel": true
-}
 Deletar Veículo
+DELETE /api/veiculos/:id
 
-DELETE http://localhost:3001/api/veiculos/:id
-
---X--
-
-Motoristas
+MOTORISTAS
 Listar Motoristas
+GET /api/motoristas
 
-GET http://localhost:3001/api/motoristas
+Listar Disponíveis
+GET /api/motoristas/disponiveis
 
-Listar Motoristas Disponíveis
-
-GET http://localhost:3001/api/motoristas/disponiveis
-
-Buscar Motorista por ID (Colaborador)
-
-GET http://localhost:3001/api/motoristas/:id
+Buscar por ID
+GET /api/motoristas/:id
 
 Criar Motorista
-
-POST http://localhost:3001/api/motoristas
-
-Formulário (JSON):
+POST /api/motoristas
 
 json
 {
@@ -315,44 +249,23 @@ json
   "veiculo_id": 1
 }
 Atualizar Motorista
+PUT /api/motoristas/:id
 
-PUT http://localhost:3001/api/motoristas/:id
-
-Formulário (JSON):
-
-json
-{
-  "cnh": "00987654321",
-  "categoria_cnh": "AE",
-  "validade_cnh": "2028-12-31",
-  "veiculo_id": 2
-}
 Deletar Motorista
+DELETE /api/motoristas/:id
 
-DELETE http://localhost:3001/api/motoristas/:id
-
---X--
-
-Fretes
+FRETES
 Listar Fretes
+GET /api/fretes?status=Transito&data_inicio=2025-01-01&data_fim=2025-12-31
 
-GET http://localhost:3001/api/fretes?status=Transito&data_inicio=2025-01-01&data_fim=2025-12-31
+Buscar por ID
+GET /api/fretes/:id
 
-Parâmetros opcionais: status, cliente_id, motorista_id, data_inicio, data_fim.
-
-Buscar Frete por ID
-
-GET http://localhost:3001/api/fretes/:id
-
-Buscar Frete por Código
-
-GET http://localhost:3001/api/fretes/codigo/:codigo
+Buscar por Código
+GET /api/fretes/codigo/:codigo
 
 Criar Frete
-
-POST http://localhost:3001/api/fretes
-
-Formulário (JSON):
+POST /api/fretes
 
 json
 {
@@ -371,220 +284,151 @@ json
   "observacoes": "Carga frágil"
 }
 Atualizar Frete
+PUT /api/fretes/:id
 
-PUT http://localhost:3001/api/fretes/:id
-
-Formulário (JSON):
-
-json
-{
-  "motorista_id": 2,
-  "veiculo_id": 1,
-  "status": "Transito",
-  "distancia_km": 455,
-  "valor": 2100.00,
-  "peso_kg": 5100,
-  "data_entrega_prevista": "2025-09-13",
-  "data_entrega": null,
-  "observacoes": "Carga frágil. Cuidado extra."
-}
-Atualizar Status do Frete
-
-PATCH http://localhost:3001/api/fretes/:id/status
-
-Formulário (JSON):
+Atualizar Status
+PATCH /api/fretes/:id/status
 
 json
 {
   "status": "Entregue"
 }
 Relatório de Fretes
+GET /api/fretes/relatorio?data_inicio=2025-01-01&data_fim=2025-12-31
 
-GET http://localhost:3001/api/fretes/relatorio?data_inicio=2025-01-01&data_fim=2025-12-31
+RASTREAMENTO
+Rastreamento Público
+GET /api/rastreamento/publico/:codigo
 
---X--
+Listar Posições
+GET /api/rastreamento/frete/:frete_id
 
-Rastreamento
-Rastreamento Público por Código
+Última Posição
+GET /api/rastreamento/frete/:frete_id/ultima
 
-GET http://localhost:3001/api/rastreamento/publico/:codigo
-
-Listar Posições do Frete
-
-GET http://localhost:3001/api/rastreamento/frete/:frete_id
-
-Última Posição do Frete
-
-GET http://localhost:3001/api/rastreamento/frete/:frete_id/ultima
-
-Registrar Posição do Frete
-
-POST http://localhost:3001/api/rastreamento/frete/:frete_id
-
-Formulário (JSON):
+Registrar Posição
+POST /api/rastreamento/frete/:frete_id
 
 json
 {
   "latitude": -23.550520,
   "longitude": -46.633308
 }
---X--
-
-Checklist
+CHECKLIST
 Upload de Anexo
+POST /api/checklist/upload
 
-POST http://localhost:3001/api/checklist/upload
+Content-Type: multipart/form-data
 
-O corpo da requisição deve ser do tipo multipart/form-data, não JSON.
-
-Salvar Registro de Checklist
-
-POST http://localhost:3001/api/checklist/salvar
-
-Formulário (JSON):
+Salvar Checklist
+POST /api/checklist/salvar
 
 json
 {
-    "template_id": 1,
-    "colaborador_id": 2,
-    "ativo_relacionado_id": 5,
-    "respostas": [
-        {
-            "pergunta_id": 101,
-            "valor_resposta": "Conforme"
-        },
-        {
-            "pergunta_id": 102,
-            "valor_resposta": "Não Conforme"
-        }
-    ],
-    "filePaths": [
-        "uploads/2025-09-23T12-30-00.jpg"
-    ]
+  "template_id": 1,
+  "colaborador_id": 2,
+  "ativo_relacionado_id": 5,
+  "respostas": [
+    {
+      "pergunta_id": 101,
+      "valor_resposta": "Conforme"
+    }
+  ],
+  "filePaths": ["uploads/2025-09-23T12-30-00.jpg"]
 }
+EVENTOS
+Headers: Authorization: Bearer TOKEN
 
---X--
-
-
-Eventos
 Listar Eventos
+GET /api/eventos
 
-GET http://localhost:3001/api/eventos
+Buscar por ID
+GET /api/eventos/:id
 
-Headers: Authorization: Bearer TOKEN
-
-Buscar Evento por ID
-
-GET http://localhost:3001/api/eventos/:id
-
-Headers: Authorization: Bearer TOKEN
-
-Criar Evento (Administrador/Gerente)
-
-POST http://localhost:3001/api/eventos
-
-Headers: Authorization: Bearer TOKEN
-
-Formulário (JSON):
+Criar Evento (Admin/Gerente)
+POST /api/eventos
 
 json
 {
   "titulo": "Reunião de Planejamento",
-  "descricao": "Planejamento estratégico do trimestre",
+  "descricao": "Planejamento estratégico",
   "data_inicio": "2025-11-01 09:00:00",
   "data_fim": "2025-11-01 12:00:00",
   "local": "Sala de Conferências"
 }
-O campo responsavel_id é preenchido automaticamente com o ID do usuário autenticado.
+Atualizar Evento (Admin/Gerente)
+PUT /api/eventos/:id
 
-Acesso restrito a perfis: Administrador e Gerente.
-
-Atualizar Evento (Administrador/Gerente)
-
-PUT http://localhost:3001/api/eventos/:id
-
-Headers: Authorization: Bearer TOKEN
-
-Formulário (JSON):
-
-json
-{
-  "titulo": "Reunião de Planejamento - Atualizado",
-  "descricao": "Planejamento estratégico e revisão de metas",
-  "data_inicio": "2025-11-01 10:00:00",
-  "data_fim": "2025-11-01 13:00:00",
-  "local": "Sala de Conferências 2"
-}
-Acesso restrito a perfis: Administrador e Gerente.
-
-Deletar Evento (Administrador/Gerente)
-
-DELETE http://localhost:3001/api/eventos/:id
-
-Headers: Authorization: Bearer TOKEN
-
-Acesso restrito a perfis: Administrador e Gerente.
+Deletar Evento (Admin/Gerente)
+DELETE /api/eventos/:id
 
 Listar Eventos do Colaborador
+GET /api/eventos/colaborador/:colaborador_id
 
-GET http://localhost:3001/api/eventos/colaborador/:colaborador_id
+Aceitar Convite
+POST /api/eventos/:evento_id/aceitar
 
-Headers: Authorization: Bearer TOKEN
-
-Retorna eventos onde o colaborador tem status 'Aceito' ou 'Pendente', incluindo informações de feedback e conclusão.
-
-Aceitar Convite para Evento
-
-POST http://localhost:3001/api/eventos/:evento_id/aceitar
-
-Headers: Authorization: Bearer TOKEN
-
-Body: Vazio
-
-Colaborador confirma participação no evento. Atualiza status para 'Aceito' e registra data/hora da resposta.
-
-Recusar Convite para Evento
-
-POST http://localhost:3001/api/eventos/:evento_id/recusar
-
-Headers: Authorization: Bearer TOKEN
-
-Formulário (JSON):
+Recusar Convite
+POST /api/eventos/:evento_id/recusar
 
 json
 {
-  "justificativa_recusa": "Conflito de agenda com outro compromisso"
+  "justificativa_recusa": "Conflito de agenda"
 }
-O campo justificativa_recusa é opcional.
+Marcar como Concluído
+POST /api/eventos/:evento_id/concluir
 
-Atualiza status para 'Recusado' e registra data/hora da resposta.
-
-Marcar Evento como Concluído
-
-POST http://localhost:3001/api/eventos/:evento_id/concluir
-
-Headers: Authorization: Bearer TOKEN
-
-Body: Vazio
-
-Colaborador marca sua participação no evento como concluída. Registra data/hora da conclusão automaticamente.
-
-Apenas eventos com status 'Aceito' podem ser marcados como concluídos.
-
-Enviar Feedback do Evento
-
-POST http://localhost:3001/api/eventos/:evento_id/feedback
-
-Headers: Authorization: Bearer TOKEN
-
-Formulário (JSON):
+Enviar Feedback
+POST /api/eventos/:evento_id/feedback
 
 json
 {
-  "feedback": "Evento muito produtivo, com boas discussões sobre as metas do próximo trimestre."
+  "feedback": "Evento muito produtivo!"
 }
-Colaborador envia feedback sobre sua participação no evento.
+NOTIFICAÇÕES
+Headers: Authorization: Bearer TOKEN
 
-Apenas eventos com status 'Aceito' podem receber feedback.
+Criar Notificação (Admin/Gerente)
+POST /api/notificacoes
 
---X--
+json
+{
+  "colaborador_id": 2,
+  "tipo": "Evento",
+  "titulo": "Nova Atualização",
+  "mensagem": "Sistema atualizado",
+  "evento_id": 1
+}
+Tipos válidos: Evento, Treinamento, Sistema
+
+Listar Notificações
+GET /api/notificacoes?lida=false&tipo=Evento
+
+Contar Não Lidas
+GET /api/notificacoes/nao-lidas/count
+
+Buscar por ID
+GET /api/notificacoes/:id
+
+Marcar como Lida
+PATCH /api/notificacoes/:id/marcar-lida
+
+Marcar Todas como Lidas
+PATCH /api/notificacoes/marcar-todas-lidas
+
+Deletar Notificação
+DELETE /api/notificacoes/:id
+
+SISTEMA DE EMAILS AUTOMÁTICOS
+O sistema envia emails automaticamente:
+
+Convite para Evento - Ao aceitar convite
+
+Atualização de Evento - Quando evento é modificado
+
+Lembrete Dia Anterior - 05:00 do dia anterior
+
+Lembrete Dia do Evento - 05:00 do dia do evento
+
+Lembrete 1 Hora Antes - Verificado a cada 15 minutos
+
