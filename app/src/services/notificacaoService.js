@@ -157,7 +157,7 @@ class NotificacaoService {
         const resultadoEmail = await emailService.enviarLembreteEvento(colaborador, evento, tipoLembrete);
 
         await pool.execute(
-          'INSERT INTO notificacao_lembrete (evento_id, tipo_lembrete, enviado, data_envio) VALUES (?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE enviado = TRUE, data_envio = NOW()',
+          'INSERT INTO notificacao_lembrete (evento_id, tipo_lembrete, enviado, data_envio) VALUES (?, ?, TRUE, NOW()) ON DUPLICATE KEY UPDATE enviado = TRUE, data_envio = NOW()',
           [evento.id, tipoLembrete]
         );
 

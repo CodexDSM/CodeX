@@ -138,6 +138,158 @@ json
   "assunto": "Proposta de frete",
   "detalhes": "Cliente solicitou cotação."
 }
+COTAÇÕES
+Headers: Authorization: Bearer TOKEN
+
+Acesso: Administrador, Gerente, Comercial
+
+Criar Cotação
+POST /api/cotacoes
+
+json
+{
+  "cliente_id": 1,
+  "desconto": 100,
+  "observacoes": "Frete especial com desconto",
+  "enviar_email": false,
+  "itens": [
+    {
+      "descricao": "Transporte de Carga Geral - 500kg",
+      "quantidade": 1,
+      "valor_unitario": 1500.00
+    },
+    {
+      "descricao": "Seguro da Carga",
+      "quantidade": 1,
+      "valor_unitario": 200.00
+    }
+  ]
+}
+Resposta:
+
+json
+{
+  "success": true,
+  "message": "Cotação criada como rascunho",
+  "data": {
+    "id": 1,
+    "codigo": "COT-2025-0001",
+    "pdf_filename": "cotacao-1-1234567890.pdf"
+  }
+}
+Status disponíveis: Rascunho, Enviada, Aceita, Recusada, Expirada
+
+Observações:
+
+Se enviar_email: true, envia automaticamente o PDF por email
+
+PDF é gerado automaticamente
+
+Cotação válida por 7 dias
+
+Desconto opcional
+
+Listar Cotações
+GET /api/cotacoes?status=Enviada&cliente_id=1&page=1&limit=10
+
+Parâmetros opcionais:
+
+status - Filtrar por status
+
+cliente_id - Filtrar por cliente
+
+page - Página (padrão: 1)
+
+limit - Limite por página (padrão: 10)
+
+Resposta:
+
+json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "codigo": "COT-2025-0001",
+      "cliente_nome": "João da Silva",
+      "colaborador_nome": "Marina Comercial",
+      "valor_total": 1600.00,
+      "desconto": 100.00,
+      "status": "Rascunho",
+      "criado_em": "2025-10-18T23:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 1,
+    "totalPages": 1
+  }
+}
+Buscar Cotação por ID
+GET /api/cotacoes/:id
+
+Resposta:
+
+json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "codigo": "COT-2025-0001",
+    "cliente_nome": "João da Silva",
+    "cliente_email": "joao@email.com",
+    "cliente_documento": "123.456.789-00",
+    "cliente_telefone": "11987654321",
+    "colaborador_nome": "Marina Comercial",
+    "valor_total": 1600.00,
+    "desconto": 100.00,
+    "observacoes": "Frete especial",
+    "status": "Rascunho",
+    "validade_ate": "2025-10-25T23:30:00.000Z",
+    "criado_em": "2025-10-18T23:30:00.000Z",
+    "itens": [
+      {
+        "id": 1,
+        "descricao": "Transporte de Carga Geral - 500kg",
+        "quantidade": 1,
+        "valor_unitario": 1500.00,
+        "valor_total": 1500.00
+      }
+    ]
+  }
+}
+Buscar por Código
+GET /api/cotacoes/codigo/:codigo
+
+Exemplo: /api/cotacoes/codigo/COT-2025-0001
+
+Enviar Cotação por Email
+POST /api/cotacoes/:id/enviar
+
+Envia o PDF da cotação por email para o cliente e atualiza o status para Enviada.
+
+Resposta:
+
+json
+{
+  "success": true,
+  "message": "Cotação enviada por email com sucesso!"
+}
+Atualizar Status
+PATCH /api/cotacoes/:id/status
+
+json
+{
+  "status": "Aceita"
+}
+Status válidos: Rascunho, Enviada, Aceita, Recusada, Expirada
+
+Deletar Cotação (Admin/Gerente)
+DELETE /api/cotacoes/:id
+
+Acesso: Apenas Administrador e Gerente
+
 AGREGADOS
 Cadastrar Agregado (Público)
 POST /api/public/agregados
@@ -418,17 +570,3 @@ PATCH /api/notificacoes/marcar-todas-lidas
 
 Deletar Notificação
 DELETE /api/notificacoes/:id
-
-SISTEMA DE EMAILS AUTOMÁTICOS
-O sistema envia emails automaticamente:
-
-Convite para Evento - Ao aceitar convite
-
-Atualização de Evento - Quando evento é modificado
-
-Lembrete Dia Anterior - 05:00 do dia anterior
-
-Lembrete Dia do Evento - 05:00 do dia do evento
-
-Lembrete 1 Hora Antes - Verificado a cada 15 minutos
-
