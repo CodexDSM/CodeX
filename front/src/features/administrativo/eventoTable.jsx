@@ -5,11 +5,11 @@ import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import styles from './table.module.css';
 import { useRouter } from 'next/navigation';
 
-export function EventoTable({ 
-  eventos = [], 
-  onSort, 
-  sortConfig, 
-  loading = false 
+export function EventoTable({
+  eventos = [],
+  onSort,
+  sortConfig,
+  loading = false
 }) {
 
   const router = useRouter();
@@ -18,8 +18,8 @@ export function EventoTable({
     if (sortConfig?.key !== key) {
       return <ChevronsUpDown size={16} className="inline ml-1 text-gray-400" />;
     }
-    return sortConfig.direction === "ascending" ? 
-      <ChevronUp size={16} className="inline ml-1 text-blue-600" /> : 
+    return sortConfig.direction === "ascending" ?
+      <ChevronUp size={16} className="inline ml-1 text-blue-600" /> :
       <ChevronDown size={16} className="inline ml-1 text-blue-600" />;
   };
 
@@ -78,9 +78,8 @@ export function EventoTable({
             <th>
               <button
                 className={styles.botao}
-                onClick={() => onSort && onSort('responsavel')}
-              >
-                Responsável {getSortIndicator('responsavel')}
+                onClick={() => onSort && onSort('responsavel_nome')}>
+                Responsável {getSortIndicator('responsavel_nome')}
               </button>
             </th>
             <th>
@@ -126,7 +125,7 @@ export function EventoTable({
                 className={styles.clickableRow}
               >
                 <td>{evento.titulo}</td>
-                <td>{evento.responsavel || '—'}</td>
+                <td>{evento.responsavel_nome || '—'}</td>
                 <td>{formatDate(evento.data_inicio)}</td>
                 <td>{formatDate(evento.data_fim)}</td>
                 <td>{evento.local || 'Não definido'}</td>

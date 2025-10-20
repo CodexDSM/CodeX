@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
+import {
     Container, Typography, Paper, Button, Box,
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
-    CircularProgress, FormControl, InputLabel, Select, MenuItem 
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+    CircularProgress, FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
-// A LINHA ABAIXO FOI CORRIGIDA
 import { mockTemplates } from '@/app/(app)/operacional/listaChecklists';
 
 // Função para deixar os nomes das colunas mais bonitos (ex: nome_motorista -> Nome Motorista)
@@ -25,31 +24,30 @@ export default function ListarSubmissionsPage() {
     useEffect(() => {
         const fetchSubmissions = async () => {
             if (!selectedType) return;
-    
+
             setLoading(true);
             setError(null);
             setSubmissions([]);
             setColumns([]);
-    
+
             try {
-                // LÓGICA CORRIGIDA AQUI
                 let apiUrl = '';
                 if (selectedType === 'agregado_form') {
                     apiUrl = 'http://localhost:3001/api/agregados';
                 } else {
                     apiUrl = `http://localhost:3001/api/checklists/respostas?templateId=${selectedType}`;
                 }
-    
+
                 const authToken = localStorage.getItem('authToken');
                 const response = await fetch(apiUrl, {
                     headers: { 'Authorization': `Bearer ${authToken}` },
                 });
-    
+
                 if (!response.ok) {
                     throw new Error('Falha ao buscar dados da API.');
                 }
                 const data = await response.json();
-    
+
                 if (data.length > 0) {
                     setColumns(Object.keys(data[0]));
                     setSubmissions(data);
@@ -60,7 +58,7 @@ export default function ListarSubmissionsPage() {
                 setLoading(false);
             }
         };
-    
+
         fetchSubmissions();
     }, [selectedType]);
 
@@ -78,7 +76,7 @@ export default function ListarSubmissionsPage() {
                     </Button>
                 </Link>
             </Box>
-            
+
             <Paper sx={{ p: 3 }}>
                 {/* ...dropdown de filtro... */}
                 <FormControl fullWidth sx={{ mb: 3 }}>
@@ -100,7 +98,7 @@ export default function ListarSubmissionsPage() {
                     <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}><CircularProgress /></Box>
                 )}
                 {error && <Typography color="error" align="center">Erro: {error}</Typography>}
-                
+
                 {!loading && !error && (
                     submissions.length === 0 ? (
                         <Typography align="center">Nenhum registro encontrado para este formulário.</Typography>

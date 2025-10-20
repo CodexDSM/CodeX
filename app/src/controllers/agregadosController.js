@@ -26,7 +26,7 @@ class AgregadosController {
             await connection.query(sql, values);
 
             // Envia a resposta de sucesso
-            res.status(201).json({ 
+            res.status(201).json({
                 message: 'Agregado cadastrado com sucesso!',
             });
 
@@ -34,7 +34,7 @@ class AgregadosController {
             if (error.code === 'ER_DUP_ENTRY') {
                 return res.status(409).json({ message: 'CNH ou Placa do Veículo já cadastrada.' });
             }
-            
+
             console.error('Erro ao cadastrar agregado:', error);
             res.status(500).json({ message: 'Ocorreu um erro no servidor ao tentar cadastrar o agregado.' });
         } finally {
@@ -43,27 +43,35 @@ class AgregadosController {
         }
     }
 
-    // Seu método de listar, que já estava correto
     async listarAgregados(req, res) {
         let connection;
         try {
-            let sql, params = [];
-            
+            connection = await pool.getConnection();
+
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 10;
             const search = req.query.search?.trim();
-            
             const offset = (page - 1) * limit;
 
+            let sql, params = [];
+
             if (search) {
-                sql = 'SELECT * FROM agregados WHERE nome_motorista LIKE ? OR cnh LIKE ? OR placa_veiculo LIKE ? ORDER BY criado_em DESC LIMIT ?, ?';
-                params = [`%${search}%`, `%${search}%`, `%${search}%`, offset, limit];
+                sql = 'SELECT * FROM agregados WHERE nome_motorista LIKE ? OR cnh LIKE ? OR placa_veiculo LIKE ? ORDER BY criado_em DESC LIMIT ? OFFSET ?';
+                // IMPORTANTE: limit e offset devem ser NÚMEROS, não strings
+                params = [`%${search}%`, `%${search}%`, `%${search}%`, limit, offset];
             } else {
-                sql = 'SELECT * FROM agregados ORDER BY criado_em DESC LIMIT ?, ?';
-                params = [offset, limit];
+                sql = 'SELECT * FROM agregados ORDER BY criado_em DESC LIMIT ? OFFSET ?';
+                // IMPORTANTE: limit e offset devem ser NÚMEROS
+                params = [limit, offset];
             }
 
-            const [agregados] = await db.query(sql, params);
+            console.log('SQL:', sql);
+            console.log('Params:', params);
+            console.log('Tipos:', params.map(p => typeof p));
+
+            const [agregados] = await connection.query(sql, params);
+
+            console.log('Agregados encontrados:', agregados.length);
 
             // Contar total
             let countSql, countParams = [];
@@ -74,7 +82,7 @@ class AgregadosController {
                 countSql = 'SELECT COUNT(*) as total FROM agregados';
             }
 
-            const [totalResult] = await db.query(countSql, countParams);
+            const [totalResult] = await connection.query(countSql, countParams);
             const total = totalResult[0].total;
             const totalPages = Math.ceil(total / limit);
 
@@ -90,7 +98,6 @@ class AgregadosController {
                     tem_anterior: page > 1
                 }
             });
-
         } catch (error) {
             console.error('Erro ao listar agregados:', error);
             res.status(500).json({ message: "Ocorreu um erro no servidor." });
@@ -98,8 +105,6 @@ class AgregadosController {
             if (connection) connection.release();
         }
     }
-
-    // Seus outros métodos...
     async buscarAgregadoPorId(req, res) {
         const { id } = req.params;
         res.json({ message: `Buscando agregado com ID: ${id}` });
@@ -116,8 +121,8 @@ class AgregadosController {
                     message: 'CNH inválida'
                 });
             }
-
-            const [agregado] = await db.execute(
+            connection = await pool.getConnection();
+            const [agregado] = await connection.execute(
                 'SELECT * FROM agregados WHERE cnh = ?',
                 [cnhLimpo]
             );
@@ -156,7 +161,7 @@ class AgregadosController {
                 });
             }
 
-            const [agregado] = await db.execute(
+            const [agregado] = await req.execute(
                 'SELECT * FROM agregados WHERE placa_veiculo = ?',
                 [placaFormatada]
             );
@@ -194,7 +199,7 @@ class AgregadosController {
             }
 
             // Verificar se agregado existe
-            const [agregadoExiste] = await db.execute(
+            const [agregadoExiste] = await req.execute(
                 'SELECT id FROM agregados WHERE id = ?',
                 [id]
             );
@@ -254,7 +259,7 @@ class AgregadosController {
             }
 
             // Verificar duplicatas CNH em outro registro
-            const [cnhExistente] = await db.execute(
+            const [cnhExistente] = await req.execute(
                 'SELECT id FROM agregados WHERE cnh = ? AND id != ?',
                 [cnhLimpo, id]
             );
@@ -267,7 +272,7 @@ class AgregadosController {
             }
 
             // Verificar duplicatas placa em outro registro
-            const [placaExistente] = await db.execute(
+            const [placaExistente] = await req.execute(
                 'SELECT id FROM agregados WHERE placa_veiculo = ? AND id != ?',
                 [placaFormatada, id]
             );
@@ -280,13 +285,13 @@ class AgregadosController {
             }
 
             // Atualizar agregado
-            await db.execute(
+            await req.execute(
                 'UPDATE agregados SET nome_motorista = ?, cnh = ?, placa_veiculo = ?, modelo_veiculo = ?, telefone = ?, email = ? WHERE id = ?',
                 [nome_sanitizado, cnhLimpo, placaFormatada, modelo_sanitizado, telefone || null, email || null, id]
             );
 
             // Retornar agregado atualizado
-            const [agregadoAtualizado] = await db.execute(
+            const [agregadoAtualizado] = await req.execute(
                 'SELECT * FROM agregados WHERE id = ?',
                 [id]
             );
@@ -326,7 +331,7 @@ class AgregadosController {
             }
 
             // Verificar se agregado existe
-            const [agregadoExiste] = await db.execute(
+            const [agregadoExiste] = await req.execute(
                 'SELECT id FROM agregados WHERE id = ?',
                 [id]
             );
@@ -339,7 +344,7 @@ class AgregadosController {
             }
 
             // Deletar agregado
-            await db.execute('DELETE FROM agregados WHERE id = ?', [id]);
+            await req.execute('DELETE FROM agregados WHERE id = ?', [id]);
 
             res.json({
                 success: true,

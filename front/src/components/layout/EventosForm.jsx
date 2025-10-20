@@ -11,11 +11,11 @@ export default function CadastroEvento() {
 
   const initialFormData = {
     titulo: "",
+    responsavel: "",
     descricao: "",
     data_inicio: "",
     data_fim: "",
     local: "",
-    responsavel: "",
   };
 
   const [formData, setFormData] = useState(initialFormData);
