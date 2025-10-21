@@ -3,7 +3,7 @@ const router = express.Router();
 const eventosController = require('../controllers/eventosController');
 const { authenticateToken, authorizeRoles } = require('../middlewares/auth');
 
-router.post('/', authenticateToken, authorizeRoles('Administrador', 'Gerente'), eventosController.create);
+router.post('/', authenticateToken, authorizeRoles('Administrador', 'Gerente'), eventosController.store);
 
 router.get('/', authenticateToken, eventosController.index);
 
@@ -22,5 +22,8 @@ router.post('/:evento_id/recusar', authenticateToken, eventosController.recusarE
 router.post('/:evento_id/concluir', authenticateToken, eventosController.marcarConcluido);
 
 router.post('/:evento_id/feedback', authenticateToken, eventosController.enviarFeedback);
+
+router.get('/:id/colaboradores', authenticateToken, eventosController.getColaboradoresByEvento);
+
 
 module.exports = router;

@@ -31,7 +31,10 @@
   gap: 0.75rem;
 }
 
-.editButton, .saveButton, .cancelButton, .interactionButton {
+.editButton,
+.saveButton,
+.cancelButton,
+.interactionButton {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -48,6 +51,7 @@
   background-color: #3b82f6;
   color: white;
 }
+
 .editButton:hover {
   background-color: #2563eb;
   transform: translateY(-1px);
@@ -57,6 +61,7 @@
   background-color: #10b981;
   color: white;
 }
+
 .saveButton:hover {
   background-color: #059669;
   transform: translateY(-1px);
@@ -67,6 +72,7 @@
   color: #64748b;
   border: 1px solid #e2e8f0;
 }
+
 .cancelButton:hover {
   background-color: #e2e8f0;
 }
@@ -75,6 +81,7 @@
   background-color: #f59e0b;
   color: white;
 }
+
 .interactionButton:hover {
   background-color: #d97706;
   transform: translateY(-1px);
@@ -211,26 +218,27 @@ select.input option[value="false"] {
     padding: 1rem;
     margin: 1rem;
   }
-  
+
   .infoGrid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .span2 {
     grid-column: span 1;
   }
-  
+
   .header {
     flex-direction: column;
     gap: 1rem;
     align-items: stretch;
   }
-  
+
   .actionButtons {
     justify-content: center;
   }
 }
+
 .headerButtons {
   display: flex;
   gap: 10px;
@@ -252,4 +260,147 @@ select.input option[value="false"] {
 
 .deleteButton:hover {
   background-color: #c82333;
+}
+
+/* Seção de Colaboradores */
+.section {
+  margin-top: 40px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.colaboradoresList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.colaboradorCard {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.colaboradorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.colaboradorNome {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.colaboradorEmail {
+  font-size: 14px;
+  color: #666;
+  margin: 4px 0;
+}
+
+.colaboradorResposta {
+  font-size: 12px;
+  color: #999;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.justificativaBox {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #fff3cd;
+  border-left: 4px solid #f44336;
+  border-radius: 4px;
+}
+
+.justificativaBox strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #856404;
+  font-size: 13px;
+}
+
+.justificativaBox p {
+  margin: 0;
+  color: #856404;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.statusBadge {
+  display: inline-block;
+}
+
+/* Seção de Feedbacks */
+.feedbackList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.feedbackCard {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #2196F3;
+}
+
+.feedbackHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.feedbackNome {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 4px 0;
+}
+
+.feedbackEmail {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.badgeConcluido {
+  display: inline-block;
+}
+
+.feedbackContent {
+  margin: 16px 0;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #2196F3;
+}
+
+.feedbackContent p {
+  margin: 0;
+  line-height: 1.6;
+  color: #333;
+  font-size: 15px;
+}
+
+.feedbackData {
+  font-size: 12px;
+  color: #999;
+  margin: 8px 0 0 0;
+  font-style: italic;
+  text-align: right;
 }

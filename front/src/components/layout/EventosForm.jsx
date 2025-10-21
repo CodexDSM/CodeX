@@ -1,123 +1,124 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import styles from "./evento.module.css";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import styles from './evento.module.css';
 
 export default function CadastroEvento() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [colaboradores, setColaboradores] = useState([]);
+  const [colaboradoresSelecionados, setColaboradoresSelecionados] = useState([]);
 
-  const initialFormData = {
-    titulo: "",
-    responsavel: "",
-    descricao: "",
-    data_inicio: "",
-    data_fim: "",
-    local: "",
-  };
+  const [formData, setFormData] = useState({
+    titulo: '',
+    descricao: '',
+    data_inicio: '',
+    data_fim: '',
+    local: '',
+    responsavel_id: ''
+  });
 
-  const [formData, setFormData] = useState(initialFormData);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // Busca lista de colaboradores
+  useEffect(() => {
+    async function fetchColaboradores() {
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch('http://localhost:3001/api/colaboradores', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setColaboradores(data);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar colaboradores:', err);
+      }
+    }
+    fetchColaboradores();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  function formatDateTimeLocalToSQL(datetimeLocalStr) {
-    // Recebe "2025-10-16T14:30", retorna "2025-10-16 14:30:00"
-    if (!datetimeLocalStr) return null;
-    return datetimeLocalStr.replace("T", " ") + ":00";
-  }
+  const handleColaboradorToggle = (colaboradorId) => {
+    setColaboradoresSelecionados(prev => {
+      if (prev.includes(colaboradorId)) {
+        return prev.filter(id => id !== colaboradorId);
+      } else {
+        return [...prev, colaboradorId];
+      }
+    });
+  };
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+    setLoading(true);
 
     try {
-      const authToken = localStorage.getItem("authToken");
-
-      const body = {
+      const token = localStorage.getItem('authToken');
+      const payload = {
         ...formData,
-        data_inicio: formatDateTimeLocalToSQL(formData.data_inicio),
-        data_fim: formatDateTimeLocalToSQL(formData.data_fim),
+        colaboradores_ids: colaboradoresSelecionados
       };
 
-      const response = await fetch("http://localhost:3001/api/eventos", {
-        method: "POST",
+      const response = await fetch('http://localhost:3001/api/eventos', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(payload)
       });
 
-      setIsLoading(false);
-
       if (response.ok) {
-        router.push("/administrativo/eventos");
+        alert('Evento criado com sucesso!');
+        router.push('/administrativo/eventos');
       } else {
-        const err = await response.json();
-        setError(err.message || "Erro ao cadastrar evento.");
+        const error = await response.json();
+        alert(`Erro: ${error.error || 'Erro ao criar evento'}`);
       }
-    } catch (error) {
-      setIsLoading(false);
-      setError("Erro ao enviar dados: " + error.message);
+    } catch (err) {
+      console.error('Erro:', err);
+      alert('Erro ao criar evento');
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <CardContent>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Criar Novo Evento</h1>
+
       <form onSubmit={handleSubmit} className={styles.form}>
-        <h2 className={styles.title}>Cadastro de Evento</h2>
+        <div className={styles.formGroup}>
+          <label>Título *</label>
+          <input
+            type="text"
+            name="titulo"
+            value={formData.titulo}
+            onChange={handleChange}
+            required
+            className={styles.input}
+          />
+        </div>
 
-        {error && <p className={styles.errorMessage}>{error}</p>}
+        <div className={styles.formGroup}>
+          <label>Descrição</label>
+          <textarea
+            name="descricao"
+            value={formData.descricao}
+            onChange={handleChange}
+            className={styles.textarea}
+            rows="4"
+          />
+        </div>
 
-        <div className={styles.formGrid}>
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Título *</label>
-            <input
-              name="titulo"
-              placeholder="Digite o título do evento"
-              value={formData.titulo}
-              onChange={handleChange}
-              required
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Local *</label>
-            <input
-              name="local"
-              placeholder="Digite o local do evento"
-              value={formData.local}
-              onChange={handleChange}
-              required
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Responsável</label>
-            <input
-              name="responsavel"
-              placeholder="Nome do responsável"
-              value={formData.responsavel}
-              onChange={handleChange}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Data e Hora de Início *</label>
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
+            <label>Data e Hora de Início *</label>
             <input
               type="datetime-local"
               name="data_inicio"
@@ -128,37 +129,82 @@ export default function CadastroEvento() {
             />
           </div>
 
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Data e Hora de Término *</label>
+          <div className={styles.formGroup}>
+            <label>Data e Hora de Término</label>
             <input
               type="datetime-local"
               name="data_fim"
               value={formData.data_fim}
               onChange={handleChange}
-              required
               className={styles.input}
-            />
-          </div>
-
-          <div className={`${styles.inputWrapper} ${styles.span2}`}>
-            <label className={styles.label}>Descrição</label>
-            <textarea
-              name="descricao"
-              placeholder="Descreva o evento"
-              value={formData.descricao}
-              onChange={handleChange}
-              className={styles.input}
-              rows={4}
             />
           </div>
         </div>
 
-        <div className={styles.buttonContainer}>
-          <Button type="submit" variant="adicionar" disabled={isLoading}>
-            {isLoading ? "Cadastrando..." : "Cadastrar Evento"}
-          </Button>
+        <div className={styles.formGroup}>
+          <label>Local</label>
+          <input
+            type="text"
+            name="local"
+            value={formData.local}
+            onChange={handleChange}
+            className={styles.input}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>Responsável</label>
+          <select
+            name="responsavel_id"
+            value={formData.responsavel_id}
+            onChange={handleChange}
+            className={styles.select}
+          >
+            <option value="">Selecione um responsável</option>
+            {colaboradores.map(colab => (
+              <option key={colab.id} value={colab.id}>
+                {colab.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>Convidar Colaboradores</label>
+          <div className={styles.colaboradoresList}>
+            {colaboradores.map(colab => (
+              <label key={colab.id} className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={colaboradoresSelecionados.includes(colab.id)}
+                  onChange={() => handleColaboradorToggle(colab.id)}
+                />
+                <span>{colab.nome}</span>
+              </label>
+            ))}
+          </div>
+          <small className={styles.hint}>
+            {colaboradoresSelecionados.length} colaborador(es) selecionado(s)
+          </small>
+        </div>
+
+        <div className={styles.buttonGroup}>
+          <button
+            type="submit"
+            disabled={loading}
+            className={styles.submitButton}
+          >
+            {loading ? 'Criando...' : 'Criar Evento'}
+          </button>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className={styles.cancelButton}
+          >
+            Cancelar
+          </button>
         </div>
       </form>
-    </CardContent>
+    </div>
   );
 }

@@ -10,6 +10,10 @@ export default function DetalheEventoPage({ params }) {
   const unwrappedParams = React.use(params);
   const eventoId = unwrappedParams.id;
 
+  const [colaboradores, setColaboradores] = useState([]);
+  const [loadingColaboradores, setLoadingColaboradores] = useState(false);
+
+
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -19,8 +23,10 @@ export default function DetalheEventoPage({ params }) {
     data_inicio: "",
     data_fim: "",
     local: "",
-    responsavel_nome: ""
+    responsavel_nome: "",
+    responsavel_id: null // Adicione este campo
   });
+
 
   const [initialData, setInitialData] = useState(null);
 
@@ -37,6 +43,34 @@ export default function DetalheEventoPage({ params }) {
     // Exemplo: "2025-10-16T14:30" => "2025-10-16 14:30:00"
     return datetimeLocalStr.replace("T", " ") + ":00";
   };
+  // Função para buscar colaboradores convidados do evento
+  async function fetchColaboradoresEvento() {
+    if (!eventoId) return;
+
+    setLoadingColaboradores(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `http://localhost:3001/api/eventos/${eventoId}/colaboradores`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setColaboradores(data);
+        console.log('Colaboradores convidados:', data);
+      } else {
+        console.error("Erro ao buscar colaboradores");
+      }
+    } catch (err) {
+      console.error("Erro ao buscar colaboradores:", err);
+    } finally {
+      setLoadingColaboradores(false);
+    }
+  }
+
 
   useEffect(() => {
     async function fetchEvento() {
@@ -58,11 +92,13 @@ export default function DetalheEventoPage({ params }) {
             data_inicio: formatDateToDateTimeLocal(data.data_inicio),
             data_fim: formatDateToDateTimeLocal(data.data_fim),
             local: data.local || "",
-            responsavel_nome: data.responsavel_nome || "Não atribuído"
+            responsavel_nome: data.responsavel_nome || "Não atribuído",
+            responsavel_id: data.responsavel_id || null
           };
           setFormData(eventoData);
           setInitialData(eventoData);
-        } else {
+        }
+        else {
           console.error("Erro ao buscar evento:", data.message || data.error);
         }
       } catch (err) {
@@ -73,6 +109,7 @@ export default function DetalheEventoPage({ params }) {
     }
 
     fetchEvento();
+    fetchColaboradoresEvento();
   }, [eventoId]);
 
   if (loading) {
@@ -159,6 +196,43 @@ export default function DetalheEventoPage({ params }) {
       alert("Erro ao deletar evento");
     }
   };
+  const handleSave = async () => {
+    if (loading) return;
+
+    try {
+      const token = localStorage.getItem("authToken");
+      const payload = {
+        titulo: formData.titulo,
+        descricao: formData.descricao,
+        data_inicio: formatDateTimeLocalToSQL(formData.data_inicio),
+        data_fim: formatDateTimeLocalToSQL(formData.data_fim),
+        local: formData.local,
+        responsavel_id: formData.responsavel_id // Adicione esta linha
+      };
+
+      const response = await fetch(`http://localhost:3001/api/eventos/${eventoId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const updatedData = await response.json();
+        setInitialData(formData);
+        setIsEditing(false);
+        alert("Evento atualizado com sucesso!");
+      } else {
+        const error = await response.json();
+        alert(`Erro ao atualizar: ${error.message || error.error}`);
+      }
+    } catch (err) {
+      console.error("Erro ao salvar:", err);
+      alert("Erro ao salvar evento");
+    }
+  };
 
   return (
     <>
@@ -228,6 +302,17 @@ export default function DetalheEventoPage({ params }) {
               />
             </div>
 
+            <div className={styles.inputWrapper}>
+              <label className={styles.label}>Local</label>
+              <input
+                name="local"
+                value={formData.local}
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={styles.input}
+              />
+            </div>
+
             <div className={`${styles.inputWrapper} ${styles.span2}`}>
               <label className={styles.label}>Descrição</label>
               <textarea
@@ -241,41 +326,131 @@ export default function DetalheEventoPage({ params }) {
               />
             </div>
 
-            <div className={styles.inputWrapper}>
-              <label className={styles.label}>Data e Hora de Início</label>
-              <input
-                type="datetime-local"
-                name="data_inicio"
-                value={formData.data_inicio}
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={styles.input}
-                required
-              />
+            {/* Seção de Feedbacks do Evento */}
+            <div className={styles.section} style={{ marginTop: '30px' }}>
+              <h3 className={styles.sectionTitle}>Feedbacks do Evento</h3>
+
+              {loadingColaboradores ? (
+                <p>Carregando feedbacks...</p>
+              ) : (() => {
+                // Filtrar apenas colaboradores que enviaram feedback
+                const colaboradoresComFeedback = colaboradores.filter(
+                  colab => colab.feedback && colab.feedback.trim() !== ''
+                );
+
+                if (colaboradoresComFeedback.length === 0) {
+                  return (
+                    <p style={{ color: '#666', fontStyle: 'italic' }}>
+                      Nenhum feedback foi enviado para este evento ainda.
+                    </p>
+                  );
+                }
+
+                return (
+                  <div className={styles.feedbackList}>
+                    {colaboradoresComFeedback.map((colab) => (
+                      <div key={colab.colaborador_id} className={styles.feedbackCard}>
+                        <div className={styles.feedbackHeader}>
+                          <div>
+                            <h4 className={styles.feedbackNome}>{colab.nome}</h4>
+                            <p className={styles.feedbackEmail}>{colab.email}</p>
+                          </div>
+
+                          {/* Mostrar se concluiu o evento */}
+                          {colab.concluido && (
+                            <span
+                              className={styles.badgeConcluido}
+                              style={{
+                                backgroundColor: '#4CAF50',
+                                color: 'white',
+                                padding: '4px 12px',
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              ✓ Concluído
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Feedback */}
+                        <div className={styles.feedbackContent}>
+                          <p>{colab.feedback}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
 
-            <div className={styles.inputWrapper}>
-              <label className={styles.label}>Data e Hora de Fim</label>
-              <input
-                type="datetime-local"
-                name="data_fim"
-                value={formData.data_fim}
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={styles.input}
-              />
+
+            {/* Seção de Colaboradores Convidados */}
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>Colaboradores Convidados</h3>
+
+              {loadingColaboradores ? (
+                <p>Carregando colaboradores...</p>
+              ) : colaboradores.length === 0 ? (
+                <p style={{ color: '#666', fontStyle: 'italic' }}>
+                  Nenhum colaborador foi convidado para este evento.
+                </p>
+              ) : (
+                <div className={styles.colaboradoresList}>
+                  {colaboradores.map((colab) => (
+                    <div
+                      key={colab.colaborador_id}
+                      className={styles.colaboradorCard}
+                      style={{
+                        borderLeft: `4px solid ${colab.status === 'Aceito' ? '#4CAF50' :
+                          colab.status === 'Recusado' ? '#f44336' :
+                            '#FFA726'
+                          }`
+                      }}
+                    >
+                      <div className={styles.colaboradorHeader}>
+                        <h4 className={styles.colaboradorNome}>{colab.nome}</h4>
+                        <span
+                          className={styles.statusBadge}
+                          style={{
+                            backgroundColor:
+                              colab.status === 'Aceito' ? '#4CAF50' :
+                                colab.status === 'Recusado' ? '#f44336' :
+                                  '#FFA726',
+                            color: 'white',
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {colab.status}
+                        </span>
+                      </div>
+
+                      <p className={styles.colaboradorEmail}>{colab.email}</p>
+
+                      {/* Mostrar data de resposta se houver */}
+                      {colab.respondido_em && (
+                        <p className={styles.colaboradorResposta}>
+                          Respondido em: {new Date(colab.respondido_em).toLocaleString('pt-BR')}
+                        </p>
+                      )}
+
+                      {/* Mostrar motivo de recusa se houver */}
+                      {colab.status === 'Recusado' && colab.justificativa_recusa && (
+                        <div className={styles.justificativaBox}>
+                          <strong>Motivo da recusa:</strong>
+                          <p>{colab.justificativa_recusa}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className={styles.inputWrapper}>
-              <label className={styles.label}>Local</label>
-              <input
-                name="local"
-                value={formData.local}
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={styles.input}
-              />
-            </div>
           </div>
         </form>
       </div>

@@ -14,14 +14,6 @@ export default function PaginaEventos() {
   const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [pagination, setPagination] = useState({
-    current_page: 1,
-    per_page: 10,
-    total_records: 0,
-    total_pages: 0,
-    has_next: false,
-    has_prev: false
-  });
 
   const [filters, setFilters] = useState({
     search: '',
@@ -32,16 +24,15 @@ export default function PaginaEventos() {
 
   const [sortConfig, setSortConfig] = useState({ key: "titulo", direction: "ascending" });
 
-  const fetchEventos = async (page = 1) => {
+  const fetchEventos = async () => {
     setLoading(true);
     setError('');
+
     try {
       const token = localStorage.getItem('authToken');
       const params = new URLSearchParams();
 
-      params.append('page', page);
-      params.append('limit', pagination.per_page);
-
+      // Apenas filtros, SEM page e limit
       if (filters.search) params.append('search', filters.search);
       if (filters.local) params.append('local', filters.local);
       if (filters.ativo !== '') params.append('ativo', filters.ativo);
@@ -59,13 +50,7 @@ export default function PaginaEventos() {
       if (response.ok) {
         const data = await response.json();
         setEventos(data);
-        setPagination(prev => ({
-          ...prev,
-          total_records: data.length,
-          total_pages: Math.ceil(data.length / pagination.per_page) || 1,
-          has_next: false,
-          has_prev: false
-        }));
+        console.log(`Total de eventos carregados: ${data.length}`);
       } else {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Erro ao carregar eventos');
@@ -73,7 +58,6 @@ export default function PaginaEventos() {
     } catch (err) {
       setError(err.message);
       console.error('Erro ao carregar eventos:', err);
-
       if (err.message.includes('Não autorizado') || err.message.includes('Token')) {
         alert('Sessão expirada. Faça login novamente.');
         router.push('/login');
@@ -83,13 +67,11 @@ export default function PaginaEventos() {
     }
   };
 
+
   useEffect(() => {
-    fetchEventos(1);
+    fetchEventos();
   }, [filters]);
 
-  const handlePageChange = (newPage) => {
-    fetchEventos(newPage);
-  };
 
   const handleFilterChange = (key, value) => {
     console.log(`Alterando filtro ${key} para:`, value);
@@ -186,62 +168,6 @@ export default function PaginaEventos() {
         onSort={requestSort}
         sortConfig={sortConfig}
       />
-
-      {pagination.total_pages > 1 && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginTop: '1rem'
-        }}>
-          <div style={{ fontSize: '0.875rem', color: '#666' }}>
-            Mostrando {((pagination.current_page - 1) * pagination.per_page) + 1} a{' '}
-            {Math.min(pagination.current_page * pagination.per_page, pagination.total_records)} de{' '}
-            {pagination.total_records} eventos
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Button
-              variant="primary"
-              disabled={!pagination.has_prev}
-              onClick={() => handlePageChange(pagination.current_page - 1)}
-            >
-              Anterior
-            </Button>
-
-            {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
-              let pageNum;
-              if (pagination.total_pages <= 5) {
-                pageNum = i + 1;
-              } else if (pagination.current_page <= 3) {
-                pageNum = i + 1;
-              } else if (pagination.current_page >= pagination.total_pages - 2) {
-                pageNum = pagination.total_pages - 4 + i;
-              } else {
-                pageNum = pagination.current_page - 2 + i;
-              }
-
-              return (
-                <Button
-                  key={pageNum}
-                  variant={pageNum === pagination.current_page ? "add" : "primary"}
-                  onClick={() => handlePageChange(pageNum)}
-                >
-                  {pageNum}
-                </Button>
-              );
-            })}
-
-            <Button
-              variant="primary"
-              disabled={!pagination.has_next}
-              onClick={() => handlePageChange(pagination.current_page + 1)}
-            >
-              Próxima
-            </Button>
-          </div>
-        </div>
-      )}
-    </CardContent>
+    </CardContent >
   );
 }
