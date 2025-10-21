@@ -2,16 +2,36 @@
 import Link from 'next/link';
 import styles from './sidebar.module.css';
 import { ClipboardList, ListChecks, Cog, MapPinned, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings, CalendarCheck } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 
 export function Sidebar() {
-  const [openMenu, setOpenMenu] = useState('comercial')
+  const [openMenu, setOpenMenu] = useState(null)
   const pathname = usePathname()
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const savedMenu = localStorage.getItem('openMenu');
+    if (savedMenu) {
+      setOpenMenu(savedMenu);
+    }
+  }, []);
 
   const toggleMenu = (menuName) => {
-    setOpenMenu(openMenu === menuName ? null : menuName)
+    const newMenu = openMenu === menuName ? null : menuName;
+    setOpenMenu(newMenu);
+
+    if (newMenu) {
+      localStorage.setItem('openMenu', newMenu);
+    } else {
+      localStorage.removeItem('openMenu');
+    }
+  };
+
+  if (!mounted) {
+    return null;
   }
 
   return (
