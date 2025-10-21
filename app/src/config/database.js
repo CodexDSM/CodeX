@@ -7,26 +7,27 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
-  
+  charset: 'utf8mb4',
+
   waitForConnections: true,
   connectionLimit: 15,
   queueLimit: 0,
   acquireTimeout: 60000,
   timeout: 60000,
-  
+
   reconnect: true,
   idleTimeout: 300000,
   maxIdle: 10,
-  
+
   keepAliveInitialDelay: 0,
   enableKeepAlive: true,
-  
+
   supportBigNumbers: true,
   bigNumberStrings: true,
   dateStrings: false,
   debug: false,
   trace: false,
-  
+
   ssl: false
 });
 
@@ -42,9 +43,9 @@ pool.on('release', function (connection) {
   console.log('Conexão %d liberada', connection.threadId);
 });
 
-pool.on('error', function(err) {
+pool.on('error', function (err) {
   console.error('Erro no pool MySQL:', err);
-  
+
   if (err.code === 'PROTOCOL_CONNECTION_LOST') {
     console.log('Conexão perdida, pool irá reconectar automaticamente');
   } else if (err.code === 'ECONNRESET') {

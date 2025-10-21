@@ -56,19 +56,17 @@ class ChecklistController {
         }
     }
 
-    // --- MÉTODO COM AS MODIFICAÇÕES DE DEPURAÇÃO ---
     async listarRespostas(req, res) {
         console.log("\n--- DEBUG: A função listarRespostas foi chamada ---");
-
         const { templateId } = req.query;
-        console.log("DEBUG: templateId recebido da URL (tipo string):", templateId);
+        console.log("DEBUG: templateId recebido da URL:", templateId);
 
         if (!templateId) {
             return res.status(400).json({ message: 'O ID do template é obrigatório.' });
         }
 
         const idNumerico = parseInt(templateId, 10);
-        console.log("DEBUG: idNumerico após parseInt (tipo número):", idNumerico);
+        console.log("DEBUG: idNumerico após parseInt:", idNumerico);
 
         if (isNaN(idNumerico)) {
             return res.status(400).json({ message: 'O ID do template deve ser um número.' });
@@ -77,21 +75,65 @@ class ChecklistController {
         let connection;
         try {
             connection = await pool.getConnection();
-            
-            const sql = "SELECT * FROM registros_checklist WHERE template_id = ? ORDER BY data_envio DESC";
-            
-            console.log("DEBUG: Executando a seguinte query SQL:", sql);
-            console.log("DEBUG: Com o seguinte valor:", [idNumerico]);
+
+            // CORREÇÃO: Fazer JOIN com a tabela de perguntas para pegar o texto_pergunta
+            // AJUSTE O NOME DA TABELA SE FOR DIFERENTE
+            const sql = `
+      SELECT 
+        r.id as registro_id,
+        r.template_id,
+        r.colaborador_id,
+        r.ativo_relacionado_id,
+        r.data_envio,
+        cr.id as resposta_id,
+        cr.pergunta_id,
+        cr.valor_resposta,
+        p.texto_pergunta,
+        p.tipo_pergunta
+      FROM registros_checklist r
+      LEFT JOIN checklist_respostas cr ON r.id = cr.registro_id
+      LEFT JOIN checklist_perguntas p ON cr.pergunta_id = p.id
+      WHERE r.template_id = ?
+      ORDER BY r.data_envio DESC, cr.pergunta_id ASC
+    `;
+
+            console.log("DEBUG: Executando query SQL:", sql);
+            console.log("DEBUG: Com valor:", [idNumerico]);
 
             const [rows] = await connection.query(sql, [idNumerico]);
-            
-            // ESTE É O LOG MAIS IMPORTANTE
-            console.log("DEBUG: Resultado da busca no banco (rows):", rows); 
+            console.log("DEBUG: Resultado da busca (rows):", rows);
 
-            res.status(200).json(rows);
+            // Agrupar respostas por registro
+            const registrosAgrupados = {};
+
+            rows.forEach(row => {
+                const registroId = row.registro_id;
+
+                if (!registrosAgrupados[registroId]) {
+                    registrosAgrupados[registroId] = {
+                        registro_id: registroId,
+                        data_envio: row.data_envio,
+                        template_id: row.template_id,
+                        colaborador_id: row.colaborador_id,
+                        ativo_relacionado_id: row.ativo_relacionado_id
+                    };
+                }
+
+                // Adicionar a resposta usando o TEXTO DA PERGUNTA como nome da coluna
+                if (row.texto_pergunta && row.valor_resposta !== null) {
+                    registrosAgrupados[registroId][row.texto_pergunta] = row.valor_resposta;
+                }
+            });
+
+            // Converter objeto em array
+            const resultado = Object.values(registrosAgrupados);
+
+            console.log("DEBUG: Dados formatados para envio:", resultado);
+
+            res.status(200).json(resultado);
 
         } catch (error) {
-            console.error(`--- ERRO GRAVE ao listar respostas para o template ${templateId}:`, error);
+            console.error(`--- ERRO ao listar respostas para o template ${templateId}:`, error);
             res.status(500).json({ message: "Ocorreu um erro no servidor." });
         } finally {
             if (connection) {
@@ -99,6 +141,8 @@ class ChecklistController {
             }
         }
     }
+
+
 }
 
 module.exports = new ChecklistController();

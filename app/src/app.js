@@ -20,18 +20,12 @@ const cotacoesRoutes = require('./routes/cotacoesRoutes');
 
 const app = express();
 
-// --- INÍCIO DA ALTERAÇÃO ---
-
-// Configuração explícita do CORS para permitir o header 'Authorization'
-const corsOptions = {
-  origin: '*', // Você pode restringir para 'http://localhost:3000' para mais segurança
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  allowedHeaders: 'Content-Type,Authorization',
-};
-
-app.use(cors(corsOptions));
-
-// --- FIM DA ALTERAÇÃO ---
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 
 // Middlewares globais da aplicação
