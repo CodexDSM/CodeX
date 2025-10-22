@@ -235,7 +235,6 @@ export function Header() {
 
         {/* Perfil do usuário */}
         <div className={styles.perfil}>
-          <Bell size={22} className={styles.icon} />
           <div className={styles.perfilInfo}>
             <p className={styles.perfilName}>{nomeLogado}</p>
             <span className={styles.perfilEmail}>{emailLogado}</span>

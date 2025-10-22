@@ -1,9 +1,6 @@
 'use client'
 import { CalendarioEventos } from "@/features/eventos/CalendarioEventos";
 import styles from "./eventos.module.css"
-import LoginPage from "@/app/login/page";
-import { useEffect, useState } from "react";
-
 
 export default function PaginaDeEventos() {
 
@@ -14,10 +11,7 @@ export default function PaginaDeEventos() {
         <h1>Meus Eventos</h1>
         <p>Visualize seus próximos eventos no calendário.</p>
       </div>
-      {/* Renderiza o componente do calendário */}
-     
-      <CalendarioEventos />
-      
+      <CalendarioEventos/>
     </div>
   );
 }
