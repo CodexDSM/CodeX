@@ -1,18 +1,66 @@
 const pool = require('../config/database');
-const notificacaoService = require('../services/notificacaoService');
+const emailService = require('../services/emailService');
 
 class EventosController {
   async create(req, res, next) {
     try {
-      const { titulo, descricao, data_inicio, data_fim, local } = req.body;
-      const responsavel_id = req.user.id;
+      const { titulo, descricao, data_inicio, data_fim, local, responsavel_id, colaboradores_ids } = req.body;
+
+      if (!titulo || !data_inicio) {
+        return res.status(400).json({ error: 'Título e data de início são obrigatórios.' });
+      }
 
       const [result] = await pool.execute(
-        'INSERT INTO evento (titulo, descricao, data_inicio, data_fim, local, responsavel_id) VALUES (?, ?, ?, ?, ?, ?)',
-        [titulo, descricao, data_inicio, data_fim, local, responsavel_id]
+        'INSERT INTO evento (titulo, descricao, data_inicio, data_fim, local, responsavel_id, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [
+          titulo,
+          descricao || null,
+          data_inicio,
+          data_fim || null,
+          local || null,
+          responsavel_id || null,
+          'Pendente'
+        ]
       );
-      return res.status(201).json({ id: result.insertId, message: 'Evento criado com sucesso!' });
+      const eventoId = result.insertId;
+
+      if (Array.isArray(colaboradores_ids) && colaboradores_ids.length > 0) {
+        const values = colaboradores_ids.map(colabid => [eventoId, colabid, 'Pendente']);
+        await pool.query(
+          'INSERT INTO evento_colaborador (evento_id, colaborador_id, status) VALUES ?',
+          [values]
+        );
+
+        const placeholders = colaboradores_ids.map(() => '?').join(',');
+        const [convidados] = await pool.query(
+          `SELECT id, nome, email FROM colaborador WHERE id IN (${placeholders})`,
+          colaboradores_ids
+        );
+
+        const eventoObj = {
+          titulo,
+          descricao,
+          data_inicio,
+          data_fim,
+          local
+        };
+
+        for (const convidado of convidados) {
+          try {
+            await emailService.enviarConviteEvento(convidado, eventoObj);
+          } catch (emailError) {
+            console.error(`Erro ao enviar email para ${convidado.email}:`, emailError);
+          }
+        }
+      }
+
+      return res.status(201).json({
+        id: eventoId,
+        message: 'Evento criado com sucesso! Convites enviados por email.'
+      });
+
     } catch (error) {
+      console.error('Erro ao criar evento:', error);
       return next(error);
     }
   }
@@ -50,32 +98,36 @@ class EventosController {
     }
   }
 
-  // Atualizar evento
   async update(req, res, next) {
     try {
       const { id } = req.params;
       const { titulo, descricao, data_inicio, data_fim, local, responsavel_id } = req.body;
 
-      // Verifica se o evento existe
       const [eventoExiste] = await pool.execute('SELECT id FROM evento WHERE id = ?', [id]);
       if (eventoExiste.length === 0) {
         return res.status(404).json({ error: 'Evento não encontrado' });
       }
 
-      // Atualiza o evento
       await pool.execute(
         `UPDATE evento 
-       SET titulo = ?, descricao = ?, data_inicio = ?, data_fim = ?, local = ?, responsavel_id = ?
-       WHERE id = ?`,
-        [titulo, descricao, data_inicio, data_fim, local, responsavel_id, id]
+         SET titulo = ?, descricao = ?, data_inicio = ?, data_fim = ?, local = ?, responsavel_id = ?
+         WHERE id = ?`,
+        [
+          titulo,
+          descricao || null,
+          data_inicio,
+          data_fim || null,
+          local || null,
+          responsavel_id || null,
+          id
+        ]
       );
 
-      // Busca o evento atualizado com nome do responsável
       const [eventoAtualizado] = await pool.execute(
         `SELECT e.*, c.nome AS responsavel_nome, c.email AS responsavel_email
-       FROM evento e
-       LEFT JOIN colaborador c ON e.responsavel_id = c.id
-       WHERE e.id = ?`,
+         FROM evento e
+         LEFT JOIN colaborador c ON e.responsavel_id = c.id
+         WHERE e.id = ?`,
         [id]
       );
 
@@ -87,7 +139,6 @@ class EventosController {
       return next(error);
     }
   }
-
 
   async delete(req, res, next) {
     try {
@@ -102,22 +153,20 @@ class EventosController {
     }
   }
 
-  // No método getEventosByColaborador
   async getEventosByColaborador(req, res, next) {
     try {
       const { colaborador_id } = req.params;
 
-      // Permite se o usuário está vendo seus próprios eventos OU se é admin
       if (req.user.id !== parseInt(colaborador_id) && req.user.tipo !== 'Administrador') {
         return res.status(403).json({ error: 'Acesso negado. Você não tem a permissão necessária.' });
       }
 
       const [eventos] = await pool.execute(
         `SELECT e.*, ec.status, ec.respondido_em
-       FROM evento e
-       INNER JOIN evento_colaborador ec ON ec.evento_id = e.id
-       WHERE ec.colaborador_id = ? AND ec.status IN ('Aceito', 'Pendente')
-       ORDER BY e.data_inicio`,
+         FROM evento e
+         INNER JOIN evento_colaborador ec ON ec.evento_id = e.id
+         WHERE ec.colaborador_id = ? AND ec.status IN ('Aceito', 'Pendente')
+         ORDER BY e.data_inicio`,
         [colaborador_id]
       );
       return res.json(eventos);
@@ -125,7 +174,6 @@ class EventosController {
       return next(error);
     }
   }
-
 
   async aceitarEvento(req, res, next) {
     try {
@@ -153,8 +201,6 @@ class EventosController {
       if (result.affectedRows === 0) {
         return res.status(500).json({ error: 'Erro ao aceitar evento' });
       }
-
-      await notificacaoService.notificarConviteEvento(evento_id, colaborador_id);
 
       return res.json({ message: 'Evento aceito com sucesso!' });
     } catch (error) {
@@ -266,70 +312,95 @@ class EventosController {
       return next(error);
     }
   }
-  // Criar novo evento
+
   async store(req, res, next) {
     try {
       const { titulo, descricao, data_inicio, data_fim, local, responsavel_id, colaboradores_ids } = req.body;
 
-      // Validação básica
       if (!titulo || !data_inicio) {
-        return res.status(400).json({ error: 'Título e data de início são obrigatórios' });
+        return res.status(400).json({ error: 'Título e data de início são obrigatórios.' });
       }
 
-      // Insere o evento
       const [result] = await pool.execute(
-        `INSERT INTO evento (titulo, descricao, data_inicio, data_fim, local, responsavel_id, status) 
-       VALUES (?, ?, ?, ?, ?, ?, 'Pendente')`,
-        [titulo, descricao, data_inicio, data_fim, local, responsavel_id]
+        'INSERT INTO evento (titulo, descricao, data_inicio, data_fim, local, responsavel_id, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [
+          titulo,
+          descricao || null,
+          data_inicio,
+          data_fim || null,
+          local || null,
+          responsavel_id || null,
+          'Pendente'
+        ]
       );
-
       const eventoId = result.insertId;
 
-      // Se houver colaboradores para convidar
-      if (colaboradores_ids && Array.isArray(colaboradores_ids) && colaboradores_ids.length > 0) {
-        const values = colaboradores_ids.map(colab_id => [eventoId, colab_id, 'Pendente']);
+      if (Array.isArray(colaboradores_ids) && colaboradores_ids.length > 0) {
+        const values = colaboradores_ids.map(colabid => [eventoId, colabid, 'Pendente']);
         await pool.query(
           'INSERT INTO evento_colaborador (evento_id, colaborador_id, status) VALUES ?',
           [values]
         );
+
+        const placeholders = colaboradores_ids.map(() => '?').join(',');
+        const [colaboradoresInfo] = await pool.query(
+          `SELECT id, nome, email FROM colaborador WHERE id IN (${placeholders})`,
+          colaboradores_ids
+        );
+
+        const eventoObj = {
+          titulo,
+          descricao,
+          data_inicio,
+          data_fim,
+          local
+        };
+
+        for (const colaborador of colaboradoresInfo) {
+          try {
+            await emailService.enviarConviteEvento(colaborador, eventoObj);
+          } catch (emailError) {
+            console.error(`Erro ao enviar email para ${colaborador.email}:`, emailError);
+          }
+        }
       }
 
       return res.status(201).json({
         id: eventoId,
-        message: 'Evento criado com sucesso!',
-        colaboradores_convidados: colaboradores_ids?.length || 0
+        message: 'Evento criado com sucesso! Convites enviados por email.'
       });
+
     } catch (error) {
+      console.error('Erro ao criar evento:', error);
       return next(error);
     }
   }
-  // Buscar colaboradores convidados para um evento
+
   async getColaboradoresByEvento(req, res, next) {
     try {
       const { id } = req.params;
 
-      // Busca todos os colaboradores convidados para o evento
       const [colaboradores] = await pool.execute(
         `SELECT 
-        c.id AS colaborador_id,
-        c.nome,
-        c.email,
-        ec.status,
-        ec.respondido_em,
-        ec.justificativa_recusa,
-        ec.feedback,
-        ec.concluido,
-        ec.data_conclusao
-       FROM evento_colaborador ec
-       INNER JOIN colaborador c ON ec.colaborador_id = c.id
-       WHERE ec.evento_id = ?
-       ORDER BY 
-         CASE ec.status
-           WHEN 'Pendente' THEN 1
-           WHEN 'Aceito' THEN 2
-           WHEN 'Recusado' THEN 3
-         END,
-         c.nome`,
+          c.id AS colaborador_id,
+          c.nome,
+          c.email,
+          ec.status,
+          ec.respondido_em,
+          ec.justificativa_recusa,
+          ec.feedback,
+          ec.concluido,
+          ec.data_conclusao
+         FROM evento_colaborador ec
+         INNER JOIN colaborador c ON ec.colaborador_id = c.id
+         WHERE ec.evento_id = ?
+         ORDER BY 
+           CASE ec.status
+             WHEN 'Pendente' THEN 1
+             WHEN 'Aceito' THEN 2
+             WHEN 'Recusado' THEN 3
+           END,
+           c.nome`,
         [id]
       );
 
@@ -339,8 +410,6 @@ class EventosController {
       return next(error);
     }
   }
-
-
 }
 
 module.exports = new EventosController();
