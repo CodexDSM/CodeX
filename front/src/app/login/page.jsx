@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/select";
 import styles from './login.module.css';
 
+
+
+
 export default function LoginPage() {
   const router = useRouter();
   const [cpf, setCpf] = useState('');
@@ -61,6 +64,10 @@ export default function LoginPage() {
       localStorage.setItem('userNome', data.colaborador.nome);
       localStorage.setItem('userEmail', data.colaborador.email);
       localStorage.setItem('colaboradorId', data.colaborador.id);
+      localStorage.setItem('nivelPermissao', data.colaborador.perfil);
+
+      
+      
 
 
 

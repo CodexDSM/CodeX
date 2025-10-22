@@ -325,69 +325,13 @@ export default function DetalheEventoPage({ params }) {
                 style={{ resize: "vertical" }}
               />
             </div>
-
-            {/* Seção de Feedbacks do Evento */}
-            <div className={styles.section} style={{ marginTop: '30px' }}>
-              <h3 className={styles.sectionTitle}>Feedbacks do Evento</h3>
-
-              {loadingColaboradores ? (
-                <p>Carregando feedbacks...</p>
-              ) : (() => {
-                // Filtrar apenas colaboradores que enviaram feedback
-                const colaboradoresComFeedback = colaboradores.filter(
-                  colab => colab.feedback && colab.feedback.trim() !== ''
-                );
-
-                if (colaboradoresComFeedback.length === 0) {
-                  return (
-                    <p style={{ color: '#666', fontStyle: 'italic' }}>
-                      Nenhum feedback foi enviado para este evento ainda.
-                    </p>
-                  );
-                }
-
-                return (
-                  <div className={styles.feedbackList}>
-                    {colaboradoresComFeedback.map((colab) => (
-                      <div key={colab.colaborador_id} className={styles.feedbackCard}>
-                        <div className={styles.feedbackHeader}>
-                          <div>
-                            <h4 className={styles.feedbackNome}>{colab.nome}</h4>
-                            <p className={styles.feedbackEmail}>{colab.email}</p>
-                          </div>
-
-                          {/* Mostrar se concluiu o evento */}
-                          {colab.concluido && (
-                            <span
-                              className={styles.badgeConcluido}
-                              style={{
-                                backgroundColor: '#4CAF50',
-                                color: 'white',
-                                padding: '4px 12px',
-                                borderRadius: '12px',
-                                fontSize: '12px',
-                                fontWeight: 'bold'
-                              }}
-                            >
-                              ✓ Concluído
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Feedback */}
-                        <div className={styles.feedbackContent}>
-                          <p>{colab.feedback}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
             </div>
 
+            {/* Seção de Feedbacks do Evento */}
+            <div className={styles.sectionStatus}>
 
             {/* Seção de Colaboradores Convidados */}
-            <div className={styles.section}>
+            <div className={styles.sectionStatusConvidados}>
               <h3 className={styles.sectionTitle}>Colaboradores Convidados</h3>
 
               {loadingColaboradores ? (
@@ -450,8 +394,70 @@ export default function DetalheEventoPage({ params }) {
                 </div>
               )}
             </div>
+              
+            
+            {/* Seção de Feedbacks do Evento */}
+            <div className={styles.sectionStatusFB} style={{  }}>
+              <h3 className={styles.sectionTitle}>Feedbacks do Evento</h3>
 
-          </div>
+              {loadingColaboradores ? (
+                <p>Carregando feedbacks...</p>
+              ) : (() => {
+                // Filtrar apenas colaboradores que enviaram feedback
+                const colaboradoresComFeedback = colaboradores.filter(
+                  colab => colab.feedback && colab.feedback.trim() !== ''
+                );
+
+                if (colaboradoresComFeedback.length === 0) {
+                  return (
+                    <p style={{ color: '#666', fontStyle: 'italic' }}>
+                      Nenhum feedback foi enviado para este evento ainda.
+                    </p>
+                  );
+                }
+
+                return (
+                  <div className={styles.feedbackList}>
+                    {colaboradoresComFeedback.map((colab) => (
+                      <div key={colab.colaborador_id} className={styles.feedbackCard}>
+                        <div className={styles.feedbackHeader}>
+                          <div>
+                            <h4 className={styles.feedbackNome}>{colab.nome}</h4>
+                            <p className={styles.feedbackEmail}>{colab.email}</p>
+                          </div>
+
+                          {/* Mostrar se concluiu o evento */}
+                          {colab.concluido && (
+                            <span
+                              className={styles.badgeConcluido}
+                              style={{
+                                backgroundColor: '#4CAF50',
+                                color: 'white',
+                                padding: '4px 12px',
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              ✓ Concluído
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Feedback */}
+                        <div className={styles.feedbackContent}>
+                          <p>{colab.feedback}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+            
+            </div>
+
+          
         </form>
       </div>
     </>
