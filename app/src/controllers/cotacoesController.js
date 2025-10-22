@@ -1,8 +1,8 @@
 const pool = require('../config/database');
 const pdfService = require('../services/pdfService');
 const emailService = require('../services/emailService');
+const cotacaoCalculoService = require('../services/cotacaoCalculoService');
 
-// Função helper para gerar código de cotação
 async function gerarCodigoCotacao() {
   const ano = new Date().getFullYear();
   const [result] = await pool.execute(
@@ -14,25 +14,66 @@ async function gerarCodigoCotacao() {
 }
 
 class CotacoesController {
-  // Criar cotação
+  async calcular(req, res, next) {
+    try {
+      const resultado = await cotacaoCalculoService.calcularCotacaoCompleta(req.body);
+
+      res.json({
+        success: true,
+        data: resultado
+      });
+    } catch (error) {
+      console.error('Erro ao calcular cotação:', error);
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
   async create(req, res, next) {
     const connection = await pool.getConnection();
     
     try {
       await connection.beginTransaction();
 
-      const { cliente_id, itens, desconto, observacoes, enviar_email } = req.body;
+      const {
+        cliente_id,
+        tipo_servico,
+        origem,
+        destino,
+        codigo_iata_destino,
+        peso_kg,
+        km_percorrido,
+        tipo_veiculo,
+        valor_frete_agregado,
+        valor_km_agregado,
+        generalidades_ids,
+        observacoes,
+        enviar_email
+      } = req.body;
+
       const colaborador_id = req.user.id;
 
-      // Validações
-      if (!cliente_id || !itens || !Array.isArray(itens) || itens.length === 0) {
+      if (!cliente_id || !tipo_servico) {
         return res.status(400).json({
           success: false,
-          message: 'Cliente e itens são obrigatórios'
+          message: 'Cliente e tipo de serviço são obrigatórios'
         });
       }
 
-      // Verificar se cliente existe
+      const calculos = await cotacaoCalculoService.calcularCotacaoCompleta({
+        clienteId: cliente_id,
+        tipoServico: tipo_servico,
+        pesoKg: peso_kg,
+        kmPercorrido: km_percorrido,
+        codigoIata: codigo_iata_destino,
+        tipoVeiculo: tipo_veiculo,
+        generalidadesIds: generalidades_ids,
+        valorFreteAgregado: valor_frete_agregado,
+        valorKmAgregado: valor_km_agregado
+      });
+
       const [clientes] = await connection.execute(
         'SELECT * FROM cliente WHERE id = ? AND ativo = 1',
         [cliente_id]
@@ -47,7 +88,6 @@ class CotacoesController {
 
       const cliente = clientes[0];
 
-      // Buscar dados do colaborador
       const [colaboradores] = await connection.execute(
         'SELECT id, nome, email, telefone FROM colaborador WHERE id = ?',
         [colaborador_id]
@@ -55,41 +95,49 @@ class CotacoesController {
 
       const colaborador = colaboradores[0];
 
-      // Calcular total
-      let valorTotal = 0;
-      itens.forEach(item => {
-        item.valor_total = parseFloat(item.quantidade) * parseFloat(item.valor_unitario);
-        valorTotal += item.valor_total;
-      });
-
-      // Aplicar desconto
-      const descontoValor = desconto ? parseFloat(desconto) : 0;
-      valorTotal -= descontoValor;
-
-      // Gerar código único
       const codigo = await gerarCodigoCotacao();
 
-      // Data de validade (7 dias)
       const validadeAte = new Date();
       validadeAte.setDate(validadeAte.getDate() + 7);
 
-      // Inserir cotação
       const [resultCotacao] = await connection.execute(
-        'INSERT INTO cotacao (codigo, cliente_id, colaborador_id, valor_total, desconto, observacoes, validade_ate, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [codigo, cliente_id, colaborador_id, valorTotal, descontoValor, observacoes || null, validadeAte, enviar_email ? 'Enviada' : 'Rascunho']
+        `INSERT INTO cotacao (
+          codigo, cliente_id, colaborador_id, tipo_servico, origem, destino,
+          codigo_iata_destino, peso_kg, km_percorrido, tipo_veiculo,
+          valor_base_tabela, valor_generalidades, valor_cliente,
+          valor_agregado, percentual_rentabilidade, valor_rentabilidade,
+          valor_total, observacoes, validade_ate, status, status_aprovacao
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          codigo, cliente_id, colaborador_id, tipo_servico, origem, destino,
+          codigo_iata_destino, peso_kg, km_percorrido, tipo_veiculo,
+          calculos.valorBase, calculos.valorGeneralidades, calculos.valorCliente,
+          calculos.valorAgregado, calculos.percentualRentabilidade, calculos.valorRentabilidade,
+          calculos.valorCliente, observacoes || null, validadeAte,
+          enviar_email ? 'Enviada' : 'Rascunho', 'Pendente'
+        ]
       );
 
       const cotacao_id = resultCotacao.insertId;
 
-      // Inserir itens
-      for (const item of itens) {
+      if (valor_frete_agregado && valor_km_agregado) {
         await connection.execute(
-          'INSERT INTO cotacao_item (cotacao_id, descricao, quantidade, valor_unitario, valor_total) VALUES (?, ?, ?, ?, ?)',
-          [cotacao_id, item.descricao, item.quantidade, item.valor_unitario, item.valor_total]
+          `INSERT INTO cotacao_valores_agregado (
+            cotacao_id, valor_frete_agregado, valor_km_agregado, km_percorrido, total_agregado
+          ) VALUES (?, ?, ?, ?, ?)`,
+          [cotacao_id, valor_frete_agregado, valor_km_agregado, km_percorrido || 0, calculos.valorAgregado]
         );
       }
 
-      // Buscar cotação completa
+      if (calculos.generalidadesAplicadas && calculos.generalidadesAplicadas.length > 0) {
+        for (const gen of calculos.generalidadesAplicadas) {
+          await connection.execute(
+            'INSERT INTO cotacao_generalidades_aplicadas (cotacao_id, generalidade_id, valor_aplicado) VALUES (?, ?, ?)',
+            [cotacao_id, gen.generalidade_id, gen.valor_aplicado]
+          );
+        }
+      }
+
       const [cotacaoCompleta] = await connection.execute(
         'SELECT * FROM cotacao WHERE id = ?',
         [cotacao_id]
@@ -97,18 +145,29 @@ class CotacoesController {
 
       const cotacao = cotacaoCompleta[0];
 
-      // Gerar PDF
-      const { filepath, filename } = await pdfService.gerarCotacaoPDF(cotacao, itens, cliente);
+      const itensParaPDF = calculos.generalidadesAplicadas.map(gen => ({
+        descricao: gen.nome,
+        quantidade: 1,
+        valor_unitario: gen.valor_aplicado,
+        valor_total: gen.valor_aplicado
+      }));
 
-      // Atualizar caminho do PDF
+      itensParaPDF.unshift({
+        descricao: `Frete ${tipo_servico} - ${origem} → ${destino}`,
+        quantidade: peso_kg || 1,
+        valor_unitario: calculos.valorBase,
+        valor_total: calculos.valorBase
+      });
+
+      const { filepath, filename } = await pdfService.gerarCotacaoPDF(cotacao, itensParaPDF, cliente);
+
       await connection.execute(
         'UPDATE cotacao SET pdf_path = ? WHERE id = ?',
         [filepath, cotacao_id]
       );
 
-      // Enviar email se solicitado
       if (enviar_email) {
-        await emailService.enviarCotacao(cliente, cotacao, itens, filepath, colaborador);
+        await emailService.enviarCotacao(cliente, cotacao, itensParaPDF, filepath, colaborador);
         
         await connection.execute(
           'UPDATE cotacao SET enviada_em = NOW() WHERE id = ?',
@@ -124,7 +183,8 @@ class CotacoesController {
         data: {
           id: cotacao_id,
           codigo,
-          pdf_filename: filename
+          pdf_filename: filename,
+          ...calculos
         }
       });
 
@@ -137,10 +197,9 @@ class CotacoesController {
     }
   }
 
-  // Listar cotações
   async index(req, res, next) {
     try {
-      const { status, cliente_id, page = 1, limit = 10 } = req.query;
+      const { status, status_aprovacao, cliente_id, tipo_servico, page = 1, limit = 10 } = req.query;
       const offset = (page - 1) * limit;
 
       let query = `
@@ -157,9 +216,19 @@ class CotacoesController {
         params.push(status);
       }
 
+      if (status_aprovacao) {
+        query += ' AND c.status_aprovacao = ?';
+        params.push(status_aprovacao);
+      }
+
       if (cliente_id) {
         query += ' AND c.cliente_id = ?';
         params.push(cliente_id);
+      }
+
+      if (tipo_servico) {
+        query += ' AND c.tipo_servico = ?';
+        params.push(tipo_servico);
       }
 
       query += ' ORDER BY c.criado_em DESC LIMIT ? OFFSET ?';
@@ -167,7 +236,6 @@ class CotacoesController {
 
       const [cotacoes] = await pool.query(query, params);
 
-      // Buscar total
       let countQuery = 'SELECT COUNT(*) as total FROM cotacao WHERE 1=1';
       const countParams = [];
 
@@ -176,9 +244,19 @@ class CotacoesController {
         countParams.push(status);
       }
 
+      if (status_aprovacao) {
+        countQuery += ' AND status_aprovacao = ?';
+        countParams.push(status_aprovacao);
+      }
+
       if (cliente_id) {
         countQuery += ' AND cliente_id = ?';
         countParams.push(cliente_id);
+      }
+
+      if (tipo_servico) {
+        countQuery += ' AND tipo_servico = ?';
+        countParams.push(tipo_servico);
       }
 
       const [countResult] = await pool.query(countQuery, countParams);
@@ -200,7 +278,6 @@ class CotacoesController {
     }
   }
 
-  // Buscar cotação por ID
   async show(req, res, next) {
     try {
       const { id } = req.params;
@@ -224,9 +301,15 @@ class CotacoesController {
 
       const cotacao = cotacoes[0];
 
-      // Buscar itens
-      const [itens] = await pool.execute(
-        'SELECT * FROM cotacao_item WHERE cotacao_id = ?',
+      const [generalidades] = await pool.execute(`
+        SELECT cga.*, cg.nome, cg.tipo, cg.descricao
+        FROM cotacao_generalidades_aplicadas cga
+        LEFT JOIN cotacao_generalidades cg ON cga.generalidade_id = cg.id
+        WHERE cga.cotacao_id = ?
+      `, [id]);
+
+      const [valoresAgregado] = await pool.execute(
+        'SELECT * FROM cotacao_valores_agregado WHERE cotacao_id = ?',
         [id]
       );
 
@@ -234,7 +317,8 @@ class CotacoesController {
         success: true,
         data: {
           ...cotacao,
-          itens
+          generalidades,
+          valores_agregado: valoresAgregado.length > 0 ? valoresAgregado[0] : null
         }
       });
 
@@ -243,47 +327,57 @@ class CotacoesController {
     }
   }
 
-  // Buscar por código
-  async findByCodigo(req, res, next) {
+  async aprovar(req, res, next) {
     try {
-      const { codigo } = req.params;
+      const { id } = req.params;
 
-      const [cotacoes] = await pool.execute(`
-        SELECT c.*, cl.nome as cliente_nome, co.nome as colaborador_nome
-        FROM cotacao c
-        LEFT JOIN cliente cl ON c.cliente_id = cl.id
-        LEFT JOIN colaborador co ON c.colaborador_id = co.id
-        WHERE c.codigo = ?
-      `, [codigo]);
+      const [result] = await pool.execute(
+        'UPDATE cotacao SET status_aprovacao = ?, aprovada_em = NOW() WHERE id = ?',
+        ['Aprovada', id]
+      );
 
-      if (cotacoes.length === 0) {
+      if (result.affectedRows === 0) {
         return res.status(404).json({
           success: false,
           message: 'Cotação não encontrada'
         });
       }
 
-      const cotacao = cotacoes[0];
-
-      const [itens] = await pool.execute(
-        'SELECT * FROM cotacao_item WHERE cotacao_id = ?',
-        [cotacao.id]
-      );
-
       res.json({
         success: true,
-        data: {
-          ...cotacao,
-          itens
-        }
+        message: 'Cotação aprovada com sucesso'
       });
-
     } catch (error) {
       return next(error);
     }
   }
 
-  // Enviar cotação por email
+  async rejeitar(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { motivo_rejeicao } = req.body;
+
+      const [result] = await pool.execute(
+        'UPDATE cotacao SET status_aprovacao = ?, rejeitada_em = NOW(), motivo_rejeicao = ? WHERE id = ?',
+        ['Rejeitada', motivo_rejeicao || null, id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Cotação não encontrada'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Cotação rejeitada'
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
   async enviarEmail(req, res, next) {
     try {
       const { id } = req.params;
@@ -309,7 +403,6 @@ class CotacoesController {
         });
       }
 
-      // Buscar cliente
       const [clientes] = await pool.execute(
         'SELECT * FROM cliente WHERE id = ?',
         [cotacao.cliente_id]
@@ -317,7 +410,6 @@ class CotacoesController {
 
       const cliente = clientes[0];
 
-      // Buscar colaborador responsável
       const [colaboradores] = await pool.execute(
         'SELECT id, nome, email, telefone FROM colaborador WHERE id = ?',
         [cotacao.colaborador_id]
@@ -325,16 +417,22 @@ class CotacoesController {
 
       const colaborador = colaboradores[0];
 
-      // Buscar itens
-      const [itens] = await pool.execute(
-        'SELECT * FROM cotacao_item WHERE cotacao_id = ?',
-        [id]
-      );
+      const [generalidades] = await pool.execute(`
+        SELECT cga.*, cg.nome
+        FROM cotacao_generalidades_aplicadas cga
+        LEFT JOIN cotacao_generalidades cg ON cga.generalidade_id = cg.id
+        WHERE cga.cotacao_id = ?
+      `, [id]);
 
-      // Enviar email
+      const itens = generalidades.map(gen => ({
+        descricao: gen.nome,
+        quantidade: 1,
+        valor_unitario: gen.valor_aplicado,
+        valor_total: gen.valor_aplicado
+      }));
+
       await emailService.enviarCotacao(cliente, cotacao, itens, cotacao.pdf_path, colaborador);
 
-      // Atualizar status
       await pool.execute(
         'UPDATE cotacao SET status = ?, enviada_em = NOW() WHERE id = ?',
         ['Enviada', id]
@@ -350,44 +448,6 @@ class CotacoesController {
     }
   }
 
-  // Atualizar status
-  async updateStatus(req, res, next) {
-    try {
-      const { id } = req.params;
-      const { status } = req.body;
-
-      const statusValidos = ['Rascunho', 'Enviada', 'Aceita', 'Recusada', 'Expirada'];
-
-      if (!statusValidos.includes(status)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Status inválido'
-        });
-      }
-
-      const [result] = await pool.execute(
-        'UPDATE cotacao SET status = ? WHERE id = ?',
-        [status, id]
-      );
-
-      if (result.affectedRows === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Cotação não encontrada'
-        });
-      }
-
-      res.json({
-        success: true,
-        message: 'Status atualizado com sucesso!'
-      });
-
-    } catch (error) {
-      return next(error);
-    }
-  }
-
-  // Deletar cotação
   async delete(req, res, next) {
     try {
       const { id } = req.params;

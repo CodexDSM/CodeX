@@ -3,8 +3,11 @@ const router = express.Router();
 const cotacoesController = require('../controllers/cotacoesController');
 const { authenticateToken, authorizeRoles } = require('../middlewares/auth');
 
-// Todas as rotas requerem autenticação
-// Apenas Comercial, Gerente e Administrador podem gerenciar cotações
+router.post('/calcular', 
+  authenticateToken, 
+  authorizeRoles('Administrador', 'Gerente', 'Comercial'), 
+  cotacoesController.calcular
+);
 
 router.post('/', 
   authenticateToken, 
@@ -24,22 +27,22 @@ router.get('/:id',
   cotacoesController.show
 );
 
-router.get('/codigo/:codigo', 
-  authenticateToken, 
-  authorizeRoles('Administrador', 'Gerente', 'Comercial'), 
-  cotacoesController.findByCodigo
-);
-
 router.post('/:id/enviar', 
   authenticateToken, 
   authorizeRoles('Administrador', 'Gerente', 'Comercial'), 
   cotacoesController.enviarEmail
 );
 
-router.patch('/:id/status', 
+router.patch('/:id/aprovar', 
   authenticateToken, 
   authorizeRoles('Administrador', 'Gerente', 'Comercial'), 
-  cotacoesController.updateStatus
+  cotacoesController.aprovar
+);
+
+router.patch('/:id/rejeitar', 
+  authenticateToken, 
+  authorizeRoles('Administrador', 'Gerente', 'Comercial'), 
+  cotacoesController.rejeitar
 );
 
 router.delete('/:id', 

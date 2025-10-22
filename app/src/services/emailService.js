@@ -10,7 +10,6 @@ class EmailService {
         html: html
       };
 
-      // Adicionar anexos se houver
       if (attachments.length > 0) {
         mailOptions.attachments = attachments;
       }
@@ -254,21 +253,7 @@ class EmailService {
     `;
   }
 
-  templateCotacao(cliente, cotacao, itens, colaborador) {
-    let itensHTML = '';
-    
-    itens.forEach((item, index) => {
-      const bgColor = index % 2 === 0 ? '#f9fafb' : '#ffffff';
-      itensHTML += `
-        <tr style="background-color: ${bgColor};">
-          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${item.descricao}</td>
-          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">${item.quantidade}</td>
-          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">R$ ${this.formatarMoeda(item.valor_unitario)}</td>
-          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600;">R$ ${this.formatarMoeda(item.valor_total)}</td>
-        </tr>
-      `;
-    });
-
+  templateCotacao(cliente, cotacao, generalidades, colaborador) {
     return `
       <!DOCTYPE html>
       <html>
@@ -281,19 +266,18 @@ class EmailService {
           .logo { font-size: 42px; font-weight: 700; margin-bottom: 10px; letter-spacing: 3px; }
           .header-subtitle { font-size: 14px; opacity: 0.9; }
           .content { padding: 40px 30px; }
-          .section-title { color: #1e3a8a; font-size: 20px; font-weight: 600; margin: 30px 0 15px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; }
+          .section-title { color: #1e3a8a; font-size: 18px; font-weight: 600; margin: 30px 0 15px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; }
           .info-box { background-color: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #1e3a8a; }
           .info-row { margin: 10px 0; }
-          .info-label { font-weight: 600; color: #1e3a8a; display: inline-block; min-width: 120px; }
-          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-          th { background-color: #1e3a8a; color: white; padding: 15px 12px; text-align: left; font-weight: 600; }
-          th:nth-child(2), th:nth-child(3), th:nth-child(4) { text-align: center; }
-          th:nth-child(3), th:nth-child(4) { text-align: right; }
-          .totals-box { background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 30px 0; }
-          .total-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5e7eb; }
-          .total-final { display: flex; justify-content: space-between; padding: 15px 0; font-size: 20px; font-weight: 700; color: #1e3a8a; border-top: 2px solid #1e3a8a; margin-top: 10px; }
+          .info-label { font-weight: 600; color: #1e3a8a; display: inline-block; min-width: 140px; }
+          .frete-box { background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981; }
+          .frete-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+          .frete-label { color: #047857; font-weight: 600; }
+          .frete-value { color: #333; font-weight: 500; }
+          .totals-box { background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 30px 0; border: 2px solid #e5e7eb; }
+          .total-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; }
+          .total-final { display: flex; justify-content: space-between; padding: 15px 0; font-size: 22px; font-weight: 700; color: #1e3a8a; border-top: 2px solid #1e3a8a; margin-top: 10px; }
           .observacoes { background-color: #fffbeb; padding: 15px; border-radius: 6px; border-left: 4px solid #f59e0b; margin: 20px 0; }
-          .cta-button { display: inline-block; background-color: #1e3a8a; color: white; padding: 15px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 20px 0; }
           .footer { background-color: #f9fafb; padding: 30px; text-align: center; border-top: 3px solid #1e3a8a; }
           .footer-text { color: #666; font-size: 12px; margin: 5px 0; }
           .validade { background-color: #fef3c7; padding: 15px; border-radius: 6px; text-align: center; color: #92400e; font-weight: 600; margin: 20px 0; }
@@ -309,7 +293,9 @@ class EmailService {
           
           <div class="content">
             <h1 style="color: #1e3a8a; text-align: center; margin: 0 0 10px 0;">📋 COTAÇÃO DE FRETE</h1>
-            <p style="text-align: center; color: #666; margin: 0 0 30px 0;">Cotação Nº ${cotacao.codigo} | Emitida em ${this.formatarDataSimples(cotacao.criado_em)}</p>
+            <p style="text-align: center; color: #666; margin: 0 0 30px 0;">
+              Cotação Nº <strong>${cotacao.codigo}</strong> | Emitida em ${this.formatarDataSimples(cotacao.created_at || cotacao.criado_em)}
+            </p>
             
             <div class="section-title">👤 Dados do Cliente</div>
             <div class="info-box">
@@ -317,6 +303,46 @@ class EmailService {
               <div class="info-row"><span class="info-label">Documento:</span> ${cliente.documento}</div>
               <div class="info-row"><span class="info-label">Email:</span> ${cliente.email}</div>
               <div class="info-row"><span class="info-label">Telefone:</span> ${cliente.telefone}</div>
+            </div>
+
+            <div class="section-title">🚚 Detalhes do Frete</div>
+            <div class="frete-box">
+              <div class="frete-row">
+                <span class="frete-label">Tipo de Serviço:</span>
+                <span class="frete-value">${cotacao.tipo_servico}</span>
+              </div>
+              <div class="frete-row">
+                <span class="frete-label">Origem:</span>
+                <span class="frete-value">${cotacao.origem}</span>
+              </div>
+              <div class="frete-row">
+                <span class="frete-label">Destino:</span>
+                <span class="frete-value">${cotacao.destino}</span>
+              </div>
+              ${cotacao.codigo_iata_destino ? `
+              <div class="frete-row">
+                <span class="frete-label">Código IATA:</span>
+                <span class="frete-value">${cotacao.codigo_iata_destino}</span>
+              </div>
+              ` : ''}
+              ${cotacao.peso_kg > 0 ? `
+              <div class="frete-row">
+                <span class="frete-label">Peso:</span>
+                <span class="frete-value">${this.formatarMoeda(cotacao.peso_kg)} kg</span>
+              </div>
+              ` : ''}
+              ${cotacao.km_percorrido > 0 ? `
+              <div class="frete-row">
+                <span class="frete-label">KM Percorrido:</span>
+                <span class="frete-value">${this.formatarMoeda(cotacao.km_percorrido)} km</span>
+              </div>
+              ` : ''}
+              ${cotacao.tipo_veiculo ? `
+              <div class="frete-row">
+                <span class="frete-label">Tipo de Veículo:</span>
+                <span class="frete-value">${cotacao.tipo_veiculo}</span>
+              </div>
+              ` : ''}
             </div>
 
             ${colaborador ? `
@@ -328,35 +354,36 @@ class EmailService {
             </div>
             ` : ''}
 
-            <div class="section-title">📦 Itens da Cotação</div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Descrição</th>
-                  <th>Qtd</th>
-                  <th>Valor Unit.</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${itensHTML}
-              </tbody>
-            </table>
-
+            <div class="section-title">💰 Composição de Valores</div>
+            
             <div class="totals-box">
-              ${cotacao.desconto > 0 ? `
               <div class="total-row">
-                <span>Subtotal:</span>
-                <span style="font-weight: 600;">R$ ${this.formatarMoeda(parseFloat(cotacao.valor_total) + parseFloat(cotacao.desconto))}</span>
+                <span style="font-weight: 600;">Valor Base do Frete:</span>
+                <span style="font-weight: 600; color: #059669;">R$ ${this.formatarMoeda(cotacao.valor_base || cotacao.valor_cliente)}</span>
               </div>
-              <div class="total-row">
-                <span>Desconto:</span>
-                <span style="color: #059669; font-weight: 600;">-R$ ${this.formatarMoeda(cotacao.desconto)}</span>
+              
+              ${generalidades && generalidades.length > 0 ? `
+              <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                <div style="font-weight: 600; color: #666; margin-bottom: 10px;">Generalidades Aplicadas:</div>
+                ${generalidades.map(gen => {
+                  const valor = parseFloat(gen.valor_aplicado || gen.valor_total || gen.valor || 0);
+                  return `
+                    <div class="total-row" style="font-size: 13px; padding: 5px 0;">
+                      <span style="color: #666;">• ${gen.nome || gen.descricao || 'Generalidade'}</span>
+                      <span>R$ ${this.formatarMoeda(valor)}</span>
+                    </div>
+                  `;
+                }).join('')}
+                <div class="total-row" style="border-top: 1px solid #e5e7eb; margin-top: 10px; padding-top: 10px;">
+                  <span style="font-weight: 600;">Total Generalidades:</span>
+                  <span style="font-weight: 600;">R$ ${this.formatarMoeda(cotacao.valor_generalidades || generalidades.reduce((sum, g) => sum + parseFloat(g.valor_aplicado || g.valor_total || g.valor || 0), 0))}</span>
+                </div>
               </div>
               ` : ''}
+              
               <div class="total-final">
                 <span>VALOR TOTAL:</span>
-                <span>R$ ${this.formatarMoeda(cotacao.valor_total)}</span>
+                <span>R$ ${this.formatarMoeda(cotacao.valor_cliente || cotacao.valor_total)}</span>
               </div>
             </div>
 
@@ -406,7 +433,8 @@ class EmailService {
   }
 
   formatarMoeda(valor) {
-    return parseFloat(valor).toFixed(2).replace('.', ',');
+    const num = parseFloat(valor);
+    return isNaN(num) ? '0,00' : num.toFixed(2).replace('.', ',');
   }
 
   async enviarConviteEvento(colaborador, evento) {
@@ -436,8 +464,8 @@ class EmailService {
     );
   }
 
-  async enviarCotacao(cliente, cotacao, itens, pdfPath, colaborador = null) {
-    const html = this.templateCotacao(cliente, cotacao, itens, colaborador);
+  async enviarCotacao(cliente, cotacao, generalidades, pdfPath, colaborador = null) {
+    const html = this.templateCotacao(cliente, cotacao, generalidades, colaborador);
     
     const attachments = [{
       filename: `Cotacao-${cotacao.codigo}.pdf`,

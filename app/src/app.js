@@ -17,6 +17,9 @@ const localizacaoRoutes = require('./routes/localizacaoRoutes');
 const eventosRoutes = require('./routes/eventosRoutes');
 const notificacaoRoutes = require('./routes/notificacaoRoutes');
 const cotacoesRoutes = require('./routes/cotacoesRoutes');
+const generalidadesRoutes = require('./routes/generalidadesRoutes');
+const tabelaPrecoRoutes = require('./routes/tabelaPrecoRoutes');
+
 
 const app = express();
 
@@ -45,6 +48,8 @@ app.use('/api/agregados', agregadosRoutes);
 app.use('/api/localizacoes', localizacaoRoutes);
 app.use('/api/eventos', eventosRoutes);
 app.use('/api/notificacoes', notificacaoRoutes);
+app.use('/api/cotacoes/generalidades', generalidadesRoutes);
+app.use('/api/cotacoes/tabelas-preco', tabelaPrecoRoutes);
 app.use('/api/cotacoes', cotacoesRoutes);
 
 // Rota de teste para verificar se a API está online
