@@ -20,6 +20,7 @@ const cotacoesRoutes = require('./routes/cotacoesRoutes');
 const generalidadesRoutes = require('./routes/generalidadesRoutes');
 const tabelaPrecoRoutes = require('./routes/tabelaPrecoRoutes');
 
+const acompanhamentoRoutes = require('./routes/acompanhamentoRoutes');
 
 const app = express();
 
@@ -51,6 +52,8 @@ app.use('/api/notificacoes', notificacaoRoutes);
 app.use('/api/cotacoes/generalidades', generalidadesRoutes);
 app.use('/api/cotacoes/tabelas-preco', tabelaPrecoRoutes);
 app.use('/api/cotacoes', cotacoesRoutes);
+app.use('/api/acompanhamento', acompanhamentoRoutes);
+
 
 // Rota de teste para verificar se a API está online
 app.get('/api/health', (req, res) => {
