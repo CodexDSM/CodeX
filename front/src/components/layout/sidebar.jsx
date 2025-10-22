@@ -10,6 +10,14 @@ export function Sidebar() {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false);
 
+  const [permissao, setPermissao] = useState(null);
+
+  useEffect(() => {
+    const storedPermissao = localStorage.getItem('nivelPermissao');
+    setPermissao(storedPermissao);
+
+  }, []);
+
   useEffect(() => {
     setMounted(true);
     const savedMenu = localStorage.getItem('openMenu');
@@ -48,8 +56,10 @@ export function Sidebar() {
             className={pathname === '/eventos' ? styles.activeLink : ''}>
             <CalendarCheck size={16} /> Eventos</Link>
         </li>
+        
 
         {/* SUBMENU ADMINISTRATIVO  */}
+        {(permissao === 'Administrador' || permissao ==='Gerente') && 
         <li className={styles.navItem}>
           <button onClick={() => toggleMenu('administrativo')}
             className={pathname.startsWith('/administrativo') ? styles.activeLink : ''}>
@@ -75,9 +85,11 @@ export function Sidebar() {
               </li>
             </ul>
           )}
-        </li>
+        </li>}
 
         {/* SUBMENU COMERCIAL  */}
+        
+        {(['Comercial', 'Gerente','Administrador'].includes(permissao))  && 
         <li className={styles.navItem}>
           <button onClick={() => toggleMenu('comercial')}
             className={pathname.startsWith('/comercial') ? styles.activeLink : ''}>
@@ -130,9 +142,10 @@ export function Sidebar() {
 
             </ul>
           )}
-        </li>
+        </li>}
 
         {/* SUBMENU OPERACIONAL  */}
+        {(['Operador','Motorista', 'Gerente','Administrador'].includes(permissao))  && 
         <li className={styles.navItem}>
           <button onClick={() => toggleMenu('operacional')}
             className={pathname.startsWith('/operacional') ? styles.activeLink : ''}>
@@ -154,7 +167,9 @@ export function Sidebar() {
               </li>
             </ul>
           )}
-        </li>
+        </li>}
+
+
       </ul>
     </aside>
   );

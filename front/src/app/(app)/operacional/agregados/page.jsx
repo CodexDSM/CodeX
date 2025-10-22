@@ -149,8 +149,8 @@ export default function ListarSubmissionsPage() {
 
             <Paper sx={{ p: 3 }}>
                 <FormControl fullWidth sx={{ mb: 3 }}>
-                    <InputLabel>Selecione o Formulário para Visualizar</InputLabel>
-                    <Select
+                    <InputLabel >Selecione o Formulário para Visualizar</InputLabel>
+                    <Select sx={{ mt: 2, mb: 2 }}
                         value={selectedType}
                         onChange={(e) => setSelectedType(e.target.value)}
                         disabled={loadingTemplates}
