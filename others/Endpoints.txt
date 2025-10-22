@@ -138,59 +138,258 @@ json
   "assunto": "Proposta de frete",
   "detalhes": "Cliente solicitou cotação."
 }
+GENERALIDADES ⭐ NOVO
+Headers: Authorization: Bearer TOKEN
+
+Acesso: Administrador, Gerente, Comercial
+
+Listar Generalidades
+GET /api/generalidades?ativo=true
+
+Parâmetros opcionais:
+
+ativo - Filtrar por status (true/false)
+
+Resposta:
+
+json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "nome": "Coleta 4h",
+      "tipo": "fixo",
+      "valor": 150.00,
+      "ativo": true,
+      "created_at": "2025-10-21T23:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "nome": "Seguro",
+      "tipo": "porcentagem",
+      "valor": 0.70,
+      "ativo": true,
+      "created_at": "2025-10-21T23:00:00.000Z"
+    }
+  ]
+}
+Buscar Generalidade por ID
+GET /api/generalidades/:id
+
+Criar Generalidade
+POST /api/generalidades
+
+json
+{
+  "nome": "Coleta Emergencial 2h",
+  "tipo": "fixo",
+  "valor": 250.00,
+  "ativo": true
+}
+Tipos válidos:
+
+fixo - Valor fixo em R$
+
+porcentagem - Valor em % sobre o frete
+
+Atualizar Generalidade
+PUT /api/generalidades/:id
+
+json
+{
+  "nome": "Coleta 4h",
+  "tipo": "fixo",
+  "valor": 180.00,
+  "ativo": true
+}
+Deletar Generalidade
+DELETE /api/generalidades/:id
+
+Acesso: Apenas Administrador e Gerente
+
+TABELAS DE PREÇOS ⭐ NOVO
+Headers: Authorization: Bearer TOKEN
+
+Acesso: Administrador, Gerente, Comercial
+
+Listar Tabelas
+GET /api/tabelas-precos?cliente_id=1&tipo_servico=WEAir%20Convencional&ativo=true
+
+Parâmetros opcionais:
+
+cliente_id - Filtrar por cliente
+
+tipo_servico - Filtrar por tipo de serviço
+
+ativo - Filtrar por status
+
+Resposta:
+
+json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "cliente_id": 1,
+      "cliente_nome": "Cliente Teste",
+      "tipo_servico": "WEAir Convencional",
+      "codigo_iata": "GRU",
+      "frete_minimo": 350.00,
+      "peso_minimo": 10.00,
+      "peso_maximo": 300.00,
+      "valor_kg_excedente": 8.50,
+      "ativo": true,
+      "created_at": "2025-10-21T23:00:00.000Z"
+    }
+  ]
+}
+Buscar Tabela por ID
+GET /api/tabelas-precos/:id
+
+Buscar Tabela Específica
+GET /api/tabelas-precos/buscar?cliente_id=1&tipo_servico=WEAir%20Convencional&codigo_iata=GRU
+
+Parâmetros obrigatórios:
+
+cliente_id
+
+tipo_servico
+
+codigo_iata (opcional para serviços rodoviários)
+
+Criar Tabela
+POST /api/tabelas-precos
+
+json
+{
+  "cliente_id": 1,
+  "tipo_servico": "WEAir Convencional",
+  "codigo_iata": "GRU",
+  "frete_minimo": 350.00,
+  "peso_minimo": 10.00,
+  "peso_maximo": 300.00,
+  "valor_kg_excedente": 8.50,
+  "ativo": true
+}
+Tipos de Serviço válidos:
+
+WEAir Convencional
+
+WEAir Expresso
+
+WEAir Proximo Voo
+
+LT WEAir NEWE
+
+WExpress (Rodoviário)
+
+Para WExpress: codigo_iata não é obrigatório
+
+Atualizar Tabela
+PUT /api/tabelas-precos/:id
+
+json
+{
+  "frete_minimo": 380.00,
+  "valor_kg_excedente": 9.00,
+  "ativo": true
+}
+Deletar Tabela
+DELETE /api/tabelas-precos/:id
+
+Acesso: Apenas Administrador e Gerente
+
 COTAÇÕES
 Headers: Authorization: Bearer TOKEN
 
 Acesso: Administrador, Gerente, Comercial
 
-Criar Cotação
-POST /api/cotacoes
+Calcular Cotação ⭐ NOVO
+POST /api/cotacoes/calcular
 
 json
 {
-  "cliente_id": 1,
-  "desconto": 100,
-  "observacoes": "Frete especial com desconto",
-  "enviar_email": false,
-  "itens": [
-    {
-      "descricao": "Transporte de Carga Geral - 500kg",
-      "quantidade": 1,
-      "valor_unitario": 1500.00
-    },
-    {
-      "descricao": "Seguro da Carga",
-      "quantidade": 1,
-      "valor_unitario": 200.00
-    }
-  ]
+  "clienteId": 1,
+  "tipoServico": "WEAir Convencional",
+  "pesoKg": 35.00,
+  "kmPercorrido": 430,
+  "codigoIata": "GRU",
+  "tipoVeiculo": null,
+  "generalidadesIds": [1, 2, 3],
+  "valorFreteAgregado": 95.00,
+  "valorKmAgregado": 0.45
 }
 Resposta:
 
 json
 {
   "success": true,
-  "message": "Cotação criada como rascunho",
+  "data": {
+    "valorBase": 562.50,
+    "valorGeneralidades": 172.87,
+    "generalidadesDetalhes": [
+      {
+        "id": 1,
+        "nome": "Coleta 4h",
+        "tipo": "fixo",
+        "valor_original": 150.00,
+        "valor_aplicado": 150.00
+      },
+      {
+        "id": 2,
+        "nome": "Seguro",
+        "tipo": "porcentagem",
+        "valor_original": 0.70,
+        "valor_aplicado": 3.94
+      }
+    ],
+    "valorCliente": 735.37,
+    "valorAgregado": 288.50,
+    "valorRentabilidade": 446.87,
+    "percentualRentabilidade": 60.77
+  }
+}
+Criar Cotação
+POST /api/cotacoes
+
+json
+{
+  "cliente_id": 1,
+  "tipo_servico": "WEAir Convencional",
+  "origem": "São Paulo - SP",
+  "destino": "Rio de Janeiro - RJ",
+  "codigo_iata_destino": "GIG",
+  "peso_kg": 35.00,
+  "km_percorrido": 430,
+  "tipo_veiculo": null,
+  "valor_frete_agregado": 95.00,
+  "valor_km_agregado": 0.45,
+  "valor_base": 562.50,
+  "valor_generalidades": 172.87,
+  "valor_cliente": 735.37,
+  "valor_agregado": 288.50,
+  "valor_rentabilidade": 446.87,
+  "percentual_rentabilidade": 60.77,
+  "generalidades_ids": [1, 2, 3],
+  "observacoes": "Carga frágil",
+  "enviar_email": true
+}
+Resposta:
+
+json
+{
+  "success": true,
+  "message": "Cotação criada e email enviado com sucesso!",
   "data": {
     "id": 1,
     "codigo": "COT-2025-0001",
     "pdf_filename": "cotacao-1-1234567890.pdf"
   }
 }
-Status disponíveis: Rascunho, Enviada, Aceita, Recusada, Expirada
-
-Observações:
-
-Se enviar_email: true, envia automaticamente o PDF por email
-
-PDF é gerado automaticamente
-
-Cotação válida por 7 dias
-
-Desconto opcional
-
 Listar Cotações
-GET /api/cotacoes?status=Enviada&cliente_id=1&page=1&limit=10
+GET /api/cotacoes?status=Pendente&cliente_id=1&page=1&limit=10
 
 Parâmetros opcionais:
 
@@ -202,63 +401,9 @@ page - Página (padrão: 1)
 
 limit - Limite por página (padrão: 10)
 
-Resposta:
-
-json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "codigo": "COT-2025-0001",
-      "cliente_nome": "João da Silva",
-      "colaborador_nome": "Marina Comercial",
-      "valor_total": 1600.00,
-      "desconto": 100.00,
-      "status": "Rascunho",
-      "criado_em": "2025-10-18T23:30:00.000Z"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 1,
-    "totalPages": 1
-  }
-}
 Buscar Cotação por ID
 GET /api/cotacoes/:id
 
-Resposta:
-
-json
-{
-  "success": true,
-  "data": {
-    "id": 1,
-    "codigo": "COT-2025-0001",
-    "cliente_nome": "João da Silva",
-    "cliente_email": "joao@email.com",
-    "cliente_documento": "123.456.789-00",
-    "cliente_telefone": "11987654321",
-    "colaborador_nome": "Marina Comercial",
-    "valor_total": 1600.00,
-    "desconto": 100.00,
-    "observacoes": "Frete especial",
-    "status": "Rascunho",
-    "validade_ate": "2025-10-25T23:30:00.000Z",
-    "criado_em": "2025-10-18T23:30:00.000Z",
-    "itens": [
-      {
-        "id": 1,
-        "descricao": "Transporte de Carga Geral - 500kg",
-        "quantidade": 1,
-        "valor_unitario": 1500.00,
-        "valor_total": 1500.00
-      }
-    ]
-  }
-}
 Buscar por Código
 GET /api/cotacoes/codigo/:codigo
 
@@ -267,25 +412,18 @@ Exemplo: /api/cotacoes/codigo/COT-2025-0001
 Enviar Cotação por Email
 POST /api/cotacoes/:id/enviar
 
-Envia o PDF da cotação por email para o cliente e atualiza o status para Enviada.
+Envia o PDF da cotação por email para o cliente
 
-Resposta:
-
-json
-{
-  "success": true,
-  "message": "Cotação enviada por email com sucesso!"
-}
 Atualizar Status
 PATCH /api/cotacoes/:id/status
 
 json
 {
-  "status": "Aceita"
+  "status": "Aprovado"
 }
-Status válidos: Rascunho, Enviada, Aceita, Recusada, Expirada
+Status válidos: Pendente, Aprovado, Recusado, Expirado
 
-Deletar Cotação (Admin/Gerente)
+Deletar Cotação
 DELETE /api/cotacoes/:id
 
 Acesso: Apenas Administrador e Gerente
@@ -318,22 +456,14 @@ Headers: Authorization: Bearer TOKEN
 Buscar por ID
 GET /api/agregados/:id
 
-Headers: Authorization: Bearer TOKEN
-
 Buscar por CNH
 GET /api/agregados/cnh/:cnh
-
-Headers: Authorization: Bearer TOKEN
 
 Buscar por Placa
 GET /api/agregados/placa/:placa
 
-Headers: Authorization: Bearer TOKEN
-
 Atualizar Agregado
 PUT /api/agregados/:id
-
-Headers: Authorization: Bearer TOKEN
 
 json
 {
@@ -344,12 +474,8 @@ json
   "telefone": "11987654999",
   "email": "jose.novo@email.com"
 }
-Acesso: Administrador, Gerente, Operador
-
 Deletar Agregado
 DELETE /api/agregados/:id
-
-Headers: Authorization: Bearer TOKEN
 
 Acesso: Administrador, Gerente
 

@@ -1,0 +1,428 @@
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #f8fafc;
+  min-height: calc(100vh - 80px);
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1rem;
+}
+
+.error {
+  color: #dc2626;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.backButton:hover {
+  background: #f9fafb;
+}
+
+.headerInfo {
+  flex: 1;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.badges {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.aprovarButton,
+.rejeitarButton,
+.emailButton,
+.deleteButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+}
+
+.aprovarButton {
+  background: #10b981;
+  color: white;
+}
+
+.aprovarButton:hover {
+  background: #059669;
+}
+
+.rejeitarButton {
+  background: #ef4444;
+  color: white;
+}
+
+.rejeitarButton:hover {
+  background: #dc2626;
+}
+
+.emailButton {
+  background: #3b82f6;
+  color: white;
+}
+
+.emailButton:hover {
+  background: #2563eb;
+}
+
+.deleteButton {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.deleteButton:hover {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.badgeRascunho,
+.badgeEnviada,
+.badgeAceita,
+.badgeRecusada,
+.badgeExpirada,
+.aprovacaoPendente,
+.aprovacaoAprovada,
+.aprovacaoRejeitada {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badgeRascunho {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.badgeEnviada {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badgeAceita {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badgeRecusada {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badgeExpirada {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.aprovacaoPendente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.aprovacaoAprovada {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.aprovacaoRejeitada {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+}
+
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sideColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 1.5rem 0;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.infoLabel {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.infoValue {
+  font-size: 0.875rem;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.generalidadesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.generalidadeItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 6px;
+}
+
+.generalidadeNome {
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.generalidadeValor {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #059669;
+}
+
+.observacoes,
+.motivoRejeicao {
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.motivoRejeicao {
+  color: #991b1b;
+  background: #fee2e2;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.valoresCard {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.valorRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.625rem 0;
+  font-size: 0.875rem;
+}
+
+.valorRow span:first-child {
+  color: #64748b;
+}
+
+.valorTexto {
+  font-weight: 600;
+  color: #374151;
+}
+
+.valorLabel {
+  font-weight: 600;
+  color: #374151;
+}
+
+.valorDestaque {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.valorRentabilidade {
+  font-weight: 700;
+  color: #059669;
+}
+
+.divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 0.5rem 0;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 1.5rem 0;
+}
+
+.modalTextarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 1.5rem;
+}
+
+.modalTextarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.modalButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.modalCancelButton,
+.modalConfirmButton {
+  padding: 0.625rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.modalCancelButton {
+  background: white;
+  color: #64748b;
+  border: 1px solid #d1d5db;
+}
+
+.modalCancelButton:hover {
+  background: #f9fafb;
+}
+
+.modalConfirmButton {
+  background: #ef4444;
+  color: white;
+}
+
+.modalConfirmButton:hover {
+  background: #dc2626;
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .headerActions {
+    width: 100%;
+  }
+
+  .aprovarButton,
+  .rejeitarButton,
+  .emailButton,
+  .deleteButton {
+    flex: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+}

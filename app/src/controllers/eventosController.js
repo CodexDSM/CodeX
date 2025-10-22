@@ -252,10 +252,6 @@ class EventosController {
         return res.status(404).json({ error: 'Você não está vinculado a este evento' });
       }
 
-      if (convite[0].status !== 'Aceito') {
-        return res.status(400).json({ error: 'Apenas eventos aceitos podem receber feedback' });
-      }
-
       const [result] = await pool.execute(
         'UPDATE evento_colaborador SET feedback = ? WHERE evento_id = ? AND colaborador_id = ?',
         [feedback, evento_id, colaborador_id]

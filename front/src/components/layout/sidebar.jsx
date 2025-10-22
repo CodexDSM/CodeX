@@ -1,10 +1,9 @@
 'use client';
 import Link from 'next/link';
 import styles from './sidebar.module.css';
-import { ClipboardList, ListChecks, Cog, MapPinned, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings, CalendarCheck } from 'lucide-react';
+import { ClipboardList, ListChecks, Cog, MapPinned, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings, CalendarCheck, NotepadText, Calculator, DollarSign, Table } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-
 
 export function Sidebar() {
   const [openMenu, setOpenMenu] = useState(null)
@@ -46,6 +45,7 @@ export function Sidebar() {
     <aside className={styles.sidebar}>
       <h1 className={styles.logo}>Newe</h1>
       <ul className={styles.navList}>
+
         {/* <li className={styles.navItem}>
           <Link href="/dashboard"><LayoutDashboard size={20} /> Dashboard</Link>
         </li> */}
@@ -97,10 +97,32 @@ export function Sidebar() {
           </button>
           {openMenu === 'comercial' && (
             <ul className={styles.submenu}>
+
               <li className={styles.navItem}>
                 <Link href="/comercial/clientes"
                   className={pathname === '/comercial/clientes' ? styles.activeLink : ''}>
                   <BarChart2 size={16} /> Clientes
+                </Link>
+              </li>
+
+              <li className={styles.navItem}>
+                <Link href="/comercial/cotacoes"
+                  className={pathname.startsWith('/comercial/cotacoes') ? styles.activeLink : ''}>
+                  <Calculator size={16} /> Cotações
+                </Link>
+              </li>
+
+              <li className={styles.navItem}>
+                <Link href="/comercial/cotacoes/generalidades"
+                  className={pathname === '/comercial/cotacoes/generalidades' ? styles.activeLink : ''}>
+                  <DollarSign size={16} /> Generalidades
+                </Link>
+              </li>
+
+              <li className={styles.navItem}>
+                <Link href="/comercial/cotacoes/tabelas"
+                  className={pathname === '/comercial/cotacoes/tabelas' ? styles.activeLink : ''}>
+                  <Table size={16} /> Tabelas de Preços
                 </Link>
               </li>
 
@@ -111,6 +133,12 @@ export function Sidebar() {
                 <FileText size={16} /> Vendas
               </Link>
             </li> */}
+              <li className={styles.navItem}>
+                <Link href="/comercial/acompanhamento"
+                  className={pathname === '/comercial/acompanhamento' ? styles.activeLink : ''}>
+                  <NotepadText size={16} /> Acompanhamento
+                </Link>
+              </li>
 
             </ul>
           )}
