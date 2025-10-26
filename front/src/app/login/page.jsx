@@ -14,11 +14,14 @@ import {
 } from "@/components/ui/select";
 import styles from './login.module.css';
 
+
+
+
 export default function LoginPage() {
   const router = useRouter();
   const [cpf, setCpf] = useState('');
   const [senha, setSenha] = useState('');
-  const [localTrabalho, setLocalTrabalho] = useState('Presencial'); 
+  const [localTrabalho, setLocalTrabalho] = useState('Presencial');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -48,7 +51,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           cpf: cpf.trim(),
           senha: senha.trim(),
-          local_trabalho: localTrabalho, 
+          local_trabalho: localTrabalho,
         }),
       });
 
@@ -61,15 +64,19 @@ export default function LoginPage() {
       localStorage.setItem('userNome', data.colaborador.nome);
       localStorage.setItem('userEmail', data.colaborador.email);
       localStorage.setItem('colaboradorId', data.colaborador.id);
-
+      localStorage.setItem('nivelPermissao', data.colaborador.perfil);
 
       
+      
+
+
+
       if (data.localizacao_registrada) {
         console.log(`Localização registrada: ${data.local_trabalho}`);
       }
 
 
-      router.push('/administrativo/colaboradores');
+      router.push('/eventos');
     } catch (err) {
       setError(err.message);
     } finally {

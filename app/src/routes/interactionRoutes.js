@@ -5,12 +5,12 @@ const { createInteraction, getClientInteractions } = require('../controllers/int
 
 const router = express.Router();
 
-//Endpoint POST para criar uma nova interação
-//Proteção dos endpoints com JWT e perfil
+// Endpoint POST para criar uma nova interação
+// Proteção dos endpoints com JWT e perfil
 router.post(
     '/clients/:clientId/interactions',
     authenticateToken,
-    authorizeRoles('Comercial', 'Administrador'), // Permite apenas Comercial ou Admin
+    authorizeRoles('Administrador', 'Gerente', 'Comercial'), // Permite Admin, Gerente e Comercial
     [
         // Validação do corpo da requisição
         body('tipo_interacao')
@@ -30,12 +30,12 @@ router.post(
     createInteraction
 );
 
-//Endpoint GET para listar interações de um cliente
-//Proteção dos endpoints com JWT e perfil
+// Endpoint GET para listar interações de um cliente
+// Proteção dos endpoints com JWT e perfil
 router.get(
     '/clients/:clientId/interactions',
     authenticateToken,
-    authorizeRoles('Comercial', 'Administrador'), // Permite apenas Comercial ou Admin
+    authorizeRoles('Administrador', 'Gerente', 'Comercial'), // Permite Admin, Gerente e Comercial
     getClientInteractions
 );
 

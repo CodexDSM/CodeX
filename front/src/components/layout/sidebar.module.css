@@ -1,8 +1,7 @@
-
 .sidebar {
-  width: 270px;
+  width: 300px;
   min-height: 100vh;
-  background-color: #121D97; 
+  background-color: #121D97;
   padding: 1.5rem;
   color: white;
   display: flex;
@@ -24,7 +23,8 @@
   gap: 0.5rem;
 }
 
-.navItem a, .navItem button {
+.navItem a,
+.navItem button {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -40,19 +40,20 @@
   font-size: 1rem;
 }
 
-.navItem a:hover, .navItem button:hover {
+.navItem a:hover,
+.navItem button:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
 .navItem .activeLink {
-  
+
   color: #028BBF;
   font-weight: 700;
 }
 
 .submenu {
   list-style: none;
-  padding-left: 2.5rem;
+  padding-left: 1rem;
   margin-top: 0.5rem;
   display: flex;
   flex-direction: column;

@@ -137,3 +137,21 @@
   background-color: #d1edf8;
   transition-delay: 100ms;
 }
+
+.adicionarenv{
+  font-family: 'Inter',sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  background-color: #ffffff;
+  color: #575756;
+  font-size:medium;
+  font-weight: 500;
+}
+
+.adicionarenv:hover{
+  transform: scale(1.03);
+  background-color: #d1edf8;
+  transition-delay: 100ms;
+}

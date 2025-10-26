@@ -69,7 +69,7 @@ class ColaboradorController {
           if (totalRegistros > 30) {
             const registrosParaRemover = totalRegistros - 30;
             
-            await pool.execute(`
+            await pool.query(`
               DELETE FROM localizacao_colaborador 
               WHERE colaborador_id = ? 
               ORDER BY data_hora ASC 
@@ -123,7 +123,7 @@ class ColaboradorController {
       if (totalRegistros > limite) {
         const registrosParaRemover = totalRegistros - limite;
         
-        await pool.execute(`
+        await pool.query(`
           DELETE FROM localizacao_colaborador 
           WHERE colaborador_id = ? 
           ORDER BY data_hora ASC 

@@ -4,6 +4,7 @@ const cors = require('cors');
 const errorHandler = require('./middlewares/errorHandler');
 
 // Importa os arquivos de rotas
+const agregadosRoutes = require('./routes/agregadosRoutes');
 const colaboradorRoutes = require('./routes/colaboradorRoutes');
 const clienteRoutes = require('./routes/clienteRoutes');
 const veiculoRoutes = require('./routes/veiculoRoutes');
@@ -12,13 +13,26 @@ const freteRoutes = require('./routes/freteRoutes');
 const rastreamentoRoutes = require('./routes/rastreamentoRoutes');
 const interactionRoutes = require('./routes/interactionRoutes');
 const checklistRoutes = require('./routes/checklistRoutes');
-const agregadosRoutes = require('./routes/agregadosRoutes');
 const localizacaoRoutes = require('./routes/localizacaoRoutes');
+const eventosRoutes = require('./routes/eventosRoutes');
+const notificacaoRoutes = require('./routes/notificacaoRoutes');
+const cotacoesRoutes = require('./routes/cotacoesRoutes');
+const generalidadesRoutes = require('./routes/generalidadesRoutes');
+const tabelaPrecoRoutes = require('./routes/tabelaPrecoRoutes');
+
+const acompanhamentoRoutes = require('./routes/acompanhamentoRoutes');
 
 const app = express();
 
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+
 // Middlewares globais da aplicação
-app.use(cors()); // Permite requisições de outras origens (frontend)
 app.use(express.json()); // Habilita o uso de JSON no corpo das requisições
 app.use(express.urlencoded({ extended: true })); // Habilita o uso de dados de formulário
 
@@ -31,8 +45,15 @@ app.use('/api/fretes', freteRoutes);
 app.use('/api/rastreamento', rastreamentoRoutes);
 app.use('/api', interactionRoutes);
 app.use(checklistRoutes);
-app.use('/api', agregadosRoutes);
+app.use('/api/agregados', agregadosRoutes);
 app.use('/api/localizacoes', localizacaoRoutes);
+app.use('/api/eventos', eventosRoutes);
+app.use('/api/notificacoes', notificacaoRoutes);
+app.use('/api/cotacoes/generalidades', generalidadesRoutes);
+app.use('/api/cotacoes/tabelas-preco', tabelaPrecoRoutes);
+app.use('/api/cotacoes', cotacoesRoutes);
+app.use('/api/acompanhamento', acompanhamentoRoutes);
+
 
 // Rota de teste para verificar se a API está online
 app.get('/api/health', (req, res) => {

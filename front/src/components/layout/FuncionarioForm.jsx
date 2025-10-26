@@ -31,7 +31,7 @@ export default function CadastroColaborador() {
   const [isLoading, setIsLoading] = useState(false);
 
   const perfis = [
-    'Administrador', 'Gerente', 'Operador', 'Motorista','Comercial'
+    'Administrador', 'Gerente', 'Operador', 'Comercial'
   ];
 
   const handleChange = (e) => {
@@ -172,100 +172,7 @@ export default function CadastroColaborador() {
           </div>
         </div>
 
-        <h3 className={styles.subtitle}>Endereço</h3>
         
-        <div className={styles.formGrid}>
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>CEP *</label>
-            <input
-              name="cep"
-              placeholder="Digite apenas números"
-              value={formData.cep}
-              onChange={handleCepChange}
-              required
-              inputMode="numeric"
-              maxLength={8}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={`${styles.inputWrapper} ${styles.span2}`}>
-            <label className={styles.label}>Logradouro *</label>
-            <input
-              name="logradouro"
-              placeholder="Rua, Avenida, etc."
-              value={formData.logradouro}
-              onChange={handleChange}
-              required
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Número *</label>
-            <input
-              name="numero"
-              placeholder="Número"
-              value={formData.numero}
-              onChange={handleChange}
-              required
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Complemento</label>
-            <input
-              name="complemento"
-              placeholder="Apartamento, bloco, etc."
-              value={formData.complemento ?? ""} 
-              onChange={handleChange}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Bairro *</label>
-            <input
-              name="bairro"
-              placeholder="Bairro"
-              value={formData.bairro}
-              onChange={handleChange}
-              required
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Cidade *</label>
-            <input
-              name="cidade"
-              placeholder="Cidade"
-              value={formData.cidade}
-              onChange={handleChange}
-              required
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>UF *</label>
-            <input
-              name="uf"
-              placeholder='SP'
-              value={formData.uf ?? ""}
-              onChange={e => {
-                const newUf = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2);
-                setFormData(prev => ({ ...prev, uf: newUf }));
-              }}
-              required
-              className={styles.input}
-              maxLength={2}
-              style={{ textTransform: "uppercase" }}
-              autoComplete="off"
-            />
-          </div>
-        </div>
 
         <div className={styles.buttonContainer}>
           <Button type="submit" variant="adicionar" disabled={isLoading}>

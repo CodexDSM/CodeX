@@ -1,0 +1,112 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+}
+
+.modal>h2 {
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 0.5rem;
+}
+
+.modal>p {
+  padding-bottom: 0.3rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.confirmButton,
+.denyButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.confirmButton {
+  background-color: #16a34a;
+  color: white;
+}
+
+.denyButton {
+  background-color: #e5e7eb;
+  color: #4b5563;
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.justificativa {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+}
+
+.starsContainer * {
+  margin-top: 0.5rem;
+  display: flex !important;
+  flex-direction: column !important;
+
+
+}
+
+.starsContainer svg {
+  display: inline-block !important;
+  margin: 0 2px;
+  vertical-align: middle;
+
+}
+
+/* Se ainda houver sobreposição */
+.starsContainer span {
+  display: inline-block !important;
+  margin-top: 2px;
+}
+
+
+/* Estilo para o textarea (se ainda não tiver) */
+.textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 0.5rem;
+  min-height: 80px;
+  /* Altura mínima para o campo de comentário */
+  margin-bottom: 0.8rem;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #121D97;
+  box-shadow: 0 0 0 2px rgba(18, 29, 151, 0.4);
+}

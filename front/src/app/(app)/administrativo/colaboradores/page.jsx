@@ -38,34 +38,35 @@ export default function PaginaColaboradores() {
     try {
       const token = localStorage.getItem('authToken');
       const params = new URLSearchParams();
-      
       params.append('page', page);
       params.append('limit', pagination.per_page);
-      
+
       if (filters.search) params.append('search', filters.search);
       if (filters.perfil) params.append('perfil', filters.perfil);
       if (filters.ativo !== '') params.append('ativo', filters.ativo);
       if (filters.tipo_localizacao) params.append('tipo_localizacao', filters.tipo_localizacao);
-      
+
       console.log('Enviando parâmetros:', Object.fromEntries(params));
-      
+
       const response = await fetch(`http://localhost:3001/api/colaboradores?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        setColaboradores(data);
-        setPagination(prev => ({
-          ...prev,
+
+        setColaboradores(data.data || data);
+        setPagination(data.pagination || {
+          current_page: page,
+          per_page: pagination.per_page,
           total_records: data.length,
-          total_pages: Math.ceil(data.length / pagination.per_page) || 1,
+          total_pages: 1,
           has_next: false,
           has_prev: false
-        }));
+        });
       } else {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Erro ao carregar colaboradores');
@@ -73,7 +74,6 @@ export default function PaginaColaboradores() {
     } catch (err) {
       setError(err.message);
       console.error('Erro ao carregar colaboradores:', err);
-      
       if (err.message.includes('Não autorizado') || err.message.includes('Token')) {
         alert('Sessão expirada. Faça login novamente.');
         router.push('/login');
@@ -82,6 +82,7 @@ export default function PaginaColaboradores() {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchColaboradores(1);
@@ -121,8 +122,8 @@ export default function PaginaColaboradores() {
             gap: '1rem',
             alignItems: 'center'
           }}>
-            <Select 
-              value={filters.perfil || undefined} 
+            <Select
+              value={filters.perfil || undefined}
               onValueChange={(value) => handleFilterChange('perfil', value)}
             >
               <SelectTrigger style={{ width: '200px' }}>
@@ -137,8 +138,8 @@ export default function PaginaColaboradores() {
               </SelectContent>
             </Select>
 
-            <Select 
-              value={filters.ativo || undefined} 
+            <Select
+              value={filters.ativo || undefined}
               onValueChange={(value) => handleFilterChange('ativo', value)}
             >
               <SelectTrigger style={{ width: '180px' }}>
@@ -151,8 +152,8 @@ export default function PaginaColaboradores() {
               </SelectContent>
             </Select>
 
-            <Select 
-              value={filters.tipo_localizacao || undefined} 
+            <Select
+              value={filters.tipo_localizacao || undefined}
               onValueChange={(value) => handleFilterChange('tipo_localizacao', value)}
             >
               <SelectTrigger style={{ width: '200px' }}>
@@ -186,13 +187,13 @@ export default function PaginaColaboradores() {
       </header>
 
       {error && (
-        <div style={{ 
-          backgroundColor: '#fee', 
-          border: '1px solid #fcc', 
-          color: '#c00', 
-          padding: '1rem', 
-          borderRadius: '4px', 
-          marginBottom: '1rem' 
+        <div style={{
+          backgroundColor: '#fee',
+          border: '1px solid #fcc',
+          color: '#c00',
+          padding: '1rem',
+          borderRadius: '4px',
+          marginBottom: '1rem'
         }}>
           {error}
         </div>
@@ -206,18 +207,18 @@ export default function PaginaColaboradores() {
       />
 
       {pagination.total_pages > 1 && (
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between', 
-          marginTop: '1rem' 
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginTop: '1rem'
         }}>
           <div style={{ fontSize: '0.875rem', color: '#666' }}>
             Mostrando {((pagination.current_page - 1) * pagination.per_page) + 1} a{' '}
             {Math.min(pagination.current_page * pagination.per_page, pagination.total_records)} de{' '}
             {pagination.total_records} registros
           </div>
-          
+
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <Button
               variant="primary"
@@ -226,7 +227,7 @@ export default function PaginaColaboradores() {
             >
               Anterior
             </Button>
-            
+
             {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
               let pageNum;
               if (pagination.total_pages <= 5) {
@@ -249,7 +250,7 @@ export default function PaginaColaboradores() {
                 </Button>
               );
             })}
-            
+
             <Button
               variant="primary"
               disabled={!pagination.has_next}

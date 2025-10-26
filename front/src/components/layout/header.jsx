@@ -35,8 +35,8 @@ export function Header() {
 
   useEffect(() => {
     // Dados do usuário logado (sempre do localStorage, nunca mudam)
-    setNomeLogado(localStorage.getItem('userNome') || '');
-    setEmailLogado(localStorage.getItem('userEmail') || '');
+    setNomeLogado(localStorage.getItem('userNome') || 'Não logado');
+    setEmailLogado(localStorage.getItem('userEmail') || 'Não logado');
     
     // ID do colaborador logado - busca 'colaboradorId' (que é salvo no login)
     let userId = localStorage.getItem('colaboradorId');
@@ -51,31 +51,36 @@ export function Header() {
 
     // Se estiver na rota de detalhes, busca colaborador/cliente pelo id
     if (id) {
-      let endpoint = '';
-      if (pathname.includes('/colaboradores')) {
-        endpoint = `http://localhost:3001/api/colaboradores/${id}`;
-      } else if (pathname.includes('/clientes')) {
-        endpoint = `http://localhost:3001/api/clientes/${id}`;
-      }
+  let endpoint = '';
+  let fieldName = 'nome'; // campo padrão
 
-      if (endpoint) {
-        (async () => {
-          try {
-            const token = localStorage.getItem('authToken');
-            const response = await fetch(endpoint, {
-              headers: { 'Authorization': `Bearer ${token}` },
-            });
-            const data = await response.json();
-            if (response.ok && data.nome) setNomeEntidade(data.nome);
-            else setNomeEntidade('');
-          } catch { setNomeEntidade(''); }
-        })();
-      } else {
-        setNomeEntidade('');
-      }
+  if (pathname.includes('/colaboradores')) {
+      endpoint = `http://localhost:3001/api/colaboradores/${id}`;
+    } else if (pathname.includes('/clientes')) {
+      endpoint = `http://localhost:3001/api/clientes/${id}`;
+    } else if (pathname.includes('/eventos')) {
+      endpoint = `http://localhost:3001/api/eventos/${id}`;
+      fieldName = 'titulo';
+    }
+
+    if (endpoint) {
+      (async () => {
+        try {
+          const token = localStorage.getItem('authToken');
+          const response = await fetch(endpoint, {
+            headers: { 'Authorization': `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (response.ok && data[fieldName]) setNomeEntidade(data[fieldName]);
+          else setNomeEntidade('');
+        } catch { setNomeEntidade(''); }
+      })();
     } else {
       setNomeEntidade('');
     }
+  } else {
+    setNomeEntidade('');
+  }
   }, [id, pathname]);
 
   // Função para buscar localização atual
@@ -230,7 +235,6 @@ export function Header() {
 
         {/* Perfil do usuário */}
         <div className={styles.perfil}>
-          <Bell size={22} className={styles.icon} />
           <div className={styles.perfilInfo}>
             <p className={styles.perfilName}>{nomeLogado}</p>
             <span className={styles.perfilEmail}>{emailLogado}</span>

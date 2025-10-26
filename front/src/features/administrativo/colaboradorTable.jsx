@@ -48,7 +48,12 @@ export function ColaboradorTable({
       let aValue = a[sortConfig.key];
       let bValue = b[sortConfig.key];
       
-      if (typeof aValue === 'string') {
+      // Trata valores null/undefined
+      if (aValue == null) aValue = '';
+      if (bValue == null) bValue = '';
+      
+      // Converte ambos para lowercase se forem strings
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
         aValue = aValue.toLowerCase();
         bValue = bValue.toLowerCase();
       }

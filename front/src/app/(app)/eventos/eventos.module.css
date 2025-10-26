@@ -1,0 +1,17 @@
+.geral {
+    color: #4b5563;
+    font-weight: 700;
+}
+.title {
+    display: flex;
+    font-weight: 700;
+    color: #323841;
+    gap: 10px;
+    flex-direction: column;
+    padding-bottom: 20px;
+}
+.title >h1 {
+    font-size: x-large;
+    font-weight: 1600;
+  
+}

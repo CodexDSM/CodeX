@@ -253,7 +253,7 @@ export default function DetalheColaboradorPage({ params }) {
                 <option value="Administrador">Administrador</option>
                 <option value="Gerente">Gerente</option>
                 <option value="Operador">Operador</option>
-                <option value="Motorista">Motorista</option>
+                <option value="Comercial">Comercial</option>
               </select>
             ) : (
               <input
@@ -311,93 +311,10 @@ export default function DetalheColaboradorPage({ params }) {
             )}
           </div>
 
-          <h3 className={styles.subtitle}>Endereço</h3>
           
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>CEP</label>
-            <input
-              name="cep"
-              placeholder="Digite apenas números"
-              value={formData.cep}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              inputMode="numeric"
-              maxLength={8}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={`${styles.inputWrapper} ${styles.span2}`}>
-            <label className={styles.label}>Logradouro</label>
-            <input
-              name="logradouro"
-              placeholder="Rua, Avenida, etc."
-              value={formData.logradouro}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Número</label>
-            <input
-              name="numero"
-              placeholder="Número"
-              value={formData.numero}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Complemento</label>
-            <input
-              name="complemento"
-              placeholder="Apartamento, bloco, etc."
-              value={formData.complemento}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Bairro</label>
-            <input
-              name="bairro"
-              placeholder="Bairro"
-              value={formData.bairro}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Cidade</label>
-            <input
-              name="cidade"
-              placeholder="Cidade"
-              value={formData.cidade}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>UF</label>
-            <input
-              name="uf"
-              placeholder="SP"
-              value={formData.uf}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
+          
+          
+         
         </div>
       </form>
     </div>
