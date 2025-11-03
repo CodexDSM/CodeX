@@ -60,7 +60,7 @@ O desenvolvimento foi dividido em 3 Sprints, cada uma com um objetivo claro para
 | Sprint | Período da Sprint | Link para Documentação da Sprint | Entrega da Sprint |
 | :--- | :--- | :--- | :--- |
 | **Sprint 1** | 08/09/2025 a 28/09/2025 | [Documentação da Sprint 1](./docs/Sprints/Sprint-1/) | [Gif da Entrega da Sprint 1](./docs/Sprints/Sprint-1/EntregaSprint1.gif) |]
-| **Sprint 2** | 06/10/2025 a 26/10/2025 | [Documentação da Sprint 2](../docs/Sprints/Sprint-2/) | [Gif da Entrega da Sprint 2](./docs/Sprints/Sprint-2/EntregaSprint2.gif) |]
+| **Sprint 2** | 06/10/2025 a 26/10/2025 | [Documentação da Sprint 2](./docs/Sprints/Sprint-2/) | [Gif da Entrega da Sprint 2](./docs/Sprints/Sprint-2/EntregaSprint2.gif) |]
 -----
 
 ## 6\. Tecnologias Utilizadas
