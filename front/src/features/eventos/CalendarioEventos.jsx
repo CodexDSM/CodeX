@@ -8,6 +8,7 @@ import getDay from 'date-fns/getDay';
 import ptBR from 'date-fns/locale/pt-BR';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { DetalhesEvento } from './DetalhesEvento';
+import { getApiUrl, getAuthHeaders } from '@/lib/apiConfig';
 
 const locales = {
   'pt-BR': ptBR,
@@ -78,13 +79,10 @@ export function CalendarioEventos() {
       console.log('Buscando eventos para colaborador:', colaboradorId);
 
       const response = await fetch(
-        `http://localhost:3001/api/eventos/colaborador/${colaboradorId}`,
+        getApiUrl(`eventos/colaborador/${colaboradorId}`),
         {
           method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+          headers: getAuthHeaders()
         }
       );
 
@@ -135,13 +133,10 @@ export function CalendarioEventos() {
       const token = localStorage.getItem('authToken');
 
       const response = await fetch(
-        `http://localhost:3001/api/eventos/${eventoSelecionado.resource.id}/aceitar`,
+        getApiUrl(`eventos/${eventoSelecionado.resource.id}/aceitar`),
         {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+          headers: getAuthHeaders()
         }
       );
 
@@ -167,13 +162,10 @@ export function CalendarioEventos() {
       const token = localStorage.getItem('authToken');
 
       const response = await fetch(
-        `http://localhost:3001/api/eventos/${eventoSelecionado.resource.id}/recusar`,
+        getApiUrl(`eventos/${eventoSelecionado.resource.id}/recusar`),
         {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             justificativa_recusa: justificativa
           })

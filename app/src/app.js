@@ -24,8 +24,23 @@ const acompanhamentoRoutes = require('./routes/acompanhamentoRoutes');
 
 const app = express();
 
+// Configure CORS dinamicamente via variável de ambiente CLIENT_ORIGIN.
+// - Sete CLIENT_ORIGIN para algo como 'http://3.18.105.117:3000' para permitir somente esse origin.
+// - Sete CLIENT_ORIGIN='*' para permitir todos (note que com credentials=true '*' não é permitido pelo padrão CORS,
+//   portanto o middleware aceita '*' como wildcard aqui).
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:3000';
+
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: function(origin, callback) {
+    // Permite requisições sem origin (ex: curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    // Se CLIENT_ORIGIN for '*' aceita qualquer origin
+    if (CLIENT_ORIGIN === '*') return callback(null, true);
+    // Aceita quando o origin bate com a variável configurada
+    if (origin === CLIENT_ORIGIN) return callback(null, true);
+    // Caso contrário nega
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
