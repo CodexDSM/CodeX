@@ -12,7 +12,7 @@ fi
 
 # 1. Instalar dependências
 echo "📦 Instalando dependências..."
-curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 apt install -y nodejs nginx
 npm install -g pm2
 

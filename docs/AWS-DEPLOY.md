@@ -10,6 +10,15 @@ Este guia descreve como fazer deploy do CodeX em uma instância EC2 da AWS.
    - 80 (HTTP)
    - 443 (HTTPS)
 
+## Versões do Software
+
+O deploy usa:
+- Node.js 20.x LTS (mais recente versão com suporte de longo prazo)
+- PM2 para gerenciamento de processos
+- Nginx como servidor web/proxy reverso
+
+Se você ver um aviso de versão do Node.js durante a instalação, não se preocupe - o script já está configurado para usar a versão LTS mais recente.
+
 ## Passos para Deploy
 
 ### 1. Configurar Security Group
@@ -32,7 +41,7 @@ ssh -i "sua-chave.pem" ubuntu@3.18.105.117
 # Clonar repositório e fazer checkout da branch
 cd /var/www
 sudo rm -rf codex  # Limpa se já existir
-git clone https://github.com/EnricoGermano/CodeX.git codex
+git clone https://github.com/EnricoGermano/CodeX.git codex  
 cd codex
 git checkout feature/AWS-Migração
 
@@ -125,6 +134,20 @@ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/nginx/ssl/nginx-selfsigned.key \
     -out /etc/nginx/ssl/nginx-selfsigned.crt \
     -subj "/CN=3.18.105.117"
+```
+
+5. **Problemas com Node.js**:
+```bash
+# Ver versão atual do Node.js
+node -v
+
+# Se precisar reinstalar Node.js 20:
+sudo apt remove nodejs
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Verificar se a versão foi atualizada
+node -v  # Deve mostrar v20.x.x
 ```
 
 ### 7. Backup (Opcional)
