@@ -3,6 +3,7 @@
 import styles from './header.module.css';
 import { Bell, ArrowLeft, ChevronDown } from 'lucide-react';
 import { usePathname, useParams, useRouter } from 'next/navigation';
+import { getApiUrl } from '@/lib/apiConfig';
 import React, { useEffect, useState } from 'react';
 
 export function Header() {
@@ -55,11 +56,11 @@ export function Header() {
   let fieldName = 'nome'; // campo padrão
 
   if (pathname.includes('/colaboradores')) {
-      endpoint = `http://localhost:3001/api/colaboradores/${id}`;
+      endpoint = getApiUrl(`colaboradores/${id}`);
     } else if (pathname.includes('/clientes')) {
-      endpoint = `http://localhost:3001/api/clientes/${id}`;
+      endpoint = getApiUrl(`clientes/${id}`);
     } else if (pathname.includes('/eventos')) {
-      endpoint = `http://localhost:3001/api/eventos/${id}`;
+      endpoint = getApiUrl(`eventos/${id}`);
       fieldName = 'titulo';
     }
 
@@ -87,7 +88,7 @@ export function Header() {
   const fetchCurrentLocation = async (userId) => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:3001/api/localizacoes/colaborador/${userId}/atual`, {
+      const response = await fetch(getApiUrl(`localizacoes/colaborador/${userId}/atual`), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -139,7 +140,7 @@ export function Header() {
       
       console.log('Enviando:', { colaborador_id: colaboradorId, tipo_localizacao: valorAPI });
       
-      const response = await fetch('http://localhost:3001/api/localizacoes/', {
+      const response = await fetch(getApiUrl('localizacoes/'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

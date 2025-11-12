@@ -1,4 +1,4 @@
-# Configuração de HTTPS para CodeX no EC2
+d# Configuração de HTTPS para CodeX no EC2
 # Salvar este arquivo e executar os comandos conforme necessário
 
 # 1. Instalar Nginx e Certbot
