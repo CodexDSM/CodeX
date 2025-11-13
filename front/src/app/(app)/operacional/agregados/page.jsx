@@ -140,7 +140,7 @@ export default function ListarSubmissionsPage() {
                 <Typography variant="h4" component="h1">
                     Histórico de Formulários
                 </Typography>
-                <Link href="/operacional/listaChecklists" passHref>
+                <Link href="/operacional/checklist" passHref>
                     <Button variant="contained" color="primary">
                         Preencher Formulário
                     </Button>
