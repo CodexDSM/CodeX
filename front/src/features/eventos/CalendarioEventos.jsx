@@ -33,6 +33,21 @@ export function CalendarioEventos() {
   const [currentView, setCurrentView] = useState('month');
   const [currentDate, setCurrentDate] = useState(new Date());
 
+  // Inicializa a view baseado no tamanho da tela na primeira renderização
+  useEffect(() => {
+    const initializeView = () => {
+      try {
+        if (window.innerWidth <= 639) {
+          setCurrentView('agenda');
+        }
+      } catch (e) {
+        // em ambientes sem window (SSG/SSR) ignorar
+      }
+    };
+
+    initializeView();
+  }, []); // Dependency array vazio - executa apenas uma vez na montagem
+
   // Função para decodificar o JWT e pegar o userId
   const getUserIdFromToken = () => {
     try {
@@ -207,7 +222,10 @@ export function CalendarioEventos() {
 
   return (
     <>
-      <div style={{ height: '80vh' }}>
+      <div style={{ 
+        height: currentView === 'agenda' ? 'auto' : '80vh', 
+        width: '100%'
+      }}>
         <Calendar
           localizer={localizer}
           events={eventos}
@@ -220,13 +238,19 @@ export function CalendarioEventos() {
             today: "Hoje",
             month: "Mês",
             week: "Semana",
-            day: "Dia"
+            day: "Dia",
+            agenda: "Agenda",
+            date: "Data",
+            time: "Hora"
           }}
           view={currentView}
           date={currentDate}
           onView={(newView) => setCurrentView(newView)}
           onNavigate={(newDate) => setCurrentDate(newDate)}
           onSelectEvent={handleSelecionarEvento}
+          views={['month', 'week', 'day', 'agenda']}
+          defaultView="month"
+          style={{ height: '100%' }}
         />
       </div>
 
@@ -241,3 +265,4 @@ export function CalendarioEventos() {
     </>
   );
 }
+ 

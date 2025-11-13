@@ -94,3 +94,127 @@
 .clickableRow:hover {
   background-color: #e3f6fd;
 }
+
+/* ========================================
+   RESPONSIVE TABLE DESIGN
+   ======================================== */
+
+/* Mobile: Extra small (320px to 374px) */
+@media (max-width: 374px) {
+  .container {
+    overflow-x: auto;
+  }
+
+  .table {
+    font-size: 0.75rem;
+    min-width: 100%;
+  }
+
+  .table th, .table td {
+    padding: 0.5rem 0.5rem;
+  }
+
+  .table th {
+    font-size: 0.6rem;
+  }
+
+  .table td {
+    font-size: 0.7rem;
+  }
+
+  /* Hide columns 4, 5, 6 on very small screens */
+  .table th:nth-child(n+4), 
+  .table td:nth-child(n+4) {
+    display: none;
+  }
+}
+
+/* Mobile: Small (375px to 639px) */
+@media (max-width: 639px) {
+  .container {
+    overflow-x: auto;
+  }
+
+  .table {
+    font-size: 0.8rem;
+    min-width: 100%;
+  }
+
+  .table th, .table td {
+    padding: 0.625rem 0.5rem;
+  }
+
+  .table th {
+    font-size: 0.65rem;
+  }
+
+  .table td {
+    font-size: 0.75rem;
+  }
+
+  /* Adjust column widths for mobile */
+  .table th:nth-child(1), 
+  .table td:nth-child(1) {
+    width: auto;
+    min-width: auto;
+  }
+
+  .table th:nth-child(2), 
+  .table td:nth-child(2) {
+    width: auto;
+    min-width: auto;
+  }
+
+  .table th:nth-child(3), 
+  .table td:nth-child(3) {
+    width: auto;
+    min-width: auto;
+  }
+
+  /* Hide columns 5, 6 on mobile */
+  .table th:nth-child(5), 
+  .table td:nth-child(5),
+  .table th:nth-child(6), 
+  .table td:nth-child(6) {
+    display: none;
+  }
+
+  .clickableRow:hover {
+    background-color: #d1ecf7;
+  }
+}
+
+/* Tablet: Medium (640px to 767px) */
+@media (min-width: 640px) and (max-width: 767px) {
+  .table {
+    font-size: 0.8rem;
+  }
+
+  .table th, .table td {
+    padding: 0.75rem 0.75rem;
+  }
+
+  .table th:nth-child(5), 
+  .table td:nth-child(5),
+  .table th:nth-child(6), 
+  .table td:nth-child(6) {
+    display: table-cell;
+    font-size: 0.7rem;
+  }
+}
+
+/* Desktop: Large screens (768px+) */
+@media (min-width: 768px) {
+  .container {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 1000px;
+  }
+
+  .table th:nth-child(n+4), 
+  .table td:nth-child(n+4) {
+    display: table-cell;
+  }
+}

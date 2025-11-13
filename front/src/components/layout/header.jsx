@@ -1,18 +1,31 @@
 'use client';
 
 import styles from './header.module.css';
-import { Bell, ArrowLeft, ChevronDown } from 'lucide-react';
+import { Bell, ArrowLeft, ChevronDown, Menu, X } from 'lucide-react';
 import { usePathname, useParams, useRouter } from 'next/navigation';
 import { getApiUrl } from '@/lib/apiConfig';
 import React, { useEffect, useState } from 'react';
+import { useSidebar } from '@/hooks/useSidebar';
 
 export function Header() {
   const pathname = usePathname();
   const params = useParams();
   const router = useRouter();
   const id = params?.id;
+  const { sidebarOpen, toggleSidebar } = useSidebar();
 
   // Dados SEMPRE do usuário logado (lado direito, nunca mudam)
+
+  // Controle de exibição do botão hamburger por largura de tela (client-side)
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const [nomeLogado, setNomeLogado] = useState('');
   const [emailLogado, setEmailLogado] = useState('');
   const [colaboradorId, setColaboradorId] = useState(null);
@@ -62,6 +75,10 @@ export function Header() {
     } else if (pathname.includes('/eventos')) {
       endpoint = getApiUrl(`eventos/${id}`);
       fieldName = 'titulo';
+    } else if (pathname.includes('/cotacoes')) {
+      // Para cotações, apenas exibe "Cotações" sem buscar detalhes
+      setNomeEntidade('Cotações');
+      return;
     }
 
     if (endpoint) {
@@ -181,11 +198,24 @@ export function Header() {
 
   // Título lado esquerdo: nome do colaborador/cliente (se detalhes), senão nome formatado da rota
   const lastSegment = pathname.split('/').pop();
-  const prettyTitle =
+  let prettyTitle =
     lastSegment
       .replace(/([a-z])([A-Z])/g, '$1 $2')
       .replace(/[-_]/g, ' ')
       .replace(/^./, match => match.toUpperCase());
+
+  // Nomes especiais com acentuação correta
+  const specialNames = {
+    'cotacoes': 'Cotações',
+    'clientes': 'Clientes',
+    'colaboradores': 'Colaboradores',
+    'eventos': 'Eventos',
+    'agregados': 'Agregados'
+  };
+
+  if (specialNames[lastSegment]) {
+    prettyTitle = specialNames[lastSegment];
+  }
 
   const pageTitle = (id && nomeEntidade) ? nomeEntidade : prettyTitle || 'Dashboard';
 
@@ -195,6 +225,15 @@ export function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.leftSection}>
+          {isMobile && (
+            <button 
+              onClick={toggleSidebar}
+              className={styles.hamburgerButton}
+              aria-label="Toggle sidebar"
+            >
+              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          )}
         {showBackButton && (
           <button onClick={handleGoBack} className={styles.backButton}>
             <ArrowLeft size={20} />

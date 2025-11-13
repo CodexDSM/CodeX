@@ -116,21 +116,20 @@ sudo firewall-cmd --permanent --add-service=https
 sudo firewall-cmd --reload
 
 echo "
-✨ Deploy concluído! ✨
+Deploy concluído! 
 
-📱 Acesse sua aplicação:
+ Acesse sua aplicação:
    Frontend: https://3.147.67.126
    API: https://3.147.67.126/api
 
-⚠️ Importante:
-1. Certifique-se de que as portas 80 e 443 estão liberadas no Security Group da EC2
-2. O navegador mostrará um aviso de certificado (normal, é auto-assinado)
-3. Para ver os logs:
+ Importante:
+ O navegador mostrará um aviso de certificado (normal, é auto-assinado)
+ Para ver os logs:
    - Backend: pm2 logs codex-api
    - Frontend: pm2 logs codex-front
    - Nginx: tail -f /var/log/nginx/error.log
 
-🔄 Para atualizar o código no futuro:
+Para atualizar o código no futuro:
 1. cd /var/www/codex
 2. git pull origin feature/AWS-Migração
 3. pm2 restart all
