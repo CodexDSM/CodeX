@@ -101,10 +101,12 @@ export function CalendarioEventos() {
 
       const eventosFormatados = data.map(evento => ({
         title: evento.titulo,
+        vlNota: evento.local,
         start: new Date(evento.data_inicio),
         end: new Date(evento.data_fim),
         resource: evento,
       }));
+      
 
       setEventos(eventosFormatados);
       setError(null);
@@ -237,6 +239,7 @@ export function CalendarioEventos() {
           onSelectEvent={handleSelecionarEvento}
         />
       </div>
+      
 
       {modalAberto && eventoSelecionado && (
         <DetalhesEvento

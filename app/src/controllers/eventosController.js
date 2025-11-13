@@ -113,7 +113,7 @@ class EventosController {
       }
 
       const [eventos] = await pool.execute(
-        `SELECT e.*, ec.status, ec.respondido_em
+        `SELECT e.*, ec.status, ec.respondido_em, ec.nota, ec.feedback, ec.concluido, ec.data_conclusao
        FROM evento e
        INNER JOIN evento_colaborador ec ON ec.evento_id = e.id
        WHERE ec.colaborador_id = ? AND ec.status IN ('Aceito', 'Pendente')
@@ -233,39 +233,50 @@ class EventosController {
     }
   }
 
-  async enviarFeedback(req, res, next) {
-    try {
-      const { evento_id } = req.params;
-      const colaborador_id = req.user.id;
-      const { feedback } = req.body;
+ async enviarFeedback(req, res, next) {
+  try {
+    const { evento_id } = req.params;
+    const colaborador_id = req.user.id;
+    
+    //MUDANÇA 1: Ler "nota" e "comentario" do body 
+    const { nota, comentario } = req.body;
 
-      if (!feedback || feedback.trim() === '') {
-        return res.status(400).json({ error: 'O feedback não pode estar vazio' });
-      }
-
-      const [convite] = await pool.execute(
-        'SELECT * FROM evento_colaborador WHERE evento_id = ? AND colaborador_id = ?',
-        [evento_id, colaborador_id]
-      );
-
-      if (convite.length === 0) {
-        return res.status(404).json({ error: 'Você não está vinculado a este evento' });
-      }
-
-      const [result] = await pool.execute(
-        'UPDATE evento_colaborador SET feedback = ? WHERE evento_id = ? AND colaborador_id = ?',
-        [feedback, evento_id, colaborador_id]
-      );
-
-      if (result.affectedRows === 0) {
-        return res.status(500).json({ error: 'Erro ao enviar feedback' });
-      }
-
-      return res.json({ message: 'Feedback enviado com sucesso!' });
-    } catch (error) {
-      return next(error);
+  
+    if (!nota || nota < 1 || nota > 5) { // Assumindo uma nota de 1 a 5
+      return res.status(400).json({ error: 'A nota é obrigatória e deve ser entre 1 e 5' });
     }
+
+    const [convite] = await pool.execute(
+      'SELECT * FROM evento_colaborador WHERE evento_id = ? AND colaborador_id = ?',
+      [evento_id, colaborador_id]
+    );
+
+    if (convite.length === 0) {
+      return res.status(404).json({ error: 'Você não está vinculado a este evento' });
+    }
+    
+    if (convite[0].concluido) {
+        return res.status(400).json({ error: 'Este evento já foi marcado como concluído' });
+      }
+
+    
+    const [result] = await pool.execute(
+      // 4. A query SQL salva na coluna "feedback"
+      'UPDATE evento_colaborador SET nota = ?, feedback = ? , concluido = TRUE, data_conclusao = NOW() WHERE evento_id = ? AND colaborador_id = ?',
+      // 5. Você passa a variável "comentario" para o lugar do "feedback"
+      [nota, comentario, evento_id, colaborador_id] 
+    );
+    
+    if (result.affectedRows === 0) {
+      return res.status(500).json({ error: 'Erro ao enviar feedback' });
+    }
+
+    return res.json({ message: 'Feedback enviado com sucesso!' });
+  } catch (error) {
+    return next(error);
   }
+}
+
   // Criar novo evento
   async store(req, res, next) {
     try {
@@ -318,6 +329,7 @@ class EventosController {
         ec.respondido_em,
         ec.justificativa_recusa,
         ec.feedback,
+        ec.nota,
         ec.concluido,
         ec.data_conclusao
        FROM evento_colaborador ec

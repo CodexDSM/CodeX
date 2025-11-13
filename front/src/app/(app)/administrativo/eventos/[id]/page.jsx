@@ -427,7 +427,7 @@ export default function DetalheEventoPage({ params }) {
                           </div>
 
                           {/* Mostrar se concluiu o evento */}
-                          {colab.concluido && (
+                          {colab.concluido === 1 && 
                             <span
                               className={styles.badgeConcluido}
                               style={{
@@ -441,12 +441,13 @@ export default function DetalheEventoPage({ params }) {
                             >
                               ✓ Concluído
                             </span>
-                          )}
+                          }
                         </div>
 
                         {/* Feedback */}
                         <div className={styles.feedbackContent}>
-                          <p>{colab.feedback}</p>
+                          <p>Comentario: {colab.feedback}</p>
+                          <p>Nota: {colab.nota}</p>
                         </div>
                       </div>
                     ))}

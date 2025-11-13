@@ -110,7 +110,7 @@ export default function PainelLocalTrabalho() {
   }
 
   return (
-    <div className={styles.container}>
+    
       <div className={styles.content}>
         <div className={styles.chartSection}>
           <div className={styles.chartWrapper}>
@@ -184,6 +184,6 @@ export default function PainelLocalTrabalho() {
           </div>
         </div>
       </div>
-    </div>
+   
   );
 }
