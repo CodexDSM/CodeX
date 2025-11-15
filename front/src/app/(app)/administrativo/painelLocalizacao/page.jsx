@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from "react";
+import { getApiUrl } from "@/lib/apiConfig";
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Home, Building, Calendar, GraduationCap } from 'lucide-react';
@@ -15,7 +16,7 @@ export default function PainelLocalTrabalho() {
     async function fetchDados() {
       try {
         const token = localStorage.getItem('authToken');
-        const response = await fetch("http://localhost:3001/api/colaboradores", {
+        const response = await fetch(getApiUrl("colaboradores"), {
           headers: {
             'Authorization': `Bearer ${token}`,
           },

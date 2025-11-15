@@ -1,6 +1,7 @@
 'use client'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import { useEffect, useState } from 'react'
+import { getApiUrl } from '@/lib/apiConfig'
 
 export default function AcompanhamentoPage() {
     const [columns, setColumns] = useState({})
@@ -8,7 +9,7 @@ export default function AcompanhamentoPage() {
 
     useEffect(() => {
         async function fetchData() {
-            const resp = await fetch('http://localhost:3001/api/acompanhamento')
+            const resp = await fetch(getApiUrl('acompanhamento'))
             const data = await resp.json()
             setColumns(data.columns)
             setOrdemColunas(data.ordemColunas)
@@ -39,7 +40,7 @@ export default function AcompanhamentoPage() {
                 [source.droppableId]: { ...sourceCol, itens: sourceItens },
                 [destination.droppableId]: { ...destCol, itens: destItens }
             })
-            await fetch('http://localhost:3001/api/acompanhamento/mover', {
+            await fetch(getApiUrl('acompanhamento/mover'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cardId: draggableId, etapaId: destination.droppableId })

@@ -8,6 +8,7 @@ import getDay from 'date-fns/getDay';
 import ptBR from 'date-fns/locale/pt-BR';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { DetalhesEvento } from './DetalhesEvento';
+import { getApiUrl, getAuthHeaders } from '@/lib/apiConfig';
 
 const locales = {
   'pt-BR': ptBR,
@@ -31,6 +32,21 @@ export function CalendarioEventos() {
   // Estados para controlar navegação e visualização
   const [currentView, setCurrentView] = useState('month');
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  // Inicializa a view baseado no tamanho da tela na primeira renderização
+  useEffect(() => {
+    const initializeView = () => {
+      try {
+        if (window.innerWidth <= 639) {
+          setCurrentView('agenda');
+        }
+      } catch (e) {
+        // em ambientes sem window (SSG/SSR) ignorar
+      }
+    };
+
+    initializeView();
+  }, []); // Dependency array vazio - executa apenas uma vez na montagem
 
   // Função para decodificar o JWT e pegar o userId
   const getUserIdFromToken = () => {
@@ -78,13 +94,10 @@ export function CalendarioEventos() {
       console.log('Buscando eventos para colaborador:', colaboradorId);
 
       const response = await fetch(
-        `http://localhost:3001/api/eventos/colaborador/${colaboradorId}`,
+        getApiUrl(`eventos/colaborador/${colaboradorId}`),
         {
           method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+          headers: getAuthHeaders()
         }
       );
 
@@ -137,13 +150,10 @@ export function CalendarioEventos() {
       const token = localStorage.getItem('authToken');
 
       const response = await fetch(
-        `http://localhost:3001/api/eventos/${eventoSelecionado.resource.id}/aceitar`,
+        getApiUrl(`eventos/${eventoSelecionado.resource.id}/aceitar`),
         {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+          headers: getAuthHeaders()
         }
       );
 
@@ -169,13 +179,10 @@ export function CalendarioEventos() {
       const token = localStorage.getItem('authToken');
 
       const response = await fetch(
-        `http://localhost:3001/api/eventos/${eventoSelecionado.resource.id}/recusar`,
+        getApiUrl(`eventos/${eventoSelecionado.resource.id}/recusar`),
         {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             justificativa_recusa: justificativa
           })
@@ -217,7 +224,10 @@ export function CalendarioEventos() {
 
   return (
     <>
-      <div style={{ height: '80vh' }}>
+      <div style={{ 
+        height: currentView === 'agenda' ? 'auto' : '80vh', 
+        width: '100%'
+      }}>
         <Calendar
           localizer={localizer}
           events={eventos}
@@ -230,13 +240,19 @@ export function CalendarioEventos() {
             today: "Hoje",
             month: "Mês",
             week: "Semana",
-            day: "Dia"
+            day: "Dia",
+            agenda: "Agenda",
+            date: "Data",
+            time: "Hora"
           }}
           view={currentView}
           date={currentDate}
           onView={(newView) => setCurrentView(newView)}
           onNavigate={(newDate) => setCurrentDate(newDate)}
           onSelectEvent={handleSelecionarEvento}
+          views={['month', 'week', 'day', 'agenda']}
+          defaultView="month"
+          style={{ height: '100%' }}
         />
       </div>
       
@@ -252,3 +268,4 @@ export function CalendarioEventos() {
     </>
   );
 }
+ 

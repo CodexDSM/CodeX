@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getApiUrl } from '@/lib/apiConfig';
 import styles from './evento.module.css';
 
 export default function CadastroEvento() {
@@ -24,7 +25,7 @@ export default function CadastroEvento() {
     async function fetchColaboradores() {
       try {
         const token = localStorage.getItem('authToken');
-        const response = await fetch('http://localhost:3001/api/colaboradores', {
+        const response = await fetch(getApiUrl('colaboradores'), {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await response.json();
@@ -64,7 +65,7 @@ export default function CadastroEvento() {
         colaboradores_ids: colaboradoresSelecionados
       };
 
-      const response = await fetch('http://localhost:3001/api/eventos', {
+      const response = await fetch(getApiUrl('eventos'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

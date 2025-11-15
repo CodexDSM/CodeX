@@ -43,15 +43,15 @@ O desenvolvimento foi dividido em 3 Sprints, cada uma com um objetivo claro para
 
 ### **Sprint 2:  <br>**
 
-  * **Status:** *Em Andamento*
+  * **Status:** *Concluído*
   * **Período:** 06/10/2025 a 26/10/2025
-  * **Foco:** Implementação de novas funções e melhorias no sistema conforme planejado, com integração dos módulos e ajustes a partir dos feedbacks da Sprint 1.
+  * **Foco:** Implementação da página de eventos, automatização da cotações de fretes e melhorias no sistema conforme planejado.
 
 ### **Sprint 3: <br>**
 
-  * **Status:** *Em Planejamento*
+  * **Status:** *Em Andamento*
   * **Período:** 03/11/2025 a 23/11/2025
-  * **Foco:** 
+  * **Foco:** Integração dos módulos e ajustes a partir dos feedbacks das Sprints.
 
 -----
 
@@ -59,7 +59,9 @@ O desenvolvimento foi dividido em 3 Sprints, cada uma com um objetivo claro para
 
 | Sprint | Período da Sprint | Link para Documentação da Sprint | Entrega da Sprint |
 | :--- | :--- | :--- | :--- |
-| **Sprint 1** | 08/09/2025 a 28/09/2025 | [Documentação da Sprint 1](./docs/Sprint_1_Backlog.pdf) | [Gif da Entrega da Sprint 1](./docs/Sprints/Sprint-1/EntregaSprint1.gif) |]
+| **Sprint 1** | 08/09/2025 a 28/09/2025 | [Documentação da Sprint 1](./docs/Sprints/Sprint-1/) | [Gif da Entrega da Sprint 1](./docs/Sprints/Sprint-1/EntregaSprint1.gif) |]
+| **Sprint 2** | 06/10/2025 a 26/10/2025 | [Documentação da Sprint 2](./docs/Sprints/Sprint-2/) | [Gif da Entrega da Sprint 2](./docs/Sprints/Sprint-2/EntregaSprint2.gif) |]
+| **Sprint 3** | 03/11/2025 a 23/11/2025 | [Documentação da Sprint 3](./docs/Sprints/Sprint-3/) | |]
 -----
 
 ## 6\. Tecnologias Utilizadas
@@ -101,10 +103,18 @@ O projeto segue uma arquitetura cliente-servidor, com o código organizado da se
     ```sh
     git clone https://github.com/CodexDSM/CodeX.git
     ```
-2.  Navegue até o diretório e instale as dependências do backend e do frontend.
-3.  Configure as variáveis de ambiente no arquivo `.env`.
-4.  Prepare o banco de dados.
-5.  Inicie a aplicação.
+2.  Configure as variáveis de ambiente no arquivo `.env`.
+3.  Navegue até o diretório e instale as dependências do backend e do frontend.
+    ```sh
+     cd codex/front
+     npm install
+     npm run dev
+    ```
+    ```sh
+     cd codex/app
+     npm install
+     npm run dev
+    ```
 
 -----
 

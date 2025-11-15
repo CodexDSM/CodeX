@@ -110,3 +110,69 @@
   border-color: #121D97;
   box-shadow: 0 0 0 2px rgba(18, 29, 151, 0.4);
 }
+
+/* ===== RESPONSIVIDADE MOBILE ===== */
+@media (max-width: 640px) {
+  .modal {
+    width: 95%;
+    padding: 1.5rem;
+    max-width: none;
+  }
+
+  .modal > h2 {
+    font-size: 16px;
+  }
+
+  .modal > p {
+    font-size: 14px;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .confirmButton,
+  .denyButton {
+    width: 100%;
+    padding: 0.75rem;
+  }
+
+  .justificativa {
+    margin-top: 1.5rem;
+  }
+
+  .starsContainer {
+    padding: 1rem 0;
+  }
+
+  .textarea {
+    min-height: 100px;
+    font-size: 16px;
+  }
+
+  .closeButton {
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: 1.25rem;
+  }
+}
+
+/* ===== RESPONSIVIDADE EXTRA PEQUENA (< 375px) ===== */
+@media (max-width: 374px) {
+  .modal {
+    width: 98%;
+    padding: 1rem;
+  }
+
+  .modal > h2 {
+    font-size: 15px;
+  }
+
+  .confirmButton,
+  .denyButton {
+    font-size: 14px;
+    padding: 0.65rem;
+  }
+}

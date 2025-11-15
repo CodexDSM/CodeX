@@ -21,12 +21,7 @@ router.get('/',
   cotacoesController.index
 );
 
-router.get('/:id', 
-  authenticateToken, 
-  authorizeRoles('Administrador', 'Gerente', 'Comercial'), 
-  cotacoesController.show
-);
-
+// Rotas específicas com ações devem vir ANTES de /:id genérico
 router.post('/:id/enviar', 
   authenticateToken, 
   authorizeRoles('Administrador', 'Gerente', 'Comercial'), 
@@ -43,6 +38,13 @@ router.patch('/:id/rejeitar',
   authenticateToken, 
   authorizeRoles('Administrador', 'Gerente', 'Comercial'), 
   cotacoesController.rejeitar
+);
+
+// Rota genérica /:id deve vir POR ÚLTIMO
+router.get('/:id', 
+  authenticateToken, 
+  authorizeRoles('Administrador', 'Gerente', 'Comercial'), 
+  cotacoesController.show
 );
 
 router.delete('/:id', 
