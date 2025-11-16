@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getApiUrl } from "@/lib/apiConfig";
 import { ColaboradorTable } from "@/features/administrativo/colaboradorTable";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,7 @@ export default function PaginaColaboradores() {
 
       console.log('Enviando parâmetros:', Object.fromEntries(params));
 
-      const response = await fetch(`http://localhost:3001/api/colaboradores?${params}`, {
+      const response = await fetch(`${getApiUrl('colaboradores')}?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
