@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { getApiUrl } from "@/lib/apiConfig";
+import { Button } from "@/components/ui/button";
 import styles from "./interacoes.module.css";
 import { ArrowLeft } from "lucide-react";
 
@@ -39,7 +41,7 @@ export default function InteracoesClientePage() {
 
         // Buscar interações
         const response = await fetch(
-          `http://localhost:3001/api/clients/${clientId}/interactions`,
+          `${getApiUrl(`clients/${clientId}/interactions`)}`,
           { headers: { "Authorization": `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Erro ao buscar interações");
@@ -72,7 +74,7 @@ export default function InteracoesClientePage() {
         detalhes: form.detalhes
       };
       const response = await fetch(
-        `http://localhost:3001/api/clients/${clientId}/interactions`,
+        `${getApiUrl(`clients/${clientId}/interactions`)}`,
         {
           method: 'POST',
           headers: {

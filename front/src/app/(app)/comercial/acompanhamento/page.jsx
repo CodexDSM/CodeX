@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import { useEffect, useState } from 'react'
 import styles from './acompanhamento.module.css'
 import { Plus, X, Trash } from 'lucide-react'
+import { getApiUrl } from '@/lib/apiConfig'
 
 export default function AcompanhamentoPage() {
     const [columns, setColumns] = useState({})

@@ -1,14 +1,16 @@
 'use client';
 import Link from 'next/link';
 import styles from './sidebar.module.css';
-import { ClipboardList, ListChecks, Cog, MapPinned, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings, CalendarCheck, NotepadText, Calculator, DollarSign, Table } from 'lucide-react';
+import { ClipboardList,Car, ListChecks, Cog, MapPinned, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings, CalendarCheck, NotepadText, Calculator, DollarSign, Table } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { useSidebar } from '@/hooks/useSidebar';
 
 export function Sidebar() {
   const [openMenu, setOpenMenu] = useState(null)
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false);
+  const { sidebarOpen, closeSidebar } = useSidebar();
 
   const [permissao, setPermissao] = useState(null);
 
@@ -42,7 +44,17 @@ export function Sidebar() {
   }
 
   return (
-    <aside className={styles.sidebar}>
+    <>
+      {/* Backdrop overlay for mobile */}
+      {sidebarOpen && (
+        <div 
+          className={styles.backdrop}
+          onClick={closeSidebar}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
       <h1 className={styles.logo}>Newe</h1>
       <ul className={styles.navList}>
 
@@ -154,6 +166,12 @@ export function Sidebar() {
           {openMenu === 'operacional' && (
             <ul className={styles.submenu}>
               <li className={styles.navItem}>
+                <Link href="/operacional/fretes"
+                  className={pathname === '/operacional/fretes' ? styles.activeLink : ''}>
+                  <Car size={16} /> Fretes
+                </Link>
+              </li>
+              <li className={styles.navItem}>
                 <Link href="/operacional/agregados"
                   className={pathname === '/operacional/agregados' ? styles.activeLink : ''}>
                   <ClipboardList size={16} /> Histórico Formulários
@@ -172,5 +190,6 @@ export function Sidebar() {
 
       </ul>
     </aside>
+    </>
   );
 }
