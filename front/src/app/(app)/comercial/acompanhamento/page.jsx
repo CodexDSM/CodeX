@@ -58,7 +58,7 @@ export default function AcompanhamentoPage() {
                 display: 'flex',
                 alignItems: 'flex-start',
                 justifyContent: 'stretch',
-                width: '100vw',
+                
                 gap: '20px',
                 background: '#fafbfc',
                 overflowY: 'hidden',
