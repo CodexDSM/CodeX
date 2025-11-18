@@ -1,6 +1,6 @@
 AUTENTICAÇÃO
 Login de Colaborador
-POST /api/colaboradores/login
+POST /api/d
 
 json
 {

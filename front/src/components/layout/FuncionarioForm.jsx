@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getApiUrl } from '@/lib/apiConfig';
 import { Card,CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import styles from './funcionario.module.css';
@@ -62,7 +63,7 @@ export default function CadastroColaborador() {
     try {
       const authToken = localStorage.getItem('authToken');  
   
-      const response = await fetch('http://localhost:3001/api/colaboradores', {
+      const response = await fetch(getApiUrl('colaboradores'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
