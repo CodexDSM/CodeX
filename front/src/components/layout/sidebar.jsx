@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import styles from './sidebar.module.css';
-import { ClipboardList, ListChecks, Cog, MapPinned, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings, CalendarCheck, NotepadText, Calculator, DollarSign, Table } from 'lucide-react';
+import { ClipboardList,Car, ListChecks, Cog, MapPinned, Users, LayoutDashboard, Building, Briefcase, BarChart2, FileText, Settings, CalendarCheck, NotepadText, Calculator, DollarSign, Table } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
@@ -153,6 +153,12 @@ export function Sidebar() {
           </button>
           {openMenu === 'operacional' && (
             <ul className={styles.submenu}>
+              <li className={styles.navItem}>
+                <Link href="/operacional/fretes"
+                  className={pathname === '/operacional/fretes' ? styles.activeLink : ''}>
+                  <Car size={16} /> Fretes
+                </Link>
+              </li>
               <li className={styles.navItem}>
                 <Link href="/operacional/agregados"
                   className={pathname === '/operacional/agregados' ? styles.activeLink : ''}>
