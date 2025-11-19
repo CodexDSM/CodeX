@@ -10,5 +10,8 @@ router.get('/veiculos-uso', authenticateToken, dashboardController.veiculosUso);
 router.get('/vendedores', authenticateToken, dashboardController.vendedoresMetrics);
 router.get('/monthly-faturamento', authenticateToken, dashboardController.monthlyFaturamento);
 router.get('/cotacoes-metrics', authenticateToken, dashboardController.cotacoesMetrics);
+router.get('/tipo-servico', authenticateToken, dashboardController.tipoServicos);
+router.get('/cliente-share', authenticateToken, dashboardController.clienteShare);
+router.get('/evolucao-valores', authenticateToken, dashboardController.evolucaoValores);
 
 module.exports = router;

@@ -1,43 +1,115 @@
 .container {
   padding: 20px;
+  width: 100%;
+  max-width: none;
+  overflow-x: hidden;
 }
+
+
+.title {
+  margin-bottom: 20px;
+  font-size: 1.6rem;
+  color: var(--text-color, #1f2937);
+}
+
+/* ==========================================
+   KPI CARDS (compactados)
+========================================== */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.kpiCard {
+  background: var(--kpi-bg, #f9fafb);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.kpiCard h4 {
+  font-size: 0.8rem;
+}
+
+.kpiValue {
+  font-size: 1.4rem;
+}
+
+/* ==========================================
+   GRID DOS GRÁFICOS (reduzido)
+========================================== */
 .grid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* dois cards na primeira linha */
-  gap: 16px;
-  align-items: start;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 }
 
-.card {
-  min-height: 220px; /* permite tamanhos variados, mas garante espaço mínimo */
+.card,
+.cardFull {
+  background: var(--card-bg, #fff);
+  padding: 12px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  background: var(--card-bg, #fff);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  max-width: 100%;          /* Garante que nunca estoure a largura */
+  overflow: hidden;         /* Evita expansão indevida */
 }
 
+/* Título mais compacto */
+.card h3,
+.cardFull h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #ececec;
+}
+
+/* Gráficos menores */
+.card canvas,
+.card svg,
+.cardFull canvas,
+.cardFull svg {
+  max-height: 250px !important;   /* Reduz o tamanho dos gráficos */
+  width: 100% !important;
+}
+
+/* Card full ocupando uma linha, mas com limite */
 .cardFull {
   grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  min-height: 300px; /* ocupa largura total e tem mais espaço */
-  padding: 12px;
-  background: var(--card-bg, #fff);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  min-height: 260px;
+  max-height: 320px;      /* evita gráficos gigantes */
+}
+
+/* ==========================================
+   RESPONSIVIDADE — versão reduzida
+========================================== */
+@media (max-width: 1100px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 900px) {
   .grid {
-    grid-template-columns: 1fr; /* empilha em telas menores */
+    grid-template-columns: 1fr;
   }
-  .card {
-    height: auto;
+
+  .card canvas,
+  .card svg {
+    max-height: 230px !important;
   }
 }
 
-.title {
-  margin-bottom: 16px;
+@media (max-width: 600px) {
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .card canvas,
+  .card svg {
+    max-height: 200px !important;
+  }
 }
