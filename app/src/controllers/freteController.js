@@ -368,8 +368,12 @@ class FreteController {
         [freteId]
       );
       if (fats.length > 0) {
-        await connection.rollback();
-        return res.status(400).json({ error: 'Frete já concluído' });
+        await connection.commit();
+        return res.json({
+          success: true,
+          faturamento_id: fats[0].id,
+          ja_existia: true
+        });
       }
 
       if (frete.status !== 'Entregue') {
@@ -397,7 +401,7 @@ class FreteController {
       );
 
       await connection.commit();
-      res.json({ success: true, faturamento_id: insert.insertId });
+      res.json({ success: true, faturamento_id: insert.insertId, ja_existia: false });
     } catch (error) {
       await connection.rollback();
       next(error);
