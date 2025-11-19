@@ -1,81 +1,130 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import styles from './fretes.module.css';
-import { mockOrdensDeServico } from '@/services/mockCotacoes';
-import { OSDetalhesModal } from './modalFrete'; 
-
-
-
-// 2. ESTRUTURA INICIAL DAS COLUNAS
+import { OSDetalhesModal } from './modalFrete';
+import { getApiUrl, getAuthHeaders } from '@/lib/apiConfig';
 
 const colunasIniciais = {
-  'Pendente': {
+  Pendente: {
     id: 'Pendente',
     titulo: 'Pendentes',
-    items: [],
+    items: []
   },
   'Em Andamento': {
     id: 'Em Andamento',
     titulo: 'Em Andamento',
-    items: [],
+    items: []
   },
-  'Concluído': {
+  Concluído: {
     id: 'Concluído',
     titulo: 'Concluídos',
-    items: [],
-  },
+    items: []
+  }
 };
 
-// Componente da Página Kanban
 export default function PaginaKanban() {
-
   const [columns, setColumns] = useState(colunasIniciais);
+  const [osSelecionada, setOsSelecionada] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
-    // 3. LÓGICA PARA POPULAR O KANBAN
-    
-    const novasColunas = { ...colunasIniciais };
-    novasColunas['Pendente'].items = [];
-    novasColunas['Em Andamento'].items = [];
-    novasColunas['Concluído'].items = [];
+    const carregarFretes = async () => {
+      try {
+        const res = await fetch(getApiUrl('/fretes'), {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) {
+          console.error('Erro ao buscar fretes', await res.text());
+          return;
+        }
+        const dados = await res.json();
 
-    mockOrdensDeServico.forEach((os) => {
-      if (novasColunas[os.status]) {
-        novasColunas[os.status].items.push(os);
+        const novasColunas = {
+          Pendente: { ...colunasIniciais.Pendente, items: [] },
+          'Em Andamento': { ...colunasIniciais['Em Andamento'], items: [] },
+          Concluído: { ...colunasIniciais.Concluído, items: [] }
+        };
+
+        dados.forEach(os => {
+          const rawStatus = os.status || '';
+          const statusBack = rawStatus.toLowerCase().trim();
+
+          const statusFront =
+            statusBack === 'entregue'
+              ? 'Concluído'
+              : statusBack === 'pendente' || statusBack === '' || statusBack === 'aguardando'
+              ? 'Pendente'
+              : 'Em Andamento';
+
+          if (novasColunas[statusFront]) {
+            novasColunas[statusFront].items.push({
+              id: String(os.id),
+              codigo: os.codigo,
+              cliente: os.cliente,
+              documento: os.documento,
+              responsavel: os.responsavel,
+              motorista_id: os.motorista_id,
+              motorista: os.motorista,
+              veiculo: os.veiculo,
+              status: statusFront,
+              origem: os.origem,
+              destino: os.destino,
+              valor: os.valor,
+              data_coleta: os.data_coleta,
+              data_entrega_prevista: os.data_entrega_prevista,
+              data_entrega: os.data_entrega,
+              observacoes: os.observacoes || ''
+            });
+          }
+        });
+
+        setColumns(novasColunas);
+      } catch (error) {
+        console.error('Falha ao carregar fretes', error);
       }
-    });
-    setColumns(novasColunas);
-  }, []); // O array vazio garante que isso rode só uma vez
+    };
 
-  
-  // 4. Logica de handle drag
-  const handleOnDragEnd = (result) => {
+    carregarFretes();
+  }, []);
+
+  const concluirFreteBackend = async freteId => {
+    const res = await fetch(getApiUrl(`/fretes/${freteId}/concluir`), {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({})
+    });
+
+    if (!res.ok) {
+      console.error('Erro ao concluir frete', await res.text());
+      throw new Error('Erro ao concluir frete');
+    }
+
+    return res.json();
+  };
+
+  const handleOnDragEnd = async result => {
     const { source, destination, draggableId } = result;
 
-    // 1. Se o usuário soltou fora de uma coluna, não faz nada
     if (!destination) {
       return;
     }
-    // logica para ultima coluna
-    if (
-      destination.droppableId === 'Concluído' &&
-      source.droppableId !== 'Concluído'
-    ) {
-      // Pega o nome do card para o alerta
-      const cardTitle = columns[source.droppableId].items[source.index].codigo;
 
-      // Mostra o 'alert' de confirmação
+    const arrastandoParaConcluido =
+      destination.droppableId === 'Concluído' &&
+      source.droppableId !== 'Concluído';
+
+    if (arrastandoParaConcluido) {
+      const cardTitle = columns[source.droppableId].items[source.index].codigo;
       const isConfirmed = window.confirm(
-        `Tem certeza que deseja marcar a "${cardTitle}" como Concluída?`
+        `Tem certeza que deseja marcar a "${cardTitle}" como Concluída e gerar faturamento?`
       );
-      
-      // Se o usuário clicar em "Cancelar", a função para aqui
       if (!isConfirmed) {
-        return; 
+        return;
       }
     }
-    
+
     if (
       source.droppableId === destination.droppableId &&
       source.index === destination.index
@@ -83,158 +132,201 @@ export default function PaginaKanban() {
       return;
     }
 
-    // 3. Lógica para reordenar no frontend
     const colunadeOrigem = columns[source.droppableId];
     const colunaDeDestino = columns[destination.droppableId];
 
     const novosItemsDeOrigem = Array.from(colunadeOrigem.items);
     const [itemMovido] = novosItemsDeOrigem.splice(source.index, 1);
-    
-    // Atualiza o estado visual IMEDIATAMENTE (para o usuário ver a mudança)
+
+    let novosItemsDeDestino = Array.from(colunaDeDestino.items);
+
     if (source.droppableId === destination.droppableId) {
-      // Movendo dentro da mesma coluna
       novosItemsDeOrigem.splice(destination.index, 0, itemMovido);
-      
+
       const novaColuna = {
         ...colunadeOrigem,
-        items: novosItemsDeOrigem,
+        items: novosItemsDeOrigem
       };
       setColumns({
         ...columns,
-        [colunadeOrigem.id]: novaColuna,
+        [colunadeOrigem.id]: novaColuna
       });
-
     } else {
-      // Movendo para uma coluna DIFERENTE
-      const novosItemsDeDestino = Array.from(colunaDeDestino.items);
-      novosItemsDeDestino.splice(destination.index, 0, itemMovido);
+      novosItemsDeDestino.splice(destination.index, 0, {
+        ...itemMovido,
+        status: destination.droppableId
+      });
 
       setColumns({
         ...columns,
         [colunadeOrigem.id]: {
           ...colunadeOrigem,
-          items: novosItemsDeOrigem,
+          items: novosItemsDeOrigem
         },
         [colunaDeDestino.id]: {
           ...colunaDeDestino,
-          items: novosItemsDeDestino,
-        },
+          items: novosItemsDeDestino
+        }
       });
     }
 
-    // 4. CHAMADA PARA A API 
-    // O 'draggableId' é o 'os.id'
-    // O 'destination.droppableId' é o novo status (ex: "Em Andamento")
-    console.log(`CHAMAR API: Mover OS ${draggableId} para o status ${destination.droppableId}`);
-    
-    /*
+    const novoStatusBackend =
+      destination.droppableId === 'Concluído'
+        ? 'Entregue'
+        : destination.droppableId === 'Pendente'
+        ? 'Pendente'
+        : 'Transito';
+
     try {
-      // Exemplo de como seria a chamada de API
-      const token = localStorage.getItem('authToken');
-      await fetch(`http://localhost:3001/api/ordens-servico/${draggableId}`, {
+      await fetch(getApiUrl(`/fretes/${draggableId}/status`), {
         method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          status_operacional: destination.droppableId
-        })
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ status: novoStatusBackend })
       });
+
+      if (arrastandoParaConcluido) {
+        try {
+          await concluirFreteBackend(draggableId);
+          const irParaFaturamentos = window.confirm(
+            'Frete concluído e faturamento gerado. Deseja ir para a tela de faturamentos?'
+          );
+          if (irParaFaturamentos) {
+            window.location.href = '/faturamentos';
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
     } catch (error) {
-      console.error("Falha ao atualizar status:", error);
-      // Lógica para reverter a mudança no frontend se a API falhar (opcional)
+      console.error('Falha ao atualizar status:', error);
     }
-    */
   };
 
-  const [osSelecionada, setOsSelecionada] = useState(null);
-
-  // 2. Função para abrir o modal
-  const handleCardClick = (os) => {
+  const handleCardClick = os => {
     setOsSelecionada(os);
   };
 
-  // 3. Função para salvar alterações (vinda do modal)
-  const handleSalvarOS = async (osAtualizada) => {
-    console.log("Salvando alterações:", osAtualizada);
-    // AQUI VOCÊ CHAMA A API (PATCH)
-    // E depois atualiza o estado 'columns' localmente para refletir a mudança
-    setOsSelecionada(null); // Fecha o modal após salvar
+  const handleSalvarOS = async osAtualizada => {
+    try {
+      await fetch(getApiUrl(`/fretes/${osAtualizada.id}`), {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          motorista_id: osAtualizada.motorista_id,
+          veiculo_id: osAtualizada.veiculo_id,
+          status:
+            osAtualizada.status === 'Concluído'
+              ? 'Entregue'
+              : osAtualizada.status,
+          distancia_km: osAtualizada.distancia_km,
+          valor: osAtualizada.valor,
+          peso_kg: osAtualizada.peso_kg,
+          data_entrega_prevista: osAtualizada.data_entrega_prevista,
+          data_entrega: osAtualizada.data_entrega,
+          observacoes: osAtualizada.observacoes
+        })
+      });
+
+      setColumns(prev => {
+        const novas = { ...prev };
+        Object.keys(novas).forEach(colId => {
+          novas[colId] = {
+            ...novas[colId],
+            items: novas[colId].items.map(item =>
+              item.id === osAtualizada.id ? { ...item, ...osAtualizada } : item
+            )
+          };
+        });
+        return novas;
+      });
+    } catch (error) {
+      console.error('Falha ao salvar alterações:', error);
+    } finally {
+      setOsSelecionada(null);
+    }
   };
 
   return (
     <div className={styles.kanbanContainer}>
       <DragDropContext onDragEnd={handleOnDragEnd}>
-        {/* Mapeia sobre o objeto 'columns' para criar cada coluna */}
-        {Object.values(columns).map((coluna) => (
-          
+        {Object.values(columns).map(coluna => (
           <Droppable key={coluna.id} droppableId={coluna.id}>
             {(provided, snapshot) => (
               <div
-                className={`
-                    ${styles.coluna} 
-                    ${(coluna.id ==='Pendente') ? styles.colunaPendente : '' }
-                    ${(coluna.id ==='Em Andamento') ? styles.colunaAndamento : '' }
-                    ${(coluna.id ==='Concluido') ? styles.colunaConcluida : '' }
-                    ${(snapshot.isDraggingOver && coluna.id === 'Concluído') ? styles.colunaBloqueada : ''}
-                `}
+                className={`${styles.coluna} ${
+                  coluna.id === 'Pendente' ? styles.colunaPendente : ''
+                } ${
+                  coluna.id === 'Em Andamento' ? styles.colunaAndamento : ''
+                } ${
+                  coluna.id === 'Concluído' ? styles.colunaConcluida : ''
+                } ${
+                  snapshot.isDraggingOver && coluna.id === 'Concluído'
+                    ? styles.colunaBloqueada
+                    : ''
+                }`}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
                 <h2 className={styles.colunaTitulo}>{coluna.titulo}</h2>
-                
-                {/* Mapeia sobre os 'items' (cards) da coluna */}
                 {coluna.items.map((item, index) => {
-
                   const isLocked = coluna.id === 'Concluído';
 
-                  return(
-                  <Draggable
-                    key={item.id}
-                    draggableId={item.id}
-                    index={index}
-                    isDragDisabled={isLocked}
-                    
-                  >
-                    {(provided, snapshot) => (
-                      <div
-                        className={styles.card}
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        onClick={() => handleCardClick(item)}
-                        
-                        style={{
-                        ...provided.draggableProps.style,
-                        opacity: isLocked ? 0.6 : 1, 
-                        cursor: isLocked ? 'default' : 'grab',
-                        backgroundColor: isLocked ? '#f0f0f0' : '#ffffff'
-                      }}                
-                      > 
-                        <h1 className={styles.title}>{item.codigo} {isLocked && <span>🔒 </span>}</h1>
-                        {item.status == 'Concluido' && (<p> ok</p>)}
-                        <p><strong>Cliente:</strong> {item.cliente_nome}</p>
-                        <p><strong>Origem: </strong>{item.origem_cidade}</p>
-                         <p><strong>Destino:</strong> {item.destino_cidade} </p>
-                        <p> </p>
-                        <p><strong>Previsão entrega:</strong> {new Date(item.data_entrega_prevista).toLocaleDateString('pt-BR')}</p>
-                      </div>
-                    )}
-                  </Draggable>
-                  )
+                  return (
+                    <Draggable
+                      key={item.id}
+                      draggableId={item.id}
+                      index={index}
+                      isDragDisabled={isLocked}
+                    >
+                      {(providedDrag, snapshotDrag) => (
+                        <div
+                          className={styles.card}
+                          ref={providedDrag.innerRef}
+                          {...providedDrag.draggableProps}
+                          {...providedDrag.dragHandleProps}
+                          onClick={() => handleCardClick(item)}
+                          style={{
+                            ...providedDrag.draggableProps.style,
+                            opacity: isLocked ? 0.6 : 1,
+                            cursor: isLocked ? 'default' : 'grab',
+                            backgroundColor: isLocked ? '#f0f0f0' : '#ffffff'
+                          }}
+                        >
+                          <h1 className={styles.title}>
+                            {item.codigo} {isLocked && <span>🔒 </span>}
+                          </h1>
+                          <p>
+                            <strong>Cliente:</strong> {item.cliente}
+                          </p>
+                          <p>
+                            <strong>Origem: </strong>
+                            {item.origem}
+                          </p>
+                          <p>
+                            <strong>Destino:</strong> {item.destino}
+                          </p>
+                          <p>
+                            <strong>Previsão entrega:</strong>{' '}
+                            {item.data_entrega_prevista
+                              ? new Date(
+                                  item.data_entrega_prevista
+                                ).toLocaleDateString('pt-BR')
+                              : '-'}
+                          </p>
+                        </div>
+                      )}
+                    </Draggable>
+                  );
                 })}
-                
                 {provided.placeholder}
               </div>
             )}
           </Droppable>
-
         ))}
       </DragDropContext>
       {osSelecionada && (
-        <OSDetalhesModal 
-          os={osSelecionada} 
+        <OSDetalhesModal
+          os={osSelecionada}
           onClose={() => setOsSelecionada(null)}
           onSave={handleSalvarOS}
         />
