@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import styles from './fretes.module.css';
-import { mockOrdensDeServico } from '@/services/mockCotacoes';
+import { getApiUrl, getAuthHeaders } from '@/lib/apiConfig';
 import { OSDetalhesModal } from './modalFrete'; 
 
 
@@ -34,18 +34,53 @@ export default function PaginaKanban() {
 
   useEffect(() => {
     // 3. LÓGICA PARA POPULAR O KANBAN
-    
-    const novasColunas = { ...colunasIniciais };
-    novasColunas['Pendente'].items = [];
-    novasColunas['Em Andamento'].items = [];
-    novasColunas['Concluído'].items = [];
+    const fetchOS = async () => {
+      try {
+        const novasColunas = { ...colunasIniciais };
+        novasColunas['Pendente'].items = [];
+        novasColunas['Em Andamento'].items = [];
+        novasColunas['Concluído'].items = [];
 
-    mockOrdensDeServico.forEach((os) => {
-      if (novasColunas[os.status]) {
-        novasColunas[os.status].items.push(os);
+        const res = await fetch(getApiUrl('ordens-servico'), {
+          method: 'GET',
+          headers: getAuthHeaders()
+        });
+
+        if (!res.ok) {
+          console.error('Falha ao buscar ordens de serviço');
+          setColumns(novasColunas);
+          return;
+        }
+
+        const data = await res.json();
+        const ordens = data.data || [];
+
+        ordens.forEach((os) => {
+          // Normaliza status para as colunas que temos
+          const status = os.status || 'Pendente';
+          if (novasColunas[status]) {
+            novasColunas[status].items.push({ ...os, id: String(os.id) });
+          } else {
+            novasColunas['Pendente'].items.push({ ...os, id: String(os.id) });
+          }
+        });
+
+        // Remove duplicatas por id em cada coluna (evita erro React de keys duplicadas)
+        Object.keys(novasColunas).forEach((colId) => {
+          const map = new Map();
+          for (const it of novasColunas[colId].items) {
+            map.set(String(it.id), it);
+          }
+          novasColunas[colId].items = Array.from(map.values());
+        });
+
+        setColumns(novasColunas);
+      } catch (err) {
+        console.error('Erro ao carregar ordens de serviço:', err);
       }
-    });
-    setColumns(novasColunas);
+    };
+
+    fetchOS();
   }, []); // O array vazio garante que isso rode só uma vez
 
   
@@ -126,26 +161,50 @@ export default function PaginaKanban() {
     // O 'draggableId' é o 'os.id'
     // O 'destination.droppableId' é o novo status (ex: "Em Andamento")
     console.log(`CHAMAR API: Mover OS ${draggableId} para o status ${destination.droppableId}`);
+
+    // Chama o endpoint para atualizar status no backend
+    (async () => {
+      try {
+        const payload = { status: destination.droppableId };
+        const res = await fetch(getApiUrl(`ordens-servico/${draggableId}/status`), {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          // se falhar, reverter estado local (simples reload dos dados)
+          console.error('Falha ao atualizar status da OS no servidor');
+          // Recarrega as OS para sincronizar
+          const evt = new Event('reloadOrdensServ');
+          window.dispatchEvent(evt);
+        } else {
+          // opcional: atualizar o item com os dados retornados
+          const json = await res.json();
+          const updated = json.data;
+          // atualiza estado local substituindo o item movido
+          setColumns(prev => {
+            const copy = { ...prev };
+            // remove item antigo (por id) de todas as colunas e insere atualizado
+            Object.keys(copy).forEach(colKey => {
+              copy[colKey].items = copy[colKey].items.filter(i => String(i.id) !== String(draggableId));
+            });
+            if (!copy[updated.status]) copy[updated.status] = { id: updated.status, titulo: updated.status, items: [] };
+            copy[updated.status].items.splice(destination.index, 0, { ...updated, id: String(updated.id) });
+            return copy;
+          });
+        }
+      } catch (err) {
+        console.error('Erro ao chamar API de atualização de OS:', err);
+        const evt = new Event('reloadOrdensServ');
+        window.dispatchEvent(evt);
+      }
+    })();
     
-    /*
-    try {
-      // Exemplo de como seria a chamada de API
-      const token = localStorage.getItem('authToken');
-      await fetch(`http://localhost:3001/api/ordens-servico/${draggableId}`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          status_operacional: destination.droppableId
-        })
-      });
-    } catch (error) {
-      console.error("Falha ao atualizar status:", error);
-      // Lógica para reverter a mudança no frontend se a API falhar (opcional)
-    }
-    */
+   
   };
 
   const [osSelecionada, setOsSelecionada] = useState(null);
@@ -158,8 +217,6 @@ export default function PaginaKanban() {
   // 3. Função para salvar alterações (vinda do modal)
   const handleSalvarOS = async (osAtualizada) => {
     console.log("Salvando alterações:", osAtualizada);
-    // AQUI VOCÊ CHAMA A API (PATCH)
-    // E depois atualiza o estado 'columns' localmente para refletir a mudança
     setOsSelecionada(null); // Fecha o modal após salvar
   };
 
@@ -192,10 +249,9 @@ export default function PaginaKanban() {
                   return(
                   <Draggable
                     key={item.id}
-                    draggableId={item.id}
+                    draggableId={String(item.id)}
                     index={index}
                     isDragDisabled={isLocked}
-                    
                   >
                     {(provided, snapshot) => (
                       <div
@@ -215,10 +271,23 @@ export default function PaginaKanban() {
                         <h1 className={styles.title}>{item.codigo} {isLocked && <span>🔒 </span>}</h1>
                         {item.status == 'Concluido' && (<p> ok</p>)}
                         <p><strong>Cliente:</strong> {item.cliente_nome}</p>
-                        <p><strong>Origem: </strong>{item.origem_cidade}</p>
-                         <p><strong>Destino:</strong> {item.destino_cidade} </p>
-                        <p> </p>
-                        <p><strong>Previsão entrega:</strong> {new Date(item.data_entrega_prevista).toLocaleDateString('pt-BR')}</p>
+                        {
+                          (() => {
+                            const origem = item.origem || item.origem_cidade || item.origemCidade || '';
+                            const destino = item.destino || item.destino_cidade || item.destinoCidade || '';
+                            return (
+                              <>
+                                <p><strong>Origem:</strong> {origem}</p>
+                                <p><strong>Destino:</strong> {destino}</p>
+                              </>
+                            );
+                          })()
+                        }
+                        <p />
+                        <p>
+                          <strong>Previsão entrega:</strong>{' '}
+                          {item.data_entrega_prevista ? new Date(item.data_entrega_prevista).toLocaleDateString('pt-BR') : '—'}
+                        </p>
                       </div>
                     )}
                   </Draggable>

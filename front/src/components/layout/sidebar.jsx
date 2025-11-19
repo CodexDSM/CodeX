@@ -68,6 +68,12 @@ export function Sidebar() {
             className={pathname === '/eventos' ? styles.activeLink : ''}>
             <CalendarCheck size={16} /> Eventos</Link>
         </li>
+        {/* DASHBOARDS - link logo abaixo de Eventos */}
+        <li className={styles.navItem}>
+          <Link href="/dashboards"
+            className={pathname === '/dashboards' ? styles.activeLink : ''}>
+            <LayoutDashboard size={16} /> Dashboards</Link>
+        </li>
         
 
         {/* SUBMENU ADMINISTRATIVO  */}

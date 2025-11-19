@@ -5,11 +5,11 @@ import styles from './modalFrete.module.css';
 
 export function OSDetalhesModal({ os, onClose, onSave }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(os);
-  const isLocked = os.status === 'Concluído'
+  const [formData, setFormData] = useState(os || {});
+  const isLocked = (os && os.status) === 'Concluído';
 
   useEffect(() => {
-    setFormData(os);
+    setFormData(os || {});
   }, [os]);
 
   if (!os) return null;
@@ -59,11 +59,11 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
           <div className={styles.row}>
             <div className={styles.field}>
               <label>Cliente:</label>
-              <p>{os.cliente_nome}</p>
+              <p>{os.cliente_nome || os.cliente || os.cliente_id || '—'}</p>
             </div>
             <div className={styles.field}>
               <label>Vendedor Responsável:</label>
-              <p>{os.colaborador_id} (Nome do Vendedor)</p>
+              <p>{os.colaborador_nome || os.colaborador || os.colaborador_id || '—'}</p>
             </div>
           </div>
 
@@ -72,26 +72,26 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
           <div className={styles.row}>
              <div className={styles.field}>
               <label>Origem:</label>
-              <p>{os.origem_cidade} - {os.origem_uf}</p>
+              <p>{(os.origem || os.origem_cidade || os.origemCidade || os.origem_texto) || '—' }{(os.origem_uf || os.origemUf) ? ` - ${os.origem_uf || os.origemUf}` : ''}</p>
             </div>
             <div className={styles.field}>
               <label>Destino:</label>
-              <p>{os.destino_cidade} - {os.destino_uf}</p>
+              <p>{(os.destino || os.destino_cidade || os.destinoCidade || os.destino_texto) || '—' }{(os.destino_uf || os.destinoUf) ? ` - ${os.destino_uf || os.destinoUf}` : ''}</p>
             </div>
           </div>
           
           <div className={styles.row}>
              <div className={styles.field}>
               <label>Peso (kg):</label>
-              <p>{os.peso_kg} kg</p>
+              <p>{(os.peso_kg || os.peso || 0)} kg</p>
             </div>
             <div className={styles.field}>
               <label>Valor do Frete:</label>
-              <p>R$ {Number(os.valor).toFixed(2)}</p>
+              <p>R$ {(Number(os.valor || os.valor_total || 0)).toFixed(2)}</p>
             </div>
              <div className={styles.field}>
               <label>Distância:</label>
-              <p>{os.distancia_km} km</p>
+              <p>{(os.distancia_km || os.km_percorrido || os.distancia || 0)} km</p>
             </div>
           </div>
 
@@ -132,7 +132,7 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
           <div className={styles.row}>
             <div className={styles.field}>
               <label>Previsão de Entrega:</label>
-              <p>{formatDate(os.data_entrega_prevista)}</p>
+              <p>{formatDate(os.data_entrega_prevista || os.validade_ate || os.previsao_entrega)}</p>
             </div>
 
             <div className={styles.field}>
@@ -141,11 +141,11 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
                 <input 
                   type="date"
                   name="data_coleta"
-                  value={formatInputDate(formData.data_coleta)}
+                  value={formatInputDate(formData.data_coleta || formData.data_coleta_real || '')}
                   onChange={handleChange}
                 />
               ) : (
-                <p>{formatDate(os.data_coleta)}</p>
+                <p>{formatDate(os.data_coleta || os.data_coleta_real)}</p>
               )}
             </div>
 
@@ -155,11 +155,11 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
                 <input 
                   type="date"
                   name="data_entrega"
-                  value={formatInputDate(formData.data_entrega)}
+                  value={formatInputDate(formData.data_entrega || formData.data_entrega_real || '')}
                   onChange={handleChange}
                 />
               ) : (
-                <p>{formatDate(os.data_entrega)}</p>
+                <p>{formatDate(os.data_entrega || os.data_entrega_real)}</p>
               )}
             </div>
           </div>
@@ -174,7 +174,7 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
                   rows={3}
                 />
               ) : (
-                <p>{os.observacoes || 'Sem observações.'}</p>
+                <p>{os.observacoes || os.observacao || 'Sem observações.'}</p>
               )}
            </div>
 

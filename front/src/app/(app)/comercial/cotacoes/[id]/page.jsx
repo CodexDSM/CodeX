@@ -57,8 +57,13 @@ export default function DetalheCotacaoPage({ params }) {
     if (!confirm('Deseja aprovar esta cotação?')) return;
     
     try {
-      await cotacaoService.aprovarCotacao(cotacaoId);
+      const response = await cotacaoService.aprovarCotacao(cotacaoId);
       alert('Cotação aprovada com sucesso!');
+      // Se a API criou uma OS, redireciona para a página de fretes
+      if (response && response.data && response.data.osId) {
+        router.push('/operacional/fretes');
+        return;
+      }
       fetchCotacao();
     } catch (err) {
       alert('Erro ao aprovar: ' + err.message);
@@ -129,7 +134,7 @@ export default function DetalheCotacaoPage({ params }) {
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerInfo}>
-          <h1 className={styles.title}>{cotacao.codigo}</h1>
+          <h1 className={styles.title}>{cotacao.codigo || `#${cotacao.id}`}</h1>
           <div className={styles.badges}>
             {getStatusBadge(cotacao.status)}
             {getAprovacaoBadge(cotacao.status_aprovacao)}

@@ -1,0 +1,43 @@
+.container {
+  padding: 20px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* dois cards na primeira linha */
+  gap: 16px;
+  align-items: start;
+}
+
+.card {
+  min-height: 220px; /* permite tamanhos variados, mas garante espaço mínimo */
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  background: var(--card-bg, #fff);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.cardFull {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  min-height: 300px; /* ocupa largura total e tem mais espaço */
+  padding: 12px;
+  background: var(--card-bg, #fff);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr; /* empilha em telas menores */
+  }
+  .card {
+    height: auto;
+  }
+}
+
+.title {
+  margin-bottom: 16px;
+}
