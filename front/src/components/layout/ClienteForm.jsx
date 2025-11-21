@@ -15,25 +15,12 @@ export default function CadastroCliente({ clienteId = null, initialData = null }
     nome: '',
     documento: '',
     email: '',
-    telefone: '',
-    logradouro: '',
-    numero: '',
-    complemento: '',
-    bairro: '',
-    cidade: '',
-    uf: '',
-    cep: ''
+    telefone: ''
   };
 
   const [formData, setFormData] = useState(initialFormData);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const estados = [
-    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
-    'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ',
-    'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
-  ];
 
   const tiposPessoa = [
     { label: 'Pessoa Física', value: 'F' },
@@ -60,13 +47,6 @@ export default function CadastroCliente({ clienteId = null, initialData = null }
       if (onlyNums.length <= 14) {
         setFormData(prev => ({ ...prev, documento: onlyNums }));
       }
-    }
-  };
-
-  const handleCepChange = (e) => {
-    const onlyNums = e.target.value.replace(/[^0-9]/g, '');
-    if (onlyNums.length <= 8) {
-      setFormData(prev => ({ ...prev, cep: onlyNums }));
     }
   };
 
@@ -108,20 +88,12 @@ export default function CadastroCliente({ clienteId = null, initialData = null }
       return false;
     }
 
-    if (!formData.cep) {
-      setError('CEP é obrigatório');
-      return false;
-    }
-
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
     setError(null);
@@ -134,7 +106,6 @@ export default function CadastroCliente({ clienteId = null, initialData = null }
         await clienteService.createCliente(formData);
         alert('Cliente cadastrado com sucesso!');
       }
-      
       router.push('/comercial/clientes');
     } catch (err) {
       setError(err.message);
@@ -227,101 +198,6 @@ export default function CadastroCliente({ clienteId = null, initialData = null }
                 maxLength={11}
                 className={styles.input}
               />
-            </div>
-          </div>
-
-          <h3 className={styles.subtitle}>Endereço</h3>
-
-          <div className={styles.formGrid}>
-            <div className={styles.inputWrapper}>
-              <label className={styles.label}>CEP *</label>
-              <input
-                name="cep"
-                placeholder="Digite apenas números"
-                value={formData.cep}
-                onChange={handleCepChange}
-                required
-                inputMode="numeric"
-                maxLength={8}
-                className={styles.input}
-              />
-            </div>
-
-            <div className={`${styles.inputWrapper} ${styles.span2}`}>
-              <label className={styles.label}>Logradouro *</label>
-              <input
-                name="logradouro"
-                placeholder="Rua, Avenida, etc."
-                value={formData.logradouro}
-                onChange={handleChange}
-                required
-                className={styles.input}
-              />
-            </div>
-
-            <div className={styles.inputWrapper}>
-              <label className={styles.label}>Número *</label>
-              <input
-                name="numero"
-                placeholder="Número"
-                value={formData.numero}
-                onChange={handleChange}
-                required
-                className={styles.input}
-              />
-            </div>
-
-            <div className={styles.inputWrapper}>
-              <label className={styles.label}>Complemento</label>
-              <input
-                name="complemento"
-                placeholder="Apartamento, bloco, etc."
-                value={formData.complemento}
-                onChange={handleChange}
-                className={styles.input}
-              />
-            </div>
-
-            <div className={styles.inputWrapper}>
-              <label className={styles.label}>Bairro *</label>
-              <input
-                name="bairro"
-                placeholder="Bairro"
-                value={formData.bairro}
-                onChange={handleChange}
-                required
-                className={styles.input}
-              />
-            </div>
-
-            <div className={styles.inputWrapper}>
-              <label className={styles.label}>Cidade *</label>
-              <input
-                name="cidade"
-                placeholder="Cidade"
-                value={formData.cidade}
-                onChange={handleChange}
-                required
-                className={styles.input}
-              />
-            </div>
-
-            <div className={styles.inputWrapper}>
-              <label className={styles.label}>UF *</label>
-              <select
-                name="uf"
-                value={formData.uf}
-                onChange={handleChange}
-                required
-                className={styles.select}
-              >
-                <option value="" disabled>Selecione a UF</option>
-                {estados.map((estado) => (
-                  <option key={estado} value={estado}>
-                    {estado}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
 

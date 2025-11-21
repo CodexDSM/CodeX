@@ -69,10 +69,10 @@
 
 .filtersHeaderRow {
   display: flex;
-  gap: 12px;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
+  gap: 12px;
+  flex-wrap: nowrap;
 }
 
 .periodRow {
@@ -125,7 +125,7 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .filtersGrid {
@@ -336,7 +336,6 @@
 }
 
 /* Responsividade básica */
-
 @media (max-width: 900px) {
   .filtersGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

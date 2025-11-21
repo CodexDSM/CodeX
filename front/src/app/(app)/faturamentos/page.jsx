@@ -140,10 +140,10 @@ export default function FaturamentosPage() {
   };
 
   const periodLabel = () => {
-    if (period === 'today') return 'Hoje';
-    if (period === '7d') return 'Últimos 7 dias';
-    if (period === 'month') return 'Este mês';
-    return 'Período personalizado';
+    if (period === 'today') return ' ';
+    if (period === '7d') return ' ';
+    if (period === 'month') return ' ';
+    return ' ';
   };
 
   const abrirDetalhesFaturamento = (row) => {
