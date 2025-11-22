@@ -76,7 +76,7 @@ export default function LoginPage() {
       }
 
 
-      router.push('/eventos');
+      router.push('/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {

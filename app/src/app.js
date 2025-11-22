@@ -81,6 +81,7 @@ app.use('/api/acompanhamento', acompanhamentoRoutes);
 app.use('/api/ordens-servico', ordensServicosRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/faturamentos', faturamentoRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'API funcionando' });
