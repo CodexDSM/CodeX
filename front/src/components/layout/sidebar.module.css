@@ -2,7 +2,7 @@
   width: 300px;
   min-height: 100vh;
   background-color: #121D97;
-  padding: 1.5rem;
+  padding: 0.7rem;
   color: white;
   display: flex;
   flex-direction: column;
@@ -11,7 +11,8 @@
 .logo {
   font-size: 2rem;
   font-weight: bold;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
+  margin-left: 5rem;
 }
 
 .navList {

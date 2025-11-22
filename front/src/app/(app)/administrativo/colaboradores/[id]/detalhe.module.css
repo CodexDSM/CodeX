@@ -1,13 +1,13 @@
 .container {
-  width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  background-color: white;
-  border-radius: 8px;
+  background: #f8fafc;
+  border-radius: 12px;
   padding: 2rem;
+  min-height: calc(100vh - 80px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
-  overflow: visible;
+  overflow-x: auto;
 }
 
 .header {
@@ -85,7 +85,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   align-items: start;
-  overflow: visible;
+  overflow-x: auto;
 }
 
 .subtitle {
@@ -122,10 +122,10 @@
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.875rem;
   color: #374151;
-  background-color: #f9fafb;
+  background-color: #fff;
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
@@ -159,9 +159,6 @@ select.input {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  position: static !important;
-  z-index: 1 !important;
-  overflow: visible;
 }
 
 select.input:focus {
@@ -192,6 +189,7 @@ select.input option[value="false"] {
   font-weight: 600;
   display: flex;
   align-items: center;
+  border-radius: 8px;
 }
 
 .input.statusInput[data-status="true"] {
@@ -206,27 +204,33 @@ select.input option[value="false"] {
   border-color: #fecaca;
 }
 
+@media (max-width: 1024px) {
+  .container {
+    padding: 1rem;
+  }
+  .infoGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
     margin: 1rem;
   }
-  
   .infoGrid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
   .span2 {
     grid-column: span 1;
   }
-  
   .header {
     flex-direction: column;
     gap: 1rem;
     align-items: stretch;
   }
-  
   .actionButtons {
     justify-content: center;
   }
