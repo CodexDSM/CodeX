@@ -48,43 +48,131 @@ export default function AcompanhamentoPage() {
     }
 
     return (
-        <div
-            style={{
-                margin: 0,
-                padding: 0,
-                minHeight: '100vh',
-                boxSizing: 'border-box',
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'stretch',
-                width: '100vw',
-                gap: '20px',
-                background: '#fafbfc',
-                overflowY: 'hidden',
-                overflowX: 'visible'
+        <div className={styles.container}>
+            <div className={styles.header}>
+                <h1 className={styles.title}>Acompanhamento de Clientes</h1>
+                <button className={styles.btnCriar} onClick={() => setShowModal(true)}>
+                    <Plus size={20} /> Novo Acompanhamento
+                </button>
+            </div>
 
-            }}
-        >
-            <DragDropContext onDragEnd={onDragEnd}>
-                {Array.isArray(ordemColunas) && ordemColunas.map(colId => {
-                    const coluna = columns[colId]
-                    return (
-                        <Droppable droppableId={colId} key={colId}>
-                            {(provided) => (
-                                <div
-                                    ref={provided.innerRef}
-                                    {...provided.droppableProps}
-                                    style={{
-                                        background: '#fff',
-                                        borderRadius: 12,
-                                        padding: '18px 12px',
-                                        boxShadow: '0 2px 12px 0 rgba(60,80,100,.08)',
-                                        border: '1px solid #ededed',
-                                        flex: 1,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        minWidth: 0 // permite ajustar ao container, não força largura mínima
-                                    }}
+            {error && <div style={{ padding: '0 30px' }}><div className={styles.error}>{error}</div></div>}
+            {success && <div style={{ padding: '0 30px' }}><div className={styles.success}>{success}</div></div>}
+
+            <div className={styles.boardContainer}>
+                <DragDropContext onDragEnd={onDragEnd}>
+                    {Array.isArray(ordemColunas) && ordemColunas.map(colId => {
+                        const coluna = columns[colId]
+                        return (
+                            <Droppable droppableId={colId} key={colId}>
+                                {(provided, snapshot) => (
+                                    <div
+                                        ref={provided.innerRef}
+                                        {...provided.droppableProps}
+                                        className={styles.column}
+                                    >
+                                        <div className={styles.columnHeader}>
+                                            {coluna?.nome}
+                                        </div>
+                                        <div className={styles.columnContent}>
+                                            {coluna?.itens && coluna.itens.length > 0 ? (
+                                                coluna.itens.map((item, idx) => (
+                                                    <Draggable draggableId={item.id.toString()} index={idx} key={item.id}>
+                                                        {(prov, snapshot) => (
+                                                            <div
+                                                                ref={prov.innerRef}
+                                                                {...prov.draggableProps}
+                                                                {...prov.dragHandleProps}
+                                                                className={styles.card}
+                                                                style={{
+                                                                    ...prov.draggableProps.style,
+                                                                    opacity: snapshot.isDragging ? 0.8 : 1,
+                                                                }}
+                                                            >
+                                                                <div className={styles.cardHeader}>
+                                                                    <h3 className={styles.cardTitle}>{item.titulo}</h3>
+                                                                    <span className={`${styles.cardPriority} ${styles['priority' + item.prioridade.charAt(0).toUpperCase() + item.prioridade.slice(1)]}`}>
+                                                                        {item.prioridade}
+                                                                    </span>
+                                                                </div>
+                                                                <div className={styles.cardClient}>
+                                                                     {item.cliente_nome ?? 'Sem cliente'}
+                                                                </div>
+                                                                {item.descricao && (
+                                                                    <div className={styles.cardDesc}>{item.descricao}</div>
+                                                                )}
+                                                                <div className={styles.cardFooter}>
+                                                                            <span>ID: #{item.id}</span>
+                                                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                                                <button
+                                                                                    title="Remover acompanhamento"
+                                                                                    onClick={async () => {
+                                                                                        if (!confirm('Remover este acompanhamento?')) return;
+                                                                                        try {
+                                                                                            const token = localStorage.getItem('authToken')
+                                                                                            const resp = await fetch(`http://localhost:3001/api/acompanhamento/${item.id}`, {
+                                                                                                method: 'DELETE',
+                                                                                                headers: { 'Authorization': `Bearer ${token}` }
+                                                                                            })
+                                                                                            if (!resp.ok) throw new Error('Erro ao remover')
+                                                                                            // remover do estado
+                                                                                            const newColumns = { ...columns }
+                                                                                            Object.keys(newColumns).forEach(colId => {
+                                                                                                newColumns[colId].itens = newColumns[colId].itens.filter(i => i.id !== item.id)
+                                                                                            })
+                                                                                            setColumns(newColumns)
+                                                                                        } catch (err) {
+                                                                                            console.error(err)
+                                                                                            alert('Erro ao remover acompanhamento')
+                                                                                        }
+                                                                                    }}
+                                                                                    style={{
+                                                                                        background: 'transparent',
+                                                                                        border: 'none',
+                                                                                        cursor: 'pointer',
+                                                                                        color: '#c0392b'
+                                                                                    }}
+                                                                                >
+                                                                                    <Trash size={16} />
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                            </div>
+                                                        )}
+                                                    </Draggable>
+                                                ))
+                                            ) : (
+                                                <div className={styles.placeholder}>Nenhum acompanhamento</div>
+                                            )}
+                                            {provided.placeholder}
+                                        </div>
+                                    </div>
+                                )}
+                            </Droppable>
+                        )
+                    })}
+                </DragDropContext>
+            </div>
+
+            {/* Modal Criar Acompanhamento */}
+            {showModal && (
+                <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
+                    <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+                        <div className={styles.modalHeader}>
+                            Novo Acompanhamento
+                        </div>
+
+                        {error && <div className={styles.error}>{error}</div>}
+                        {success && <div className={styles.success}>{success}</div>}
+
+                        <form onSubmit={handleSubmit}>
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>Cliente *</label>
+                                <select
+                                    className={styles.select}
+                                    value={form.cliente_id}
+                                    onChange={(e) => setForm({ ...form, cliente_id: e.target.value })}
+                                    required
                                 >
                                     <h2 style={{
                                         marginBottom: 10,

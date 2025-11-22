@@ -8,7 +8,7 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
   const isLocked = os.status === 'Concluído';
 
   useEffect(() => {
-    setFormData(os);
+    setFormData(os || {});
   }, [os]);
 
   if (!os) return null;
@@ -116,7 +116,7 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
           <div className={styles.row}>
             <div className={styles.field}>
               <label>Previsão de Entrega:</label>
-              <p>{formatDate(os.data_entrega_prevista)}</p>
+              <p>{formatDate(os.data_entrega_prevista || os.validade_ate || os.previsao_entrega)}</p>
             </div>
 
             <div className={styles.field}>
@@ -125,11 +125,11 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
                 <input
                   type="date"
                   name="data_coleta"
-                  value={formatInputDate(formData.data_coleta)}
+                  value={formatInputDate(formData.data_coleta || formData.data_coleta_real || '')}
                   onChange={handleChange}
                 />
               ) : (
-                <p>{formatDate(os.data_coleta)}</p>
+                <p>{formatDate(os.data_coleta || os.data_coleta_real)}</p>
               )}
             </div>
 
@@ -139,11 +139,11 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
                 <input
                   type="date"
                   name="data_entrega"
-                  value={formatInputDate(formData.data_entrega)}
+                  value={formatInputDate(formData.data_entrega || formData.data_entrega_real || '')}
                   onChange={handleChange}
                 />
               ) : (
-                <p>{formatDate(os.data_entrega)}</p>
+                <p>{formatDate(os.data_entrega || os.data_entrega_real)}</p>
               )}
             </div>
           </div>

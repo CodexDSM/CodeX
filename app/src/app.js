@@ -16,10 +16,12 @@ const localizacaoRoutes = require('./routes/localizacaoRoutes');
 const eventosRoutes = require('./routes/eventosRoutes');
 const notificacaoRoutes = require('./routes/notificacaoRoutes');
 const cotacoesRoutes = require('./routes/cotacoesRoutes');
+const ordensServicosRoutes = require('./routes/ordensServicosRoutes');
 const generalidadesRoutes = require('./routes/generalidadesRoutes');
 const tabelaPrecoRoutes = require('./routes/tabelaPrecoRoutes');
 const acompanhamentoRoutes = require('./routes/acompanhamentoRoutes');
 const faturamentoRoutes = require('./routes/faturamentoRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
@@ -76,6 +78,8 @@ app.use('/api/cotacoes/generalidades', generalidadesRoutes);
 app.use('/api/cotacoes/tabelas-preco', tabelaPrecoRoutes);
 app.use('/api/cotacoes', cotacoesRoutes);
 app.use('/api/acompanhamento', acompanhamentoRoutes);
+app.use('/api/ordens-servico', ordensServicosRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/faturamentos', faturamentoRoutes);
 
 app.get('/api/health', (req, res) => {

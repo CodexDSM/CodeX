@@ -161,7 +161,7 @@ export default function DetalheCotacaoPage({ params }) {
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerInfo}>
-          <h1 className={styles.title}>{cotacao.codigo}</h1>
+          <h1 className={styles.title}>{cotacao.codigo || `#${cotacao.id}`}</h1>
           <div className={styles.badges}>
             {getStatusBadge(cotacao.status)}
             {getAprovacaoBadge(cotacao.status_aprovacao)}
