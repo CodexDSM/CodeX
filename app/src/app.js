@@ -21,6 +21,7 @@ const generalidadesRoutes = require('./routes/generalidadesRoutes');
 const tabelaPrecoRoutes = require('./routes/tabelaPrecoRoutes');
 const acompanhamentoRoutes = require('./routes/acompanhamentoRoutes');
 const faturamentoRoutes = require('./routes/faturamentoRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
