@@ -19,7 +19,7 @@ export default function DetalheClientePage({ params }) {
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
-  
+
   const [formData, setFormData] = useState({
     nome: '',
     cpf: '',
@@ -27,22 +27,14 @@ export default function DetalheClientePage({ params }) {
     email: '',
     telefone: '',
     tipo_pessoa: '',
-    cep: '',
-    logradouro: '',
-    numero: '',
-    complemento: '',
-    bairro: '',
-    cidade: '',
-    uf: '',
     ativo: true
   });
-  
+
   const [initialData, setInitialData] = useState(null);
 
   useEffect(() => {
     async function fetchCliente() {
       if (!clienteId) return;
-      
       setLoading(true);
       try {
         const token = localStorage.getItem('authToken');
@@ -51,9 +43,7 @@ export default function DetalheClientePage({ params }) {
             'Authorization': `Bearer ${token}`,
           },
         });
-        
         const data = await response.json();
-        
         if (response.ok) {
           const clienteData = {
             nome: data.nome || '',
@@ -62,16 +52,8 @@ export default function DetalheClientePage({ params }) {
             email: data.email || '',
             telefone: data.telefone || '',
             tipo_pessoa: data.tipo_pessoa || '',
-            cep: data.cep || '',
-            logradouro: data.logradouro || '',
-            numero: data.numero || '',
-            complemento: data.complemento || '',
-            bairro: data.bairro || '',
-            cidade: data.cidade || '',
-            uf: data.uf || '',
             ativo: data.ativo
           };
-          
           setFormData(clienteData);
           setInitialData(clienteData);
         } else {
@@ -83,7 +65,6 @@ export default function DetalheClientePage({ params }) {
         setLoading(false);
       }
     }
-    
     fetchCliente();
   }, [clienteId]);
 
@@ -98,7 +79,7 @@ export default function DetalheClientePage({ params }) {
   }
 
   const handleEdit = () => setIsEditing(true);
-  
+
   const handleCancel = () => {
     setIsEditing(false);
     if (initialData) {
@@ -147,8 +128,17 @@ export default function DetalheClientePage({ params }) {
     <div className={styles.container}>
       <form onSubmit={handleSubmit}>
         <div className={styles.header}>
-          <h1 className={styles.nome}>Detalhes do Cliente</h1>
-
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 16
+          }}>
+            <h1 className={styles.nome}>
+              <span style={{ color: "#2563eb", fontWeight: 600 }}>
+                Detalhes do Cliente
+              </span>
+            </h1>
+          </div>
           <div className={styles.actionButtons}>
             {isEditing ? (
               <>
@@ -156,10 +146,33 @@ export default function DetalheClientePage({ params }) {
                   type="button"
                   onClick={handleCancel}
                   className={styles.cancelButton}
+                  style={{
+                    background: "#f1f5f9",
+                    color: "#64748b",
+                    border: "1px solid #e2e8f0",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "6px",
+                    fontWeight: 500,
+                    fontSize: "1rem",
+                    transition: "background 0.18s"
+                  }}
                 >
                   <XCircle size={18} /> Cancelar
                 </button>
-                <button type="submit" className={styles.saveButton}>
+                <button
+                  type="submit"
+                  className={styles.saveButton}
+                  style={{
+                    background: "#10b981",
+                    color: "#fff",
+                    border: "none",
+                    padding: "0.5rem 1.15rem",
+                    borderRadius: "6px",
+                    fontWeight: 500,
+                    fontSize: "1rem",
+                    transition: "background 0.18s"
+                  }}
+                >
                   <Save size={18} /> Salvar
                 </button>
               </>
@@ -169,6 +182,16 @@ export default function DetalheClientePage({ params }) {
                   type="button"
                   onClick={handleEdit}
                   className={styles.editButton}
+                  style={{
+                    background: "#2563eb",
+                    color: "#fff",
+                    border: "none",
+                    padding: "0.5rem 1.12rem",
+                    borderRadius: "6px",
+                    fontWeight: 500,
+                    fontSize: "1rem",
+                    transition: "background 0.18s"
+                  }}
                 >
                   <Edit size={18} /> Editar
                 </button>
@@ -176,6 +199,16 @@ export default function DetalheClientePage({ params }) {
                   type="button"
                   onClick={handleInteractionClick}
                   className={styles.interactionButton}
+                  style={{
+                    background: "#fbbf24",
+                    color: "#fff",
+                    border: "none",
+                    padding: "0.5rem 1.1rem",
+                    borderRadius: "6px",
+                    fontWeight: 500,
+                    fontSize: "1rem",
+                    transition: "background 0.18s"
+                  }}
                 >
                   <MessageCircle size={18} /> Interações
                 </button>
@@ -193,6 +226,7 @@ export default function DetalheClientePage({ params }) {
               onChange={handleChange}
               readOnly={!isEditing}
               className={styles.input}
+              style={{ background: "#f8fafc", borderRadius: 7 }}
             />
           </div>
 
@@ -203,6 +237,7 @@ export default function DetalheClientePage({ params }) {
               value={formData.tipo_pessoa === 'F' ? 'Pessoa Física' : 'Pessoa Jurídica'}
               readOnly={true}
               className={styles.input}
+              style={{ background: "#f8fafc", borderRadius: 7 }}
             />
           </div>
 
@@ -216,6 +251,7 @@ export default function DetalheClientePage({ params }) {
               onChange={handleChange}
               readOnly={!isEditing}
               className={styles.input}
+              style={{ background: "#f8fafc", borderRadius: 7 }}
             />
           </div>
 
@@ -227,6 +263,7 @@ export default function DetalheClientePage({ params }) {
               onChange={handleChange}
               readOnly={!isEditing}
               className={styles.input}
+              style={{ background: "#f8fafc", borderRadius: 7 }}
             />
           </div>
 
@@ -239,92 +276,7 @@ export default function DetalheClientePage({ params }) {
               onChange={handleChange}
               readOnly={!isEditing}
               className={styles.input}
-            />
-          </div>
-
-          <h3 className={styles.subtitle}>Endereço</h3>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>CEP</label>
-            <input
-              name="cep"
-              placeholder="00000-000"
-              value={formData.cep}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={`${styles.inputWrapper} ${styles.span2}`}>
-            <label className={styles.label}>Logradouro</label>
-            <input
-              name="logradouro"
-              placeholder="Rua, Avenida, etc."
-              value={formData.logradouro}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Número</label>
-            <input
-              name="numero"
-              placeholder="123"
-              value={formData.numero}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Complemento</label>
-            <input
-              name="complemento"
-              placeholder="Apto, Sala, etc."
-              value={formData.complemento}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Bairro</label>
-            <input
-              name="bairro"
-              placeholder="Bairro"
-              value={formData.bairro}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>Cidade</label>
-            <input
-              name="cidade"
-              placeholder="Cidade"
-              value={formData.cidade}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <label className={styles.label}>UF</label>
-            <input
-              name="uf"
-              placeholder="SP"
-              value={formData.uf}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={styles.input}
+              style={{ background: "#f8fafc", borderRadius: 7 }}
             />
           </div>
         </div>

@@ -122,25 +122,6 @@ export default function PainelLocalTrabalho() {
               </div>
             </div>
           </div>
-          
-          <div className={styles.legend}>
-            <div className={styles.legendItem}>
-              <span className={styles.legendColor} style={{backgroundColor: '#06b6d4'}}></span>
-              <span>Home Office</span>
-            </div>
-            <div className={styles.legendItem}>
-              <span className={styles.legendColor} style={{backgroundColor: '#3b82f6'}}></span>
-              <span>Presencial</span>
-            </div>
-            <div className={styles.legendItem}>
-              <span className={styles.legendColor} style={{backgroundColor: '#8b5cf6'}}></span>
-              <span>Eventos</span>
-            </div>
-            <div className={styles.legendItem}>
-              <span className={styles.legendColor} style={{backgroundColor: '#10b981'}}></span>
-              <span>Treinamento</span>
-            </div>
-          </div>
         </div>
 
         <div className={styles.statsGrid}>
