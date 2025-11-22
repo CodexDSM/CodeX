@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { getApiUrl } from '@/lib/apiConfig';
 import styles from './detalhe.module.css';
 import { Edit, Save, XCircle } from 'lucide-react';
 import React from 'react';
@@ -40,7 +39,7 @@ export default function DetalheColaboradorPage({ params }) {
       setLoading(true);
       try {
         const token = localStorage.getItem('authToken');
-        const response = await fetch(`${getApiUrl(`colaboradores/${colaboradorId}`)}`, {
+        const response = await fetch(`http://localhost:3001/api/colaboradores/${colaboradorId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -118,7 +117,7 @@ export default function DetalheColaboradorPage({ params }) {
 
       if (formData.tipo_localizacao && formData.tipo_localizacao !== initialData.tipo_localizacao) {
         try {
-          await fetch(`${getApiUrl('localizacoes')}`, {
+          await fetch('http://localhost:3001/api/localizacoes', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -132,7 +131,7 @@ export default function DetalheColaboradorPage({ params }) {
         } catch {}
       }
 
-      const response = await fetch(`${getApiUrl(`colaboradores/${colaboradorId}`)}`, {
+      const response = await fetch(`http://localhost:3001/api/colaboradores/${colaboradorId}`, {
         method: "PUT",
         headers: {
           'Authorization': `Bearer ${token}`,

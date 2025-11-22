@@ -37,10 +37,23 @@ export default function PaginaColaboradores() {
     setLoading(true);
     setError('');
     try {
-      const response = await colaboradorService.getColaboradores({
-        page,
-        limit: pagination.per_page,
-        ...filters
+      const token = localStorage.getItem('authToken');
+      const params = new URLSearchParams();
+      params.append('page', page);
+      params.append('limit', pagination.per_page);
+
+      if (filters.search) params.append('search', filters.search);
+      if (filters.perfil) params.append('perfil', filters.perfil);
+      if (filters.ativo !== '') params.append('ativo', filters.ativo);
+      if (filters.tipo_localizacao) params.append('tipo_localizacao', filters.tipo_localizacao);
+
+      console.log('Enviando parâmetros:', Object.fromEntries(params));
+
+      const response = await fetch(`http://localhost:3001/api/colaboradores?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       setColaboradores(response.data);
       setPagination(response.pagination);

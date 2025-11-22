@@ -8,7 +8,6 @@ import getDay from 'date-fns/getDay';
 import ptBR from 'date-fns/locale/pt-BR';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { DetalhesEvento } from './DetalhesEvento';
-import { getApiUrl, getAuthHeaders } from '@/lib/apiConfig';
 
 const locales = {
   'pt-BR': ptBR,
@@ -32,21 +31,6 @@ export function CalendarioEventos() {
   // Estados para controlar navegação e visualização
   const [currentView, setCurrentView] = useState('month');
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  // Inicializa a view baseado no tamanho da tela na primeira renderização
-  useEffect(() => {
-    const initializeView = () => {
-      try {
-        if (window.innerWidth <= 639) {
-          setCurrentView('agenda');
-        }
-      } catch (e) {
-        // em ambientes sem window (SSG/SSR) ignorar
-      }
-    };
-
-    initializeView();
-  }, []); // Dependency array vazio - executa apenas uma vez na montagem
 
   // Função para decodificar o JWT e pegar o userId
   const getUserIdFromToken = () => {
@@ -94,10 +78,13 @@ export function CalendarioEventos() {
       console.log('Buscando eventos para colaborador:', colaboradorId);
 
       const response = await fetch(
-        getApiUrl(`eventos/colaborador/${colaboradorId}`),
+        `http://localhost:3001/api/eventos/colaborador/${colaboradorId}`,
         {
           method: 'GET',
-          headers: getAuthHeaders()
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
 
@@ -114,12 +101,10 @@ export function CalendarioEventos() {
 
       const eventosFormatados = data.map(evento => ({
         title: evento.titulo,
-        vlNota: evento.local,
         start: new Date(evento.data_inicio),
         end: new Date(evento.data_fim),
         resource: evento,
       }));
-      
 
       setEventos(eventosFormatados);
       setError(null);
@@ -150,10 +135,13 @@ export function CalendarioEventos() {
       const token = localStorage.getItem('authToken');
 
       const response = await fetch(
-        getApiUrl(`eventos/${eventoSelecionado.resource.id}/aceitar`),
+        `http://localhost:3001/api/eventos/${eventoSelecionado.resource.id}/aceitar`,
         {
           method: 'POST',
-          headers: getAuthHeaders()
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
 
@@ -179,10 +167,13 @@ export function CalendarioEventos() {
       const token = localStorage.getItem('authToken');
 
       const response = await fetch(
-        getApiUrl(`eventos/${eventoSelecionado.resource.id}/recusar`),
+        `http://localhost:3001/api/eventos/${eventoSelecionado.resource.id}/recusar`,
         {
           method: 'POST',
-          headers: getAuthHeaders(),
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify({
             justificativa_recusa: justificativa
           })
@@ -224,10 +215,7 @@ export function CalendarioEventos() {
 
   return (
     <>
-      <div style={{ 
-        height: currentView === 'agenda' ? 'auto' : '80vh', 
-        width: '100%'
-      }}>
+      <div style={{ height: '80vh' }}>
         <Calendar
           localizer={localizer}
           events={eventos}
@@ -240,22 +228,15 @@ export function CalendarioEventos() {
             today: "Hoje",
             month: "Mês",
             week: "Semana",
-            day: "Dia",
-            agenda: "Agenda",
-            date: "Data",
-            time: "Hora"
+            day: "Dia"
           }}
           view={currentView}
           date={currentDate}
           onView={(newView) => setCurrentView(newView)}
           onNavigate={(newDate) => setCurrentDate(newDate)}
           onSelectEvent={handleSelecionarEvento}
-          views={['month', 'week', 'day', 'agenda']}
-          defaultView="month"
-          style={{ height: '100%' }}
         />
       </div>
-      
 
       {modalAberto && eventoSelecionado && (
         <DetalhesEvento
@@ -268,4 +249,3 @@ export function CalendarioEventos() {
     </>
   );
 }
- 

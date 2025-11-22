@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { useSidebar } from '@/hooks/useSidebar';
 
 export function Sidebar() {
   const [openMenu, setOpenMenu] = useState(null);

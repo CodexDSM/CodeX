@@ -1,13 +1,10 @@
 'use client';
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { getApiUrl } from "@/lib/apiConfig";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import styles from "./interacoes.module.css";
-import { ArrowLeft } from "lucide-react";
 
 export default function InteracoesClientePage() {
-  const router = useRouter();
   const { id: clientId } = useParams();
   const [interacoes, setInteracoes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +35,7 @@ export default function InteracoesClientePage() {
         }
 
         const response = await fetch(
-          `${getApiUrl(`clients/${clientId}/interactions`)}`,
+          `http://localhost:3001/api/clients/${clientId}/interactions`,
           { headers: { "Authorization": `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Erro ao buscar interações");
@@ -51,7 +48,7 @@ export default function InteracoesClientePage() {
         setLoading(false);
       }
     };
-    if (clientId) fetchInteracoes();
+    fetchInteracoes();
   }, [clientId, isSubmitting]);
 
   const handleChange = e => {
@@ -71,7 +68,7 @@ export default function InteracoesClientePage() {
         detalhes: form.detalhes
       };
       const response = await fetch(
-        `${getApiUrl(`clients/${clientId}/interactions`)}`,
+        `http://localhost:3001/api/clients/${clientId}/interactions`,
         {
           method: 'POST',
           headers: {

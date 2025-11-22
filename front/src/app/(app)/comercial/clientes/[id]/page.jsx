@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getApiUrl } from "@/lib/apiConfig";
 import styles from "./detalheClientes.module.css";
 import { Edit, Save, XCircle, MessageCircle } from "lucide-react";
 
@@ -38,7 +37,7 @@ export default function DetalheClientePage({ params }) {
       setLoading(true);
       try {
         const token = localStorage.getItem('authToken');
-        const response = await fetch(`${getApiUrl(`clientes/${clienteId}`)}`, {
+        const response = await fetch(`http://localhost:3001/api/clientes/${clienteId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -97,7 +96,7 @@ export default function DetalheClientePage({ params }) {
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(
-        `${getApiUrl(`clientes/${clienteId}`)}`,
+        `http://localhost:3001/api/clientes/${clienteId}`,
         {
           method: 'PUT',
           headers: {
