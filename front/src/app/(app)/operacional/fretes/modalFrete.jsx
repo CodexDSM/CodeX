@@ -1,12 +1,11 @@
-// src/app/(app)/operacional/ordens-servico/OSDetalhesModal.jsx
 'use client';
 import { useState, useEffect } from 'react';
 import styles from './modalFrete.module.css';
 
 export function OSDetalhesModal({ os, onClose, onSave }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(os || {});
-  const isLocked = (os && os.status) === 'Concluído';
+  const [formData, setFormData] = useState(os);
+  const isLocked = os.status === 'Concluído';
 
   useEffect(() => {
     setFormData(os || {});
@@ -14,8 +13,7 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
 
   if (!os) return null;
 
-  // Função genérica para atualizar os campos
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -25,27 +23,25 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
     setIsEditing(false);
   };
 
-  // Formata data para exibição (dd/mm/aaaa)
-  const formatDate = (dateString) => {
+  const formatDate = dateString => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
-  // Formata data para o input do tipo date (aaaa-mm-dd)
-  const formatInputDate = (dateString) => {
+  const formatInputDate = dateString => {
     if (!dateString) return '';
     return new Date(dateString).toISOString().split('T')[0];
   };
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        
-      
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <div className={styles.header}>
           <div>
             <h2>{os.codigo}</h2>
-            <span className={`${styles.badge} ${styles[os.status.replace(' ', '')]}`}>
+            <span
+              className={`${styles.badge} ${styles[os.status.replace(' ', '')]}`}
+            >
               {os.status}
             </span>
           </div>
@@ -53,78 +49,66 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
         </div>
 
         <div className={styles.content}>
-          
-          {/* --- SEÇÃO 1: CLIENTE (Apenas Leitura) --- */}
           <h3 className={styles.sectionTitle}>Informações do Cliente</h3>
           <div className={styles.row}>
             <div className={styles.field}>
               <label>Cliente:</label>
-              <p>{os.cliente_nome || os.cliente || os.cliente_id || '—'}</p>
+              <p>{os.cliente}</p>
             </div>
             <div className={styles.field}>
-              <label>Vendedor Responsável:</label>
-              <p>{os.colaborador_nome || os.colaborador || os.colaborador_id || '—'}</p>
+              <label>Documento:</label>
+              <p>{os.documento}</p>
             </div>
           </div>
 
-          {/* --- SEÇÃO 2: ROTA E CARGA (Apenas Leitura) --- */}
-          <h3 className={styles.sectionTitle}>Rota e Carga</h3>
+          <h3 className={styles.sectionTitle}>Rota</h3>
           <div className={styles.row}>
-             <div className={styles.field}>
+            <div className={styles.field}>
               <label>Origem:</label>
-              <p>{(os.origem || os.origem_cidade || os.origemCidade || os.origem_texto) || '—' }{(os.origem_uf || os.origemUf) ? ` - ${os.origem_uf || os.origemUf}` : ''}</p>
+              <p>{os.origem}</p>
             </div>
             <div className={styles.field}>
               <label>Destino:</label>
-              <p>{(os.destino || os.destino_cidade || os.destinoCidade || os.destino_texto) || '—' }{(os.destino_uf || os.destinoUf) ? ` - ${os.destino_uf || os.destinoUf}` : ''}</p>
-            </div>
-          </div>
-          
-          <div className={styles.row}>
-             <div className={styles.field}>
-              <label>Peso (kg):</label>
-              <p>{(os.peso_kg || os.peso || 0)} kg</p>
-            </div>
-            <div className={styles.field}>
-              <label>Valor do Frete:</label>
-              <p>R$ {(Number(os.valor || os.valor_total || 0)).toFixed(2)}</p>
-            </div>
-             <div className={styles.field}>
-              <label>Distância:</label>
-              <p>{(os.distancia_km || os.km_percorrido || os.distancia || 0)} km</p>
+              <p>{os.destino}</p>
             </div>
           </div>
 
-          {/* --- SEÇÃO 3: OPERACIONAL (Editável) --- */}
+          <h3 className={styles.sectionTitle}>Valores</h3>
+          <div className={styles.row}>
+            <div className={styles.field}>
+              <label>Valor do Frete:</label>
+              <p>R$ {Number(os.valor || 0).toFixed(2)}</p>
+            </div>
+          </div>
+
           <h3 className={styles.sectionTitle}>Dados Operacionais</h3>
-          
+
           <div className={styles.row}>
             <div className={styles.field}>
               <label>Motorista:</label>
               {isEditing ? (
-                <input 
-                  name="motorista_nome" 
-                  value={formData.motorista_nome || ''} 
-                  onChange={handleChange} 
-                  placeholder="Nome do motorista"
+                <input
+                  name="motorista_id"
+                  value={formData.motorista_id || ''}
+                  onChange={handleChange}
+                  placeholder="ID do motorista"
                 />
-                // Nota: No futuro, isso deve ser um <select> buscando da API de motoristas
               ) : (
-                <p>{os.motorista_nome || 'Não designado'}</p>
+                <p>{os.motorista || 'Não designado'}</p>
               )}
             </div>
-            
+
             <div className={styles.field}>
               <label>Veículo:</label>
               {isEditing ? (
-                <input 
-                  name="veiculo_id" 
-                  value={formData.veiculo_id || ''} 
+                <input
+                  name="veiculo"
+                  value={formData.veiculo || ''}
                   onChange={handleChange}
-                  placeholder="Placa ou ID"
+                  placeholder="Placa ou identificação"
                 />
               ) : (
-                <p>{os.veiculo_id || 'Não designado'}</p>
+                <p>{os.veiculo || 'Não designado'}</p>
               )}
             </div>
           </div>
@@ -138,7 +122,7 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
             <div className={styles.field}>
               <label>Data Coleta (Real):</label>
               {isEditing ? (
-                <input 
+                <input
                   type="date"
                   name="data_coleta"
                   value={formatInputDate(formData.data_coleta || formData.data_coleta_real || '')}
@@ -152,7 +136,7 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
             <div className={styles.field}>
               <label>Data Entrega (Real):</label>
               {isEditing ? (
-                <input 
+                <input
                   type="date"
                   name="data_entrega"
                   value={formatInputDate(formData.data_entrega || formData.data_entrega_real || '')}
@@ -164,43 +148,47 @@ export function OSDetalhesModal({ os, onClose, onSave }) {
             </div>
           </div>
 
-           <div className={styles.field}>
-              <label>Observações:</label>
-              {isEditing ? (
-                <textarea 
-                  name="observacoes"
-                  value={formData.observacoes || ''} 
-                  onChange={handleChange}
-                  rows={3}
-                />
-              ) : (
-                <p>{os.observacoes || os.observacao || 'Sem observações.'}</p>
-              )}
-           </div>
-
+          <div className={styles.field}>
+            <label>Observações:</label>
+            {isEditing ? (
+              <textarea
+                name="observacoes"
+                value={formData.observacoes || ''}
+                onChange={handleChange}
+                rows={3}
+              />
+            ) : (
+              <p>{os.observacoes || 'Sem observações.'}</p>
+            )}
+          </div>
         </div>
 
-        {/* --- RODAPÉ --- */}
         <div className={styles.footer}>
-           {isEditing ? (
-             <>
-               <button onClick={() => setIsEditing(false)} className={styles.btnCancel}>Cancelar</button>
-               <button onClick={handleSave} className={styles.btnSave}>Salvar Alterações</button>
-             </>
-           ) : (
-             // 2. Lógica de Exibição Condicional
-             isLocked ? (
-               <span className={styles.lockedMessage}>
-                 🔒 Finalizado (Apenas Leitura)
-               </span>
-             ) : (
-               <button onClick={() => setIsEditing(true)} className={styles.btnEdit}>
-                 Editar Informações
-               </button>
-             )
-           )}
+          {isEditing ? (
+            <>
+              <button
+                onClick={() => setIsEditing(false)}
+                className={styles.btnCancel}
+              >
+                Cancelar
+              </button>
+              <button onClick={handleSave} className={styles.btnSave}>
+                Salvar Alterações
+              </button>
+            </>
+          ) : isLocked ? (
+            <span className={styles.lockedMessage}>
+              🔒 Finalizado (Apenas Leitura)
+            </span>
+          ) : (
+            <button
+              onClick={() => setIsEditing(true)}
+              className={styles.btnEdit}
+            >
+              Editar Informações
+            </button>
+          )}
         </div>
-
       </div>
     </div>
   );
