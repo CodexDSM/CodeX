@@ -1,7 +1,6 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getApiUrl } from '@/lib/apiConfig';
 import styles from '@/app/(app)/operacional/checklist/checklist.module.css';
 
 export default function FormAgregado() {
@@ -38,7 +37,7 @@ export default function FormAgregado() {
 
         try {
             const authToken = localStorage.getItem('authToken'); 
-            const response = await fetch(getApiUrl('agregados'), {
+            const response = await fetch('http://localhost:3001/api/agregados', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

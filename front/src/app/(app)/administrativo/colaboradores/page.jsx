@@ -1,14 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getApiUrl } from "@/lib/apiConfig";
 import { ColaboradorTable } from "@/features/administrativo/colaboradorTable";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
-import { UserRoundPlus, MapPin } from "lucide-react";
+import { UserRoundPlus } from "lucide-react";
 import styles from "./colaborador.module.css";
+import colaboradorService from "@/services/colaboradorService";
 
 export default function PaginaColaboradores() {
   const router = useRouter();
@@ -49,32 +49,16 @@ export default function PaginaColaboradores() {
 
       console.log('Enviando parâmetros:', Object.fromEntries(params));
 
-      const response = await fetch(`${getApiUrl('colaboradores')}?${params}`, {
+      const response = await fetch(`http://localhost:3001/api/colaboradores?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-
-      if (response.ok) {
-        const data = await response.json();
-
-        setColaboradores(data.data || data);
-        setPagination(data.pagination || {
-          current_page: page,
-          per_page: pagination.per_page,
-          total_records: data.length,
-          total_pages: 1,
-          has_next: false,
-          has_prev: false
-        });
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao carregar colaboradores');
-      }
+      setColaboradores(response.data);
+      setPagination(response.pagination);
     } catch (err) {
       setError(err.message);
-      console.error('Erro ao carregar colaboradores:', err);
       if (err.message.includes('Não autorizado') || err.message.includes('Token')) {
         alert('Sessão expirada. Faça login novamente.');
         router.push('/login');
@@ -83,7 +67,6 @@ export default function PaginaColaboradores() {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchColaboradores(1);
@@ -94,7 +77,6 @@ export default function PaginaColaboradores() {
   };
 
   const handleFilterChange = (key, value) => {
-    console.log(`Alterando filtro ${key} para:`, value);
     setFilters(prev => ({
       ...prev,
       [key]: value === 'EMPTY_VALUE' ? '' : value
@@ -110,158 +92,152 @@ export default function PaginaColaboradores() {
   };
 
   return (
-    <CardContent>
-      <header>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1rem'
-        }}>
+    <div className={styles.container}>
+      <CardContent>
+        <header>
           <div style={{
             display: 'flex',
-            gap: '1rem',
-            alignItems: 'center'
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '1rem'
           }}>
-            <Select
-              value={filters.perfil || undefined}
-              onValueChange={(value) => handleFilterChange('perfil', value)}
-            >
-              <SelectTrigger style={{ width: '200px' }}>
-                <SelectValue placeholder="Perfil" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="EMPTY_VALUE">Todos</SelectItem>
-                <SelectItem value="Administrador">Administrador</SelectItem>
-                <SelectItem value="Gerente">Gerente</SelectItem>
-                <SelectItem value="Operador">Operador</SelectItem>
-                <SelectItem value="Motorista">Motorista</SelectItem>
-              </SelectContent>
-            </Select>
+            <div style={{
+              display: 'flex',
+              gap: '2rem',
+              alignItems: 'center'
+            }}>
+              <Select
+                value={filters.perfil || undefined}
+                onValueChange={(value) => handleFilterChange('perfil', value)}
+              >
+                <SelectTrigger style={{ width: '180px' }}>
+                  <SelectValue placeholder="Perfil" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="EMPTY_VALUE">Todos</SelectItem>
+                  <SelectItem value="Administrador">Administrador</SelectItem>
+                  <SelectItem value="Gerente">Gerente</SelectItem>
+                  <SelectItem value="Operador">Operador</SelectItem>
+                  <SelectItem value="Motorista">Motorista</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select
-              value={filters.ativo || undefined}
-              onValueChange={(value) => handleFilterChange('ativo', value)}
-            >
-              <SelectTrigger style={{ width: '180px' }}>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="EMPTY_VALUE">Todos</SelectItem>
-                <SelectItem value="true">Ativos</SelectItem>
-                <SelectItem value="false">Inativos</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select
+                value={filters.ativo || undefined}
+                onValueChange={(value) => handleFilterChange('ativo', value)}
+              >
+                <SelectTrigger style={{ width: '180px' }}>
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="EMPTY_VALUE">Todos</SelectItem>
+                  <SelectItem value="true">Ativos</SelectItem>
+                  <SelectItem value="false">Inativos</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select
-              value={filters.tipo_localizacao || undefined}
-              onValueChange={(value) => handleFilterChange('tipo_localizacao', value)}
-            >
-              <SelectTrigger style={{ width: '200px' }}>
-                <SelectValue placeholder="Localização" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="EMPTY_VALUE">Todas</SelectItem>
-                <SelectItem value="Presencial">Presencial</SelectItem>
-                <SelectItem value="Home Office">Home Office</SelectItem>
-                <SelectItem value="Evento">Evento</SelectItem>
-                <SelectItem value="Treinamento">Treinamento</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Link href="/administrativo/painelLocalizacao">
-              <Button variant="localizar">
-                <MapPin size={20} />
-                Painel Localização
-              </Button>
-            </Link>
-            <Link href="/administrativo/colaboradores/novo">
-              <Button variant="add">
-                <UserRoundPlus size={20} />
-                Adicionar
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {error && (
-        <div style={{
-          backgroundColor: '#fee',
-          border: '1px solid #fcc',
-          color: '#c00',
-          padding: '1rem',
-          borderRadius: '4px',
-          marginBottom: '1rem'
-        }}>
-          {error}
-        </div>
-      )}
-
-      <ColaboradorTable
-        colaboradores={colaboradores}
-        loading={loading}
-        onSort={requestSort}
-        sortConfig={sortConfig}
-      />
-
-      {pagination.total_pages > 1 && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginTop: '1rem'
-        }}>
-          <div style={{ fontSize: '0.875rem', color: '#666' }}>
-            Mostrando {((pagination.current_page - 1) * pagination.per_page) + 1} a{' '}
-            {Math.min(pagination.current_page * pagination.per_page, pagination.total_records)} de{' '}
-            {pagination.total_records} registros
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Button
-              variant="primary"
-              disabled={!pagination.has_prev}
-              onClick={() => handlePageChange(pagination.current_page - 1)}
-            >
-              Anterior
-            </Button>
-
-            {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
-              let pageNum;
-              if (pagination.total_pages <= 5) {
-                pageNum = i + 1;
-              } else if (pagination.current_page <= 3) {
-                pageNum = i + 1;
-              } else if (pagination.current_page >= pagination.total_pages - 2) {
-                pageNum = pagination.total_pages - 4 + i;
-              } else {
-                pageNum = pagination.current_page - 2 + i;
-              }
-
-              return (
-                <Button
-                  key={pageNum}
-                  variant={pageNum === pagination.current_page ? "add" : "primary"}
-                  onClick={() => handlePageChange(pageNum)}
-                >
-                  {pageNum}
+              <Select
+                value={filters.tipo_localizacao || undefined}
+                onValueChange={(value) => handleFilterChange('tipo_localizacao', value)}
+              >
+                <SelectTrigger style={{ width: '180px' }}>
+                  <SelectValue placeholder="Localização" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="EMPTY_VALUE">Todas</SelectItem>
+                  <SelectItem value="Presencial">Presencial</SelectItem>
+                  <SelectItem value="Home Office">Home Office</SelectItem>
+                  <SelectItem value="Evento">Evento</SelectItem>
+                  <SelectItem value="Treinamento">Treinamento</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Link href="/administrativo/colaboradores/novo">
+                <Button variant="add">
+                  <UserRoundPlus size={20} />
+                  Adicionar
                 </Button>
-              );
-            })}
-
-            <Button
-              variant="primary"
-              disabled={!pagination.has_next}
-              onClick={() => handlePageChange(pagination.current_page + 1)}
-            >
-              Próxima
-            </Button>
+              </Link>
+            </div>
           </div>
+        </header>
+
+        {error && (
+          <div style={{
+            backgroundColor: '#fee',
+            border: '1px solid #fcc',
+            color: '#c00',
+            padding: '1rem',
+            borderRadius: '4px',
+            marginBottom: '1rem'
+          }}>
+            {error}
+          </div>
+        )}
+
+        <div className={styles.listBox}>
+          <ColaboradorTable
+            colaboradores={colaboradores}
+            loading={loading}
+            onSort={requestSort}
+            sortConfig={sortConfig}
+          />
         </div>
-      )}
-    </CardContent>
+
+        {pagination.total_pages > 1 && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginTop: '1rem'
+          }}>
+            <div style={{ fontSize: '0.875rem', color: '#666' }}>
+              Mostrando {((pagination.current_page - 1) * pagination.per_page) + 1} a{' '}
+              {Math.min(pagination.current_page * pagination.per_page, pagination.total_records)} de{' '}
+              {pagination.total_records} registros
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <Button
+                variant="primary"
+                disabled={!pagination.has_prev}
+                onClick={() => handlePageChange(pagination.current_page - 1)}
+              >
+                Anterior
+              </Button>
+              {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
+                let pageNum;
+                if (pagination.total_pages <= 5) {
+                  pageNum = i + 1;
+                } else if (pagination.current_page <= 3) {
+                  pageNum = i + 1;
+                } else if (pagination.current_page >= pagination.total_pages - 2) {
+                  pageNum = pagination.total_pages - 4 + i;
+                } else {
+                  pageNum = pagination.current_page - 2 + i;
+                }
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={pageNum === pagination.current_page ? "add" : "primary"}
+                    onClick={() => handlePageChange(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+              <Button
+                variant="primary"
+                disabled={!pagination.has_next}
+                onClick={() => handlePageChange(pagination.current_page + 1)}
+              >
+                Próxima
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </div>
   );
 }

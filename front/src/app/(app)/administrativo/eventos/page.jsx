@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getApiUrl } from "@/lib/apiConfig";
 import { EventoTable } from "@/features/administrativo/eventoTable";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,7 +40,7 @@ export default function PaginaEventos() {
 
       console.log('Enviando parâmetros:', Object.fromEntries(params));
 
-      const response = await fetch(`${getApiUrl('eventos')}?${params}`, {
+      const response = await fetch(`http://localhost:3001/api/eventos?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

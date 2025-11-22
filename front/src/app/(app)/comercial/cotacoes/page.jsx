@@ -181,7 +181,7 @@ export default function CotacoesPage() {
                   onClick={() => router.push(`/comercial/cotacoes/${cotacao.id}`)}
                   className={styles.row}
                 >
-                  <td className={styles.codigo}>{cotacao.codigo}</td>
+                  <td className={styles.codigo}>{cotacao.codigo || `#${cotacao.id}`}</td>
                   <td>{cotacao.cliente_nome}</td>
                   <td className={styles.tipoServico}>{cotacao.tipo_servico}</td>
                   <td>{cotacao.origem} → {cotacao.destino}</td>

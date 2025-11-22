@@ -1,10 +1,10 @@
 'use client';
 
 import styles from './header.module.css';
-import { Bell, ArrowLeft, ChevronDown, Menu, X } from 'lucide-react';
+import { Bell, ArrowLeft, ChevronDown, Menu, X, LogOut } from 'lucide-react';
 import { usePathname, useParams, useRouter } from 'next/navigation';
-import { getApiUrl } from '@/lib/apiConfig';
 import React, { useEffect, useState } from 'react';
+import { getApiUrl } from '@/lib/apiConfig';
 import { useSidebar } from '@/hooks/useSidebar';
 
 export function Header() {
@@ -13,10 +13,6 @@ export function Header() {
   const router = useRouter();
   const id = params?.id;
   const { sidebarOpen, toggleSidebar } = useSidebar();
-
-  // Dados SEMPRE do usuário logado (lado direito, nunca mudam)
-
-  // Controle de exibição do botão hamburger por largura de tela (client-side)
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -29,15 +25,10 @@ export function Header() {
   const [nomeLogado, setNomeLogado] = useState('');
   const [emailLogado, setEmailLogado] = useState('');
   const [colaboradorId, setColaboradorId] = useState(null);
-
-  // Nome do colaborador/cliente acessado (detalhe, lado ESQUERDO)
   const [nomeEntidade, setNomeEntidade] = useState('');
-
-  // Localização atual
   const [localizacao, setLocalizacao] = useState('Presencial');
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
-  // Mapear nomes de exibição para valores da API
   const localizacaoMap = {
     'Presencial': 'Presencial',
     'Home Office': 'Home Office', 
@@ -48,116 +39,89 @@ export function Header() {
   const localizacoes = Object.keys(localizacaoMap);
 
   useEffect(() => {
-    // Dados do usuário logado (sempre do localStorage, nunca mudam)
     setNomeLogado(localStorage.getItem('userNome') || 'Não logado');
     setEmailLogado(localStorage.getItem('userEmail') || 'Não logado');
-    
-    // ID do colaborador logado - busca 'colaboradorId' (que é salvo no login)
     let userId = localStorage.getItem('colaboradorId');
-    
     if (userId) {
       setColaboradorId(parseInt(userId));
-      // Busca localização atual
       fetchCurrentLocation(userId);
-    } else {
-      console.error('Não foi possível obter o ID do usuário');
     }
-
-    // Se estiver na rota de detalhes, busca colaborador/cliente pelo id
     if (id) {
-  let endpoint = '';
-  let fieldName = 'nome'; // campo padrão
-
-  if (pathname.includes('/colaboradores')) {
-      endpoint = getApiUrl(`colaboradores/${id}`);
-    } else if (pathname.includes('/clientes')) {
-      endpoint = getApiUrl(`clientes/${id}`);
-    } else if (pathname.includes('/eventos')) {
-      endpoint = getApiUrl(`eventos/${id}`);
-      fieldName = 'titulo';
-    } else if (pathname.includes('/cotacoes')) {
-      // Para cotações, apenas exibe "Cotações" sem buscar detalhes
-      setNomeEntidade('Cotações');
-      return;
-    }
-
-    if (endpoint) {
-      (async () => {
-        try {
-          const token = localStorage.getItem('authToken');
-          const response = await fetch(endpoint, {
-            headers: { 'Authorization': `Bearer ${token}` },
-          });
-          const data = await response.json();
-          if (response.ok && data[fieldName]) setNomeEntidade(data[fieldName]);
-          else setNomeEntidade('');
-        } catch { setNomeEntidade(''); }
-      })();
+      let endpoint = '';
+      let fieldName = 'nome';
+      if (pathname.includes('/colaboradores')) {
+        endpoint = getApiUrl(`colaboradores/${id}`);
+      } else if (pathname.includes('/clientes')) {
+        endpoint = getApiUrl(`clientes/${id}`);
+      } else if (pathname.includes('/eventos')) {
+        endpoint = getApiUrl(`eventos/${id}`);
+        fieldName = 'titulo';
+      } else if (pathname.includes('/cotacoes')) {
+        setNomeEntidade('Cotações');
+        return;
+      }
+      if (endpoint) {
+        (async () => {
+          try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(endpoint, {
+              headers: { 'Authorization': `Bearer ${token}` },
+            });
+            const data = await response.json();
+            if (response.ok && data[fieldName]) setNomeEntidade(data[fieldName]);
+            else setNomeEntidade('');
+          } catch { setNomeEntidade(''); }
+        })();
+      } else {
+        setNomeEntidade('');
+      }
     } else {
       setNomeEntidade('');
     }
-  } else {
-    setNomeEntidade('');
-  }
   }, [id, pathname]);
 
-  // Função para buscar localização atual
   const fetchCurrentLocation = async (userId) => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(getApiUrl(`localizacoes/colaborador/${userId}/atual`), {
+      const response = await fetch(`http://localhost:3001/api/localizacoes/colaborador/${userId}/atual`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-
       if (response.ok) {
         const data = await response.json();
         if (data.tipo_localizacao) {
-          // Converte valor da API de volta para exibição
           const displayName = Object.keys(localizacaoMap).find(
             key => localizacaoMap[key] === data.tipo_localizacao
           ) || 'Presencial';
           setLocalizacao(displayName);
         }
       } else {
-        // Se não tem localização atual, busca no localStorage ou usa Presencial
         const savedLocation = localStorage.getItem('userLocation') || 'Presencial';
         setLocalizacao(savedLocation);
       }
     } catch (error) {
-      console.error('Erro ao buscar localização atual:', error);
       const savedLocation = localStorage.getItem('userLocation') || 'Presencial';
       setLocalizacao(savedLocation);
     }
   };
 
-  // Função para voltar à página anterior
   const handleGoBack = () => {
     router.back();
   };
 
-  // Função para mudar localização
   const handleLocationChange = async (novaLocalizacao) => {
     if (!colaboradorId) {
-      console.error('ID do colaborador não encontrado');
       alert('Erro: Não foi possível identificar o usuário. Faça login novamente.');
       return;
     }
-
     setLocalizacao(novaLocalizacao);
     setShowLocationDropdown(false);
-    
-    // Salva no localStorage para backup
     localStorage.setItem('userLocation', novaLocalizacao);
-    
     try {
       const token = localStorage.getItem('authToken');
       const valorAPI = localizacaoMap[novaLocalizacao];
-      
-      console.log('Enviando:', { colaborador_id: colaboradorId, tipo_localizacao: valorAPI });
-      
-      const response = await fetch(getApiUrl('localizacoes/'), {
+      await fetch(getApiUrl('localizacoes/'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -168,35 +132,21 @@ export function Header() {
           tipo_localizacao: valorAPI 
         })
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Erro ao salvar localização:', errorData);
-        alert('Erro ao salvar localização: ' + (errorData.error || 'Erro desconhecido'));
-      } else {
-        console.log('Localização salva com sucesso:', novaLocalizacao);
-      }
-    } catch (error) {
-      console.error('Erro ao salvar localização:', error);
-      alert('Erro de conexão ao salvar localização');
-    }
+    } catch {}
   };
 
-  // Função para fechar dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showLocationDropdown && !event.target.closest('.locationSelector')) {
         setShowLocationDropdown(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showLocationDropdown]);
 
-  // Título lado esquerdo: nome do colaborador/cliente (se detalhes), senão nome formatado da rota
   const lastSegment = pathname.split('/').pop();
   let prettyTitle =
     lastSegment
@@ -204,7 +154,6 @@ export function Header() {
       .replace(/[-_]/g, ' ')
       .replace(/^./, match => match.toUpperCase());
 
-  // Nomes especiais com acentuação correta
   const specialNames = {
     'cotacoes': 'Cotações',
     'clientes': 'Clientes',
@@ -218,22 +167,27 @@ export function Header() {
   }
 
   const pageTitle = (id && nomeEntidade) ? nomeEntidade : prettyTitle || 'Dashboard';
-
-  // Verificar se não está na página inicial para mostrar botão voltar
   const showBackButton = pathname !== '/' && pathname !== '/dashboard';
+
+  function handleLogout() {
+    if (window.confirm('Deseja realmente sair?')) {
+      localStorage.clear();
+      router.replace('/login');
+    }
+  }
 
   return (
     <header className={styles.header}>
       <div className={styles.leftSection}>
-          {isMobile && (
-            <button 
-              onClick={toggleSidebar}
-              className={styles.hamburgerButton}
-              aria-label="Toggle sidebar"
-            >
-              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          )}
+        {isMobile && (
+          <button 
+            onClick={toggleSidebar}
+            className={styles.hamburgerButton}
+            aria-label="Toggle sidebar"
+          >
+            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        )}
         {showBackButton && (
           <button onClick={handleGoBack} className={styles.backButton}>
             <ArrowLeft size={20} />
@@ -243,7 +197,6 @@ export function Header() {
       </div>
 
       <div className={styles.rightSection}>
-        {/* Seletor de Localização */}
         <div className={`${styles.locationSelector} locationSelector`}>
           <button 
             onClick={() => setShowLocationDropdown(!showLocationDropdown)}
@@ -255,7 +208,6 @@ export function Header() {
               className={`${styles.locationIcon} ${showLocationDropdown ? styles.locationIconOpen : ''}`} 
             />
           </button>
-          
           {showLocationDropdown && (
             <div className={styles.locationDropdown}>
               {localizacoes.map((loc) => (
@@ -273,12 +225,20 @@ export function Header() {
           )}
         </div>
 
-        {/* Perfil do usuário */}
         <div className={styles.perfil}>
           <div className={styles.perfilInfo}>
             <p className={styles.perfilName}>{nomeLogado}</p>
             <span className={styles.perfilEmail}>{emailLogado}</span>
           </div>
+          <button
+            type="button"
+            className={styles.icon}
+            onClick={handleLogout}
+            title="Sair"
+            aria-label="Sair"
+          >
+            <LogOut size={22} />
+          </button>
         </div>
       </div>
     </header>
