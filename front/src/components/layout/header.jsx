@@ -3,8 +3,8 @@
 import styles from './header.module.css';
 import { Bell, ArrowLeft, ChevronDown, Menu, X, LogOut } from 'lucide-react';
 import { usePathname, useParams, useRouter } from 'next/navigation';
-import { getApiUrl } from '@/lib/apiConfig';
 import React, { useEffect, useState } from 'react';
+import { getApiUrl } from '@/lib/apiConfig';
 import { useSidebar } from '@/hooks/useSidebar';
 
 export function Header() {
@@ -83,7 +83,7 @@ export function Header() {
   const fetchCurrentLocation = async (userId) => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(getApiUrl(`localizacoes/colaborador/${userId}/atual`), {
+      const response = await fetch(`http://localhost:3001/api/localizacoes/colaborador/${userId}/atual`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

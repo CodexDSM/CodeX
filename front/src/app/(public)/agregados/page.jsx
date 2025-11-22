@@ -1,7 +1,6 @@
 'use client'; 
 
 import React, { useState, useEffect } from 'react';
-import { getApiUrl } from '@/lib/apiConfig';
 import { mockTemplates } from './listaChecklists';
 import styles from './agregados.module.css';
 
@@ -14,9 +13,9 @@ const SpinnerIcon = () => (
 );
 
 export default function ChecklistPage() {
-  const API_BASE_URL = getApiUrl('');
-  const UPLOAD_ENDPOINT = `${API_BASE_URL}files/upload`;
-  const SUBMIT_ENDPOINT = `${API_BASE_URL}checklists/responses`;
+  const API_BASE_URL = 'http://localhost:3001'; 
+  const UPLOAD_ENDPOINT = `${API_BASE_URL}/api/files/upload`;
+  const SUBMIT_ENDPOINT = `${API_BASE_URL}/api/checklists/responses`;
 
   // --- Estados do Componente ---
   const [templates, setTemplates] = useState([]);

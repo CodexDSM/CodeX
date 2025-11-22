@@ -37,14 +37,15 @@ export function EventoTable({
   const sortedEventos = React.useMemo(() => {
     if (!sortConfig?.key) return eventos;
 
-    return [...eventos].sort((a, b) => {
-      let aValue = a[sortConfig.key];
-      let bValue = b[sortConfig.key];
+    const normalize = (val) => {
+      if (val === null || val === undefined) return '';
+      if (typeof val === 'string') return val.toLowerCase();
+      return val;
+    };
 
-      if (typeof aValue === 'string') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
+    return [...eventos].sort((a, b) => {
+      const aValue = normalize(a[sortConfig.key]);
+      const bValue = normalize(b[sortConfig.key]);
 
       if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
       if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
