@@ -3,7 +3,9 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
+  padding-bottom: 30rem;
   background-color: #f8fafc;
+  min-height: calc(100vh - 80px);
 }
 
 .header {
@@ -26,9 +28,8 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr 400px;
   gap: 2rem;
-  align-items: start;
 }
 
 .mainColumn {
@@ -39,7 +40,7 @@
 
 .sideColumn {
   position: sticky;
-  top: 80px;
+  top: 2rem;
   height: fit-content;
 }
 
@@ -372,71 +373,5 @@
 
   .sideColumn {
     position: static;
-    top: auto;
-  }
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 1rem;
-  }
-
-  .title {
-    font-size: 1.5rem;
-  }
-
-  .card {
-    padding: 1rem;
-  }
-
-  .cardTitle {
-    font-size: 1rem;
-  }
-
-  .fieldRow {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .container {
-    padding: 0.75rem;
-  }
-
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .title {
-    font-size: 1.25rem;
-  }
-
-  .card {
-    padding: 0.75rem;
-  }
-
-  .cardTitle {
-    font-size: 0.9375rem;
-  }
-
-  .field {
-    margin-bottom: 0.75rem;
-  }
-
-  .label {
-    font-size: 0.75rem;
-  }
-
-  .input,
-  .select,
-  .textarea {
-    padding: 0.5rem;
-    font-size: 0.75rem;
-  }
-
-  .button {
-    font-size: 0.75rem;
-    padding: 0.5rem 1rem;
   }
 }

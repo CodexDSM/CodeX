@@ -3,8 +3,15 @@ const pdfService = require('../services/pdfService');
 const emailService = require('../services/emailService');
 const cotacaoCalculoService = require('../services/cotacaoCalculoService');
 
-// NOTE: código field generation removed — using simple autoincrement `id` for cotacao.
-// The previous sequence logic was removed to simplify: cotacao.id (AUTO_INCREMENT) is used as identifier.
+async function gerarCodigoCotacao() {
+  const ano = new Date().getFullYear();
+  const [result] = await pool.execute(
+    'SELECT COUNT(*) as total FROM cotacao WHERE YEAR(criado_em) = ?',
+    [ano]
+  );
+  const numero = (result[0].total + 1).toString().padStart(4, '0');
+  return `COT-${ano}-${numero}`;
+}
 
 class CotacoesController {
   async calcular(req, res, next) {
@@ -46,6 +53,7 @@ class CotacoesController {
         enviar_email
       } = req.body;
 
+      const colaborador_id = req.user.id;
 
       if (!cliente_id || !tipo_servico) {
         return res.status(400).json({
@@ -80,41 +88,28 @@ class CotacoesController {
 
       const cliente = clientes[0];
 
-      const colaborador_id = req.user && req.user.id ? req.user.id : null;
+      const [colaboradores] = await connection.execute(
+        'SELECT id, nome, email, telefone FROM colaborador WHERE id = ?',
+        [colaborador_id]
+      );
 
-      // Busca colaborador (pode não existir se a tabela foi restaurada parcialmente)
-      let colaborador = null;
-      let colaboradorIdParaInsert = colaborador_id;
-      if (colaborador_id) {
-        const [colaboradores] = await connection.execute(
-          'SELECT id, nome, email, telefone FROM colaborador WHERE id = ?',
-          [colaborador_id]
-        );
-        colaborador = colaboradores[0] || null;
-      }
+      const colaborador = colaboradores[0];
 
-      // Se não encontrarmos o colaborador no banco, não falhamos com FK —
-      // usamos NULL no insert e um objeto fallback para evitar erros posteriores
-      if (!colaborador) {
-        colaboradorIdParaInsert = null;
-        colaborador = { id: null, nome: 'Sistema', email: null, telefone: null };
-      }
+      const codigo = await gerarCodigoCotacao();
 
-      // Tentativa de inserir cotação com retry em caso de colisão no código
-      // Inserção simples: não usamos mais o campo `codigo` gerado — usar `id` autoincrement como identificador
       const validadeAte = new Date();
       validadeAte.setDate(validadeAte.getDate() + 7);
 
       const [resultCotacao] = await connection.execute(
         `INSERT INTO cotacao (
-          cliente_id, colaborador_id, tipo_servico, origem, destino,
+          codigo, cliente_id, colaborador_id, tipo_servico, origem, destino,
           codigo_iata_destino, peso_kg, km_percorrido, tipo_veiculo,
           valor_base_tabela, valor_generalidades, valor_cliente,
           valor_agregado, percentual_rentabilidade, valor_rentabilidade,
           valor_total, observacoes, validade_ate, status, status_aprovacao
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-          cliente_id, colaboradorIdParaInsert, tipo_servico, origem, destino,
+          codigo, cliente_id, colaborador_id, tipo_servico, origem, destino,
           codigo_iata_destino, peso_kg, km_percorrido, tipo_veiculo,
           calculos.valorBase, calculos.valorGeneralidades, calculos.valorCliente,
           calculos.valorAgregado, calculos.percentualRentabilidade, calculos.valorRentabilidade,
@@ -124,13 +119,6 @@ class CotacoesController {
       );
 
       const cotacao_id = resultCotacao.insertId;
-
-      // Preencher o campo `codigo` no formato simples COT-<id>
-      const codigoGerado = `COT-${cotacao_id}`;
-      await connection.execute(
-        'UPDATE cotacao SET codigo = ? WHERE id = ?',
-        [codigoGerado, cotacao_id]
-      );
 
       if (valor_frete_agregado && valor_km_agregado) {
         await connection.execute(
@@ -194,7 +182,7 @@ class CotacoesController {
         message: enviar_email ? 'Cotação criada e enviada com sucesso!' : 'Cotação criada como rascunho',
         data: {
           id: cotacao_id,
-          codigo: codigoGerado,
+          codigo,
           pdf_filename: filename,
           ...calculos
         }
@@ -340,75 +328,27 @@ class CotacoesController {
   }
 
   async aprovar(req, res, next) {
-    const connection = await pool.getConnection();
     try {
       const { id } = req.params;
-      await connection.beginTransaction();
 
-      const [result] = await connection.execute(
+      const [result] = await pool.execute(
         'UPDATE cotacao SET status_aprovacao = ?, aprovada_em = NOW() WHERE id = ?',
         ['Aprovada', id]
       );
 
       if (result.affectedRows === 0) {
-        await connection.rollback();
         return res.status(404).json({
           success: false,
           message: 'Cotação não encontrada'
         });
       }
 
-      // Cria uma ordem de serviço a partir da cotação aprovada
-      const [cotacoes] = await connection.execute(
-        'SELECT * FROM cotacao WHERE id = ?',
-        [id]
-      );
-
-      const cotacao = cotacoes[0];
-
-      // Insere OS com um código temporário único (coluna `codigo` é NOT NULL/UNIQUE)
-      // Depois preenchemos com o formato final OS-<id> usando o insertId.
-      const tempCodigo = `OS-TMP-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-
-      const [insertOS] = await connection.execute(
-        `INSERT INTO ordens_servico (
-          codigo, cotacao_id, cliente_id, colaborador_id, origem, destino,
-          distancia_km, peso_kg, valor, status, data_entrega_prevista, observacoes, dados
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          tempCodigo,
-          cotacao.id,
-          cotacao.cliente_id,
-          cotacao.colaborador_id,
-          cotacao.origem,
-          cotacao.destino,
-          cotacao.km_percorrido || null,
-          cotacao.peso_kg || null,
-          cotacao.valor_cliente || null,
-          'Pendente',
-          cotacao.validade_ate || null,
-          cotacao.observacoes || null,
-          JSON.stringify({ criado_por_cotacao: cotacao.id })
-        ]
-      );
-
-      const osId = insertOS.insertId;
-
-      const codigoOS = `OS-${osId}`;
-      await connection.execute('UPDATE ordens_servico SET codigo = ? WHERE id = ?', [codigoOS, osId]);
-
-      await connection.commit();
-
       res.json({
         success: true,
-        message: 'Cotação aprovada e OS criada com sucesso',
-        data: { osId, codigo: codigoOS }
+        message: 'Cotação aprovada com sucesso'
       });
     } catch (error) {
-      await connection.rollback();
       return next(error);
-    } finally {
-      connection.release();
     }
   }
 

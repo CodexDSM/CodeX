@@ -1,18 +1,14 @@
 'use client';
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { getApiUrl } from "@/lib/apiConfig";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import styles from "./interacoes.module.css";
-import { ArrowLeft } from "lucide-react";
 
 export default function InteracoesClientePage() {
-  const router = useRouter();
   const { id: clientId } = useParams();
   const [interacoes, setInteracoes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [clienteNome, setClienteNome] = useState("");
 
   const [form, setForm] = useState({
     tipo_interacao: '',
@@ -28,20 +24,8 @@ export default function InteracoesClientePage() {
       setError(null);
       try {
         const token = localStorage.getItem("authToken");
-        
-        // Buscar dados do cliente
-        const clientResp = await fetch(
-          `http://localhost:3001/api/clientes/${clientId}`,
-          { headers: { "Authorization": `Bearer ${token}` } }
-        );
-        if (clientResp.ok) {
-          const clientData = await clientResp.json();
-          setClienteNome(clientData.nome);
-        }
-
-        // Buscar interações
         const response = await fetch(
-          `${getApiUrl(`clients/${clientId}/interactions`)}`,
+          `http://localhost:3001/api/clients/${clientId}/interactions`,
           { headers: { "Authorization": `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Erro ao buscar interações");
@@ -53,7 +37,7 @@ export default function InteracoesClientePage() {
         setLoading(false);
       }
     };
-    if (clientId) fetchInteracoes();
+    fetchInteracoes();
   }, [clientId, isSubmitting]);
 
   const handleChange = e => {
@@ -74,7 +58,7 @@ export default function InteracoesClientePage() {
         detalhes: form.detalhes
       };
       const response = await fetch(
-        `${getApiUrl(`clients/${clientId}/interactions`)}`,
+        `http://localhost:3001/api/clients/${clientId}/interactions`,
         {
           method: 'POST',
           headers: {
@@ -101,23 +85,7 @@ export default function InteracoesClientePage() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-          <button
-            onClick={() => router.back()}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '4px',
-              color: '#4a90e2'
-            }}
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <h1 className={styles.title}>
-            Interações - {clienteNome || "Cliente"}
-          </h1>
-        </div>
+        <h1 className={styles.title}>Interações do Cliente</h1>
       </div>
 
       <div className={styles.layout}>
@@ -125,7 +93,6 @@ export default function InteracoesClientePage() {
         <div className={styles.formColumn}>
           <div className={styles.formBox}>
             <h2 className={styles.sectionTitle}>Nova Interação</h2>
-            {error && <div style={{ background: '#fee2e2', color: '#dc2626', padding: '12px', borderRadius: '6px', marginBottom: '12px', fontSize: '14px' }}>{error}</div>}
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.field}>
                 <label className={styles.label}>Tipo de Interação</label>
@@ -135,7 +102,6 @@ export default function InteracoesClientePage() {
                   onChange={handleChange}
                   required
                   className={styles.input}
-                  style={{ padding: '8px 12px' }}
                 >
                   <option value="">Selecione...</option>
                   <option value="Ligação">Ligação</option>
@@ -203,7 +169,7 @@ export default function InteracoesClientePage() {
             <div className={styles.listContent}>
               {loading ? (
                 <div className={styles.message}>Carregando...</div>
-              ) : error && !isSubmitting ? (
+              ) : error ? (
                 <div className={styles.error}>Erro: {error}</div>
               ) : interacoes.length === 0 ? (
                 <div className={styles.message}>Nenhuma interação encontrada.</div>
