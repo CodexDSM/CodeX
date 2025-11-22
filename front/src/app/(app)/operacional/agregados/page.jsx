@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getApiUrl } from '@/lib/apiConfig';
 import {
     Container, Typography, Paper, Button, Box,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
@@ -69,9 +68,9 @@ export default function ListarSubmissionsPage() {
             try {
                 let apiUrl = '';
                 if (selectedType === 'agregado_form') {
-                    apiUrl = getApiUrl('agregados');
+                    apiUrl = 'http://localhost:3001/api/agregados';
                 } else {
-                    apiUrl = getApiUrl(`checklists/respostas?templateId=${selectedType}`);
+                    apiUrl = `http://localhost:3001/api/checklists/respostas?templateId=${selectedType}`;
                 }
 
                 const authToken = localStorage.getItem('authToken');

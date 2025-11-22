@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, CheckCircle, XCircle, Trash2, Truck } from "lucide-react";
+import { Mail, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import styles from "./detalheCotacao.module.css";
 import cotacaoService from "@/services/cotacaoService";
 

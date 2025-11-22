@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
-import { getApiUrl } from '@/lib/apiConfig';
 import {
   Select,
   SelectContent,
@@ -46,7 +45,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const response = await fetch(getApiUrl('colaboradores/login'), {
+      const response = await fetch('http://localhost:3001/api/colaboradores/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
