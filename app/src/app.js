@@ -20,6 +20,7 @@ const generalidadesRoutes = require('./routes/generalidadesRoutes');
 const tabelaPrecoRoutes = require('./routes/tabelaPrecoRoutes');
 const acompanhamentoRoutes = require('./routes/acompanhamentoRoutes');
 const faturamentoRoutes = require('./routes/faturamentoRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
@@ -77,6 +78,7 @@ app.use('/api/cotacoes/tabelas-preco', tabelaPrecoRoutes);
 app.use('/api/cotacoes', cotacoesRoutes);
 app.use('/api/acompanhamento', acompanhamentoRoutes);
 app.use('/api/faturamentos', faturamentoRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'API funcionando' });
