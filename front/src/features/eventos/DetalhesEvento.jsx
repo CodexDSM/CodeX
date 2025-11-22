@@ -5,14 +5,22 @@ import styles from './DetalhesEvento.module.css'
 export function DetalhesEvento({ evento, onClose, onConfirm, onDeny }) {
   if (!evento) return null // Se não tem evento n retorna nada
 
+  const hoje = new Date()
+  const eventoPassado = evento.start < hoje
+
+  const status = evento.resource.status; 
+  const concluido = evento.resource.concluido
+  const valorNota = evento.resource.nota
+  const valorFeedback = evento.resource.feedback
+
   const [view, setView] = useState('details')
   const [justificativa, setJustificativa] = useState('')
 
 
   const handleRecusarClick = () => { setView('refusing') }
-  const hoje = new Date()
+  
 
-  const [feedback, setFeedback] = useState({ nota: 0, comentario: '' });
+  const [feedback, setFeedback] = useState({ nota: valorNota, comentario: valorFeedback  || '' });
   const handleFeedbackChange = (campo, valor) => {
     setFeedback(prev => ({ ...prev, [campo]: valor }));
   };
@@ -32,22 +40,45 @@ export function DetalhesEvento({ evento, onClose, onConfirm, onDeny }) {
     }
 
     // Simulação da Chamada à API 
-    console.log("Enviando feedback para a API:", feedback);
-    console.log("Marcando evento como concluído para o evento ID:", evento.resource.id);
+    //console.log("Enviando feedback para a API:", feedback);
+    //Wconsole.log("Marcando evento como concluído para o evento ID:", evento.resource.id);
 
     try {
-      alert("Obrigado pelo seu feedback!");
-      onClose();
+      const token = localStorage.getItem('authToken');
 
-    } catch (error) {
-      console.error("Erro ao enviar feedback:", error);
-      alert("Houve um erro ao enviar seu feedback. Tente novamente.");
+      const response = await fetch(
+        
+        `http://localhost:3001/api/eventos/${evento.resource.id}/feedback`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            nota: feedback.nota,
+            comentario: feedback.comentario 
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Erro ao confirmar: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log("Marcado como Concluido:", result);
+      alert('Evento marcado como Concluido!');
+
+      onClose()
+    } catch (err) {
+      console.error('Erro ao confirmar evento:', err);
+      alert(err.message || 'Erro ao marcar como Concluido. Tente novamente.');
     }
   };
 
-  const eventoPassado = evento.start < hoje
 
-  const status = evento.resource.status; // Adicione esta linha
 
   if (!evento) { return null }
 
@@ -111,11 +142,12 @@ export function DetalhesEvento({ evento, onClose, onConfirm, onDeny }) {
             <p><strong>Início: </strong>{evento.start.toLocaleString('pt-BR')} </p>
             <p><strong>Fim: </strong>{evento.end.toLocaleString('pt-BR')}  </p>
 
+           
             <>
-
               <div className={styles.starsContainer}>
                 <div className={styles.starsTitle}>
                   <p>Deixe sua Nota!(obrigatorio)</p>
+                 
                 </div>
 
 
@@ -135,13 +167,15 @@ export function DetalhesEvento({ evento, onClose, onConfirm, onDeny }) {
                   placeholder='Escreva o que gostou, ou sugestões de melhoria.'
                   onChange={(e) => handleFeedbackChange('comentario', e.target.value)} rows={3}></textarea>
               </div>
-
+               {!concluido && (
               <div className={styles.actions}>
 
                 <button onClick={handleEnviarFeedback} className={styles.confirmButton}
                   disabled={feedback.nota === 0}>Marcar como concluido</button>
               </div>
+              )}
             </>
+            
             <button onClick={onClose} className={styles.closeButton}>X</button>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { mockTemplates } from '../listaChecklists';
+import { API_BASE_URL, getApiUrl } from '@/lib/apiConfig';
 import styles from './checklist.module.css';
 import FormAgregado from '@/components/layout/FormAgregado'; // Supondo que este seja o caminho correto
 
@@ -16,9 +17,8 @@ const SpinnerIcon = () => (
 // --- Componente Principal da Página ---
 export default function ChecklistPage() {
   // --- CONFIGURAÇÃO DA API ---
-  const API_BASE_URL = 'http://localhost:3001';
-  const UPLOAD_ENDPOINT = `${API_BASE_URL}/api/files/upload`;
-  const SUBMIT_ENDPOINT = `${API_BASE_URL}/api/checklists/responses`;
+  const UPLOAD_ENDPOINT = getApiUrl('files/upload');
+  const SUBMIT_ENDPOINT = getApiUrl('checklists/responses');
 
   // --- Estados do Componente ---
   const [templates, setTemplates] = useState([]);

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getApiUrl } from "@/lib/apiConfig";
 import styles from "./detalhe.module.css";
 import { Edit, Save, XCircle, Trash2 } from "lucide-react";
 import React from 'react';
@@ -51,7 +52,7 @@ export default function DetalheEventoPage({ params }) {
     try {
       const token = localStorage.getItem("authToken");
       const response = await fetch(
-        `http://localhost:3001/api/eventos/${eventoId}/colaboradores`,
+        `${getApiUrl(`eventos/${eventoId}/colaboradores`)}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -79,7 +80,7 @@ export default function DetalheEventoPage({ params }) {
       setLoading(true);
       try {
         const token = localStorage.getItem("authToken");
-        const response = await fetch(`http://localhost:3001/api/eventos/${eventoId}`, {
+        const response = await fetch(`${getApiUrl(`eventos/${eventoId}`)}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -145,7 +146,7 @@ export default function DetalheEventoPage({ params }) {
         data_fim: formatDateTimeLocalToSQL(formData.data_fim),
       };
 
-      const response = await fetch(`http://localhost:3001/api/eventos/${eventoId}`, {
+      const response = await fetch(`${getApiUrl(`eventos/${eventoId}`)}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -176,7 +177,7 @@ export default function DetalheEventoPage({ params }) {
 
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch(`http://localhost:3001/api/eventos/${eventoId}`, {
+      const response = await fetch(`${getApiUrl(`eventos/${eventoId}`)}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -210,7 +211,7 @@ export default function DetalheEventoPage({ params }) {
         responsavel_id: formData.responsavel_id // Adicione esta linha
       };
 
-      const response = await fetch(`http://localhost:3001/api/eventos/${eventoId}`, {
+      const response = await fetch(`${getApiUrl(`eventos/${eventoId}`)}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -427,7 +428,7 @@ export default function DetalheEventoPage({ params }) {
                           </div>
 
                           {/* Mostrar se concluiu o evento */}
-                          {colab.concluido && (
+                          {colab.concluido === 1 && 
                             <span
                               className={styles.badgeConcluido}
                               style={{
@@ -441,12 +442,13 @@ export default function DetalheEventoPage({ params }) {
                             >
                               ✓ Concluído
                             </span>
-                          )}
+                          }
                         </div>
 
                         {/* Feedback */}
                         <div className={styles.feedbackContent}>
-                          <p>{colab.feedback}</p>
+                          <p>Comentario: {colab.feedback}</p>
+                          <p>Nota: {colab.nota}</p>
                         </div>
                       </div>
                     ))}
