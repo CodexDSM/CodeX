@@ -215,21 +215,25 @@ export default function FaturamentosPage() {
         return;
       }
 
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      const now = new Date();
-      const timestamp = `${now.getFullYear()}-${String(
-        now.getMonth() + 1
-      ).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(
-        now.getHours()
-      ).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
-      link.href = url;
-      link.download = `faturamentos_${timestamp}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+        // Ensure CSV is downloaded with UTF-8 BOM so Excel opens accents correctly
+        const blob = await res.blob();
+        const csvText = await blob.text();
+        const bom = '\uFEFF';
+        const newBlob = new Blob([bom + csvText], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(newBlob);
+        const link = document.createElement('a');
+        const now = new Date();
+        const timestamp = `${now.getFullYear()}-${String(
+          now.getMonth() + 1
+        ).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(
+          now.getHours()
+        ).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+        link.href = url;
+        link.download = `faturamentos_${timestamp}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
     } catch (e) {
       setExportError('Falha na exportação de faturamentos');
     } finally {
@@ -382,7 +386,7 @@ export default function FaturamentosPage() {
                   disabled={exportLoading || !!dateError}
                   className={styles.buttonGhost}
                 >
-                  {exportLoading ? 'Exportando...' : 'Exportar CSV'}
+                  {exportLoading ? 'Exportando...' : 'Exportar Excel'}
                 </button>
 
                 <button

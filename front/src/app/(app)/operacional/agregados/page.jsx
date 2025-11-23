@@ -37,8 +37,9 @@ export default function ListarSubmissionsPage() {
     const [selectedType, setSelectedType] = useState('agregado_form');
     const [templates, setTemplates] = useState([]);
     const [loadingTemplates, setLoadingTemplates] = useState(true);
+    const [exportLoading, setExportLoading] = useState(false);
+    const [exportError, setExportError] = useState(null);
 
-    // Buscar templates disponíveis (pode ser expandido para buscar do banco futuramente)
     useEffect(() => {
         const fetchTemplates = async () => {
             try {
@@ -141,11 +142,20 @@ export default function ListarSubmissionsPage() {
                 <Typography variant="h4" component="h1">
                     Histórico de Formulários
                 </Typography>
-                <Link href="/operacional/checklist" passHref>
-                    <Button variant="contained" color="primary">
-                        Preencher Formulário
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <Link href="/operacional/checklist" passHref>
+                        <Button variant="contained" color="primary">
+                            Preencher Formulário
+                        </Button>
+                    </Link>
+                    <Button
+                        variant="outlined"
+                        onClick={() => handleExportCsv()}
+                        disabled={loading || exportLoading || submissions.length === 0}
+                    >
+                        {exportLoading ? 'Exportando...' : 'Exportar Excel'}
                     </Button>
-                </Link>
+                </Box>
             </Box>
 
             <Paper sx={{ p: 3 }}>
@@ -174,6 +184,11 @@ export default function ListarSubmissionsPage() {
                 {error && (
                     <Typography color="error" sx={{ p: 2 }}>
                         Erro: {error}
+                    </Typography>
+                )}
+                {exportError && (
+                    <Typography color="error" sx={{ p: 2 }}>
+                        Erro exportação: {exportError}
                     </Typography>
                 )}
 
@@ -231,4 +246,102 @@ export default function ListarSubmissionsPage() {
             </Paper>
         </Container>
     );
+
+    async function handleExportCsv() {
+        setExportError(null);
+        setExportLoading(true);
+        try {
+            if (!selectedType) throw new Error('Selecione um formulário.');
+
+            let apiUrl = '';
+            if (selectedType === 'agregado_form') {
+                apiUrl = getApiUrl('agregados');
+            } else {
+                apiUrl = getApiUrl(`checklists/respostas?templateId=${selectedType}`);
+            }
+
+            const authToken = localStorage.getItem('authToken');
+            const response = await fetch(apiUrl, {
+                headers: { 'Authorization': `Bearer ${authToken}` },
+            });
+
+            if (!response.ok) {
+                const txt = await response.text();
+                throw new Error(txt || 'Falha ao buscar dados para exportação.');
+            }
+
+            const responseData = await response.json();
+            let dataArray = [];
+            if (selectedType === 'agregado_form') {
+                dataArray = responseData.data || [];
+            } else {
+                dataArray = Array.isArray(responseData) ? responseData : [];
+            }
+
+            if (!dataArray.length) {
+                throw new Error('Nenhum registro disponível para exportação.');
+            }
+
+            // Use current visible columns if available, otherwise derive from first row
+            const cols = (columns && columns.length) ? columns : Object.keys(dataArray[0] || {});
+
+            const sep = ';';
+            const escapeCell = (s) => {
+                if (s == null) return '';
+                const str = String(s).replace(/"/g, '""');
+                if (str.includes(sep) || str.includes('\n') || str.includes('"')) return `"${str}"`;
+                return str;
+            };
+
+            const formatNumberForExcel = (v) => {
+                if (v == null || v === '') return '';
+                const n = Number(v);
+                if (Number.isNaN(n)) return String(v);
+                return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            };
+
+            const formatValue = (val) => {
+                if (val == null) return '';
+                // Dates
+                if (typeof val === 'string' && val.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
+                    const d = new Date(val);
+                    return d.toLocaleString('pt-BR');
+                }
+                if (typeof val === 'number') return formatNumberForExcel(val);
+                if (typeof val === 'string' && /^-?\d+(?:\.\d+)?$/.test(val)) return formatNumberForExcel(Number(val));
+                if (val === 0) return 'Não';
+                if (val === 1) return 'Sim';
+                return String(val);
+            };
+
+            const lines = [];
+            // Header row
+            lines.push(cols.map(c => escapeCell(formatHeader(c))).join(sep));
+
+            for (const row of dataArray) {
+                const cells = cols.map(col => escapeCell(formatValue(row[col])));
+                lines.push(cells.join(sep));
+            }
+
+            const csvText = lines.join('\r\n');
+            const bom = '\uFEFF';
+            const blob = new Blob([bom + csvText], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const now = new Date();
+            const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+            link.href = url;
+            link.download = `respostas_checklist_${timestamp}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+        } catch (err) {
+            console.error('Erro export CSV', err);
+            setExportError(err.message || 'Erro ao exportar CSV');
+        } finally {
+            setExportLoading(false);
+        }
+    }
 }

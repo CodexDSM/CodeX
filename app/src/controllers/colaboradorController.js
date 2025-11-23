@@ -97,6 +97,19 @@ class ColaboradorController {
         { expiresIn: process.env.JWT_EXPIRES_IN }
       );
 
+      // Tenta gravar um registro de login na tabela `colaborador_logins` (se existir)
+      try {
+        const ip = req.ip || (req.headers && (req.headers['x-forwarded-for'] || req.connection && req.connection.remoteAddress)) || null;
+        const userAgent = req.headers && (req.headers['user-agent'] || null);
+        await pool.execute(
+          'INSERT INTO colaborador_logins (colaborador_id, timestamp, ip, user_agent) VALUES (?, NOW(), ?, ?)',
+          [colaborador.id, ip, userAgent]
+        );
+      } catch (logErr) {
+        // Se a tabela não existir ou ocorrer outro erro, apenas logue e prossiga.
+        console.warn('Não foi possível gravar colaborador_logins (tabela ausente?), erro:', logErr.code || logErr.message);
+      }
+
       delete colaborador.senha;
       res.json({ 
         message: 'Login bem-sucedido', 
@@ -221,6 +234,58 @@ class ColaboradorController {
       }
 
       res.json(rows[0]);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Retorna histórico de logins de um colaborador (últimos N dias)
+  async loginsByColaborador(req, res, next) {
+    try {
+      const { id } = req.params;
+      const days = parseInt(req.query.days || '30', 10);
+
+      try {
+        const [rows] = await pool.execute(
+          'SELECT timestamp AS ts FROM colaborador_logins WHERE colaborador_id = ? AND timestamp >= DATE_SUB(NOW(), INTERVAL ? DAY) ORDER BY timestamp DESC',
+          [id, days]
+        );
+        // normalize to array of ISO strings
+        const out = (rows || []).map(r => (r.ts ? r.ts : r.timestamp || r.date)).map(v => (v ? new Date(v).toISOString() : null)).filter(Boolean);
+        return res.json({ success: true, data: out });
+      } catch (err) {
+        // If table doesn't exist or any other DB error, return empty array instead of 500
+        console.warn('Erro ao buscar colaborador_logins (pode ser tabela ausente):', err.code || err.message);
+        return res.json({ success: true, data: [] });
+      }
+
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Rota genérica para consultar logins por query string (colaborador_id, days)
+  async logins(req, res, next) {
+    try {
+      const colaborador_id = req.query.colaborador_id || req.query.colaboradorId;
+      const days = parseInt(req.query.days || '30', 10);
+
+      if (!colaborador_id) {
+        return res.status(400).json({ success: false, message: 'colaborador_id é obrigatório' });
+      }
+
+      try {
+        const [rows] = await pool.execute(
+          'SELECT timestamp AS ts FROM colaborador_logins WHERE colaborador_id = ? AND timestamp >= DATE_SUB(NOW(), INTERVAL ? DAY) ORDER BY timestamp DESC',
+          [colaborador_id, days]
+        );
+        const out = (rows || []).map(r => (r.ts ? r.ts : r.timestamp || r.date)).map(v => (v ? new Date(v).toISOString() : null)).filter(Boolean);
+        return res.json({ success: true, data: out });
+      } catch (err) {
+        console.warn('Erro ao buscar colaborador_logins (pode ser tabela ausente):', err.code || err.message);
+        return res.json({ success: true, data: [] });
+      }
+
     } catch (error) {
       next(error);
     }

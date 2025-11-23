@@ -122,6 +122,18 @@ exports.relatorioFaturamentos = async (req, res) => {
       doc.fontSize(10).fillColor('#bfdbfe').text('Relatório Executivo', MARGIN_LEFT, 65);
       doc.fontSize(8).fillColor('#cbd5e1').text(`${dateStr} • ${timeStr}`, MARGIN_LEFT, 80);
 
+      // Footer helper to add page numbers
+      function drawFooter(docInstance) {
+        const bottom = 740;
+        docInstance.lineWidth(0.5).strokeColor(GRAY_200).moveTo(MARGIN_LEFT, bottom).lineTo(MARGIN_LEFT + CONTENT_WIDTH, bottom).stroke();
+        docInstance.fontSize(8).fillColor(TEXT_SECONDARY).text(`Gerado em ${dateStr} às ${timeStr} • Página ${docInstance.page.number}`, MARGIN_LEFT, bottom + 6, { align: 'center', width: CONTENT_WIDTH });
+      }
+
+      // draw footer on page add
+      doc.on('pageAdded', () => {
+        drawFooter(doc);
+      });
+
       let y = MARGIN_TOP + 70;
 
       // Filtros
@@ -371,10 +383,8 @@ exports.relatorioFaturamentos = async (req, res) => {
         doc.fontSize(7).fillColor(TEXT_SECONDARY).text(`... e mais ${rows.length - maxTableRows} registros`, MARGIN_LEFT + 4, y + 6);
       }
 
-      // Footer
-      y = 740;
-      doc.lineWidth(0.5).strokeColor(GRAY_200).moveTo(MARGIN_LEFT, y).lineTo(MARGIN_LEFT + CONTENT_WIDTH, y).stroke();
-      doc.fontSize(6).fillColor(TEXT_SECONDARY).text(`Gerado em ${dateStr} às ${timeStr}`, MARGIN_LEFT, y + 6, { align: 'center', width: CONTENT_WIDTH });
+      // Footer on last page
+      drawFooter(doc);
 
       doc.end();
       return;
