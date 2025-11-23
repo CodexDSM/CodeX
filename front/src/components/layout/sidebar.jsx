@@ -15,7 +15,8 @@ import {
   NotepadText,
   Calculator,
   DollarSign,
-  Table
+  Table,
+  LayoutDashboard
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
@@ -69,6 +70,11 @@ export function Sidebar() {
       >
         <h1 className={styles.logo}>Newe</h1>
         <ul className={styles.navList}>
+          <li className={styles.navItem}>
+          <Link href="/dashboard"
+            className={pathname === '/dashboard' ? styles.activeLink : ''}>
+            <LayoutDashboard size={16} /> Dashboards</Link>
+        </li>
           <li className={styles.navItem}>
             <Link
               href="/eventos"
