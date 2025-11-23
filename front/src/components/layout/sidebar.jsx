@@ -71,8 +71,8 @@ export function Sidebar() {
         <h1 className={styles.logo}>Newe</h1>
         <ul className={styles.navList}>
           <li className={styles.navItem}>
-          <Link href="/dashboard"
-            className={pathname === '/dashboard' ? styles.activeLink : ''}>
+          <Link href="/dashboards"
+            className={pathname === '/dashboards' ? styles.activeLink : ''}>
             <LayoutDashboard size={16} /> Dashboards</Link>
         </li>
           <li className={styles.navItem}>
