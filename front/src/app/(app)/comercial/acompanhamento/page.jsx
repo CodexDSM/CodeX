@@ -189,7 +189,7 @@ export default function AcompanhamentoPage() {
                                                                     </span>
                                                                 </div>
                                                                 <div className={styles.cardClient}>
-                                                                     {item.cliente_nome ?? 'Sem cliente'}
+                                                                    👤 {item.cliente_nome ?? 'Sem cliente'}
                                                                 </div>
                                                                 {item.descricao && (
                                                                     <div className={styles.cardDesc}>{item.descricao}</div>

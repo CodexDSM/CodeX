@@ -1,4 +1,3 @@
-// src/app/(app)/operacional/ordens-servico/OSDetalhesModal.jsx
 'use client';
 import { useState, useEffect } from 'react';
 import styles from './modalFrete.module.css';

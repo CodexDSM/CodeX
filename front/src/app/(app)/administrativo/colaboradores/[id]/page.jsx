@@ -10,7 +10,7 @@ export default function DetalheColaboradorPage({ params }) {
   const router = useRouter();
   const unwrappedParams = React.use(params);
   const colaboradorId = unwrappedParams.id;
-    
+
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -45,9 +45,9 @@ export default function DetalheColaboradorPage({ params }) {
             'Authorization': `Bearer ${token}`,
           },
         });
-  
+
         const data = await response.json();
-  
+
         if (response.ok) {
           const colaboradorData = {
             nome: data.nome || '',
@@ -68,16 +68,14 @@ export default function DetalheColaboradorPage({ params }) {
 
           setFormData(colaboradorData);
           setInitialData(colaboradorData);
-        } else {
-          console.error("Erro ao buscar colaborador:", data.message);
         }
       } catch (err) {
-        console.error("Erro de rede:", err);
+        // erro silencioso
       } finally {
         setLoading(false);
       }
     }
-  
+
     fetchColaborador();
   }, [colaboradorId]);
 
@@ -131,9 +129,7 @@ export default function DetalheColaboradorPage({ params }) {
               tipo_localizacao: formData.tipo_localizacao
             })
           });
-        } catch (locError) {
-          console.error('Erro ao registrar localização:', locError);
-        }
+        } catch {}
       }
 
       const response = await fetch(`${getApiUrl(`colaboradores/${colaboradorId}`)}`, {
@@ -152,21 +148,19 @@ export default function DetalheColaboradorPage({ params }) {
       } else {
         alert("Erro ao salvar: " + data.message);
       }
-    } catch (err) {
+    } catch {
       alert("Erro de rede ao salvar colaborador.");
     }
   };
 
   const formatTipoLocalizacao = (tipo) => {
     if (!tipo) return 'Não definido';
-    
     const tipos = {
       'Presencial': 'Presencial',
       'Home Office': 'Home Office',
       'Evento': 'Evento',
       'Treinamento': 'Treinamento'
     };
-    
     return tipos[tipo] || tipo.replace(/_/g, ' ');
   };
 
@@ -175,7 +169,6 @@ export default function DetalheColaboradorPage({ params }) {
       <form onSubmit={handleSubmit}>
         <div className={styles.header}>
           <h1 className={styles.nome}>Detalhes do Colaborador</h1>
-          
           <div className={styles.actionButtons}>
             {isEditing ? (
               <>
@@ -292,11 +285,11 @@ export default function DetalheColaboradorPage({ params }) {
             {isEditing ? (
               <select
                 name="tipo_localizacao"
-                  value={formData.tipo_localizacao}
-                    onChange={handleChange}
-                      className={styles.input}
-                        style={{ position: 'static', zIndex: 1 }}
-                                                                  >
+                value={formData.tipo_localizacao}
+                onChange={handleChange}
+                className={styles.input}
+                style={{ position: 'static', zIndex: 1 }}
+              >
                 <option value="">Selecione...</option>
                 <option value="Presencial">Presencial</option>
                 <option value="Home Office">Home Office</option>
@@ -311,11 +304,6 @@ export default function DetalheColaboradorPage({ params }) {
               />
             )}
           </div>
-
-          
-          
-          
-         
         </div>
       </form>
     </div>

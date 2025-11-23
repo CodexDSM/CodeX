@@ -113,3 +113,71 @@
     max-height: 200px !important;
   }
 }
+
+/* Export button utilities (compact icon and regular) */
+.exportCorner {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.exportBtnIconSmall {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(2,6,23,0.04);
+}
+
+.exportBtnIconPrimary {
+  background: linear-gradient(180deg,#2b6cdf,#1e4fd6);
+  color: white;
+}
+
+.exportBtnIconSecondary {
+  background: white;
+  color: #0f172a;
+}
+
+.exportControls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.exportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.exportBtnPrimary { 
+  background: linear-gradient(180deg,#2563eb,#1e40af); 
+  color: white; 
+  box-shadow: 0 6px 18px rgba(37,99,235,0.18);
+  border: 1px solid rgba(14,75,213,0.12);
+  transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+.exportBtnPrimary:hover { transform: translateY(-2px); filter: brightness(1.02); box-shadow: 0 10px 24px rgba(37,99,235,0.2); }
+.exportBtnPrimary:focus { outline: 3px solid rgba(37,99,235,0.16); outline-offset: 2px; }
+
+.exportBtnSecondary { 
+  background: white; 
+  color: #0f172a; 
+  border: 1px solid #e6eefc; 
+  transition: transform 0.08s ease, box-shadow 0.12s ease;
+}
+.exportBtnSecondary:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(15,23,42,0.06); }
+.exportBtnSecondary:focus { outline: 3px solid rgba(15,23,42,0.06); outline-offset: 2px; }
+
+.exportBtn svg { width: 16px; height: 16px; }
+.exportBtn .label { display:inline-block; }

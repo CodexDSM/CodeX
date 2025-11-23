@@ -17,6 +17,11 @@ router.put('/:id', authorizeRoles('Administrador', 'Gerente'), colaboradorContro
 router.delete('/:id', authorizeRoles('Administrador', 'Gerente'), colaboradorController.destroy);
 
 // Rotas que qualquer colaborador pode acessar para ver/editar seus próprios dados
+// Rotas para histórico de logins (últimos X dias)
+router.get('/:id/logins', colaboradorController.loginsByColaborador);
+router.get('/logins', colaboradorController.logins);
+
+// rota para ver colaborador (deve ficar depois das rotas específicas acima)
 router.get('/:id', colaboradorController.show);
 router.patch('/:id/senha', colaboradorController.changePassword);
 

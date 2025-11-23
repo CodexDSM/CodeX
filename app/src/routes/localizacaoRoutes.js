@@ -19,4 +19,7 @@ router.get('/', authorizeRoles('Administrador', 'Gerente'), localizacaoControlle
 // Estatísticas de localização atual (apenas admin/gerente)
 router.get('/estatisticas', authorizeRoles('Administrador', 'Gerente'), localizacaoController.getEstatisticasAtuais);
 
+// Relatório (CSV / PDF)
+router.post('/relatorio', authorizeRoles('Administrador', 'Gerente', 'Comercial'), localizacaoController.relatorio);
+
 module.exports = router;

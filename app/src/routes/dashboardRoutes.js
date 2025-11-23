@@ -13,5 +13,6 @@ router.get('/cotacoes-metrics', authenticateToken, dashboardController.cotacoesM
 router.get('/tipo-servico', authenticateToken, dashboardController.tipoServicos);
 router.get('/cliente-share', authenticateToken, dashboardController.clienteShare);
 router.get('/evolucao-valores', authenticateToken, dashboardController.evolucaoValores);
+router.post('/relatorio', authenticateToken, dashboardController.relatorio);
 
 module.exports = router;

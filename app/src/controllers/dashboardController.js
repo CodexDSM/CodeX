@@ -1,5 +1,12 @@
 const pool = require('../config/database');
 
+// Helper: gera chave AAAA-MM segura (exportada para uso interno)
+function generateMonthKey(offset) {
+  const d = new Date();
+  d.setMonth(d.getMonth() - offset);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
 class DashboardController {
 
   // =====================================================================
@@ -41,11 +48,7 @@ class DashboardController {
   // =====================================================================
   // FUNÇÃO AUXILIAR — gera chave AAAA-MM segura
   // =====================================================================
-  generateMonthKey(offset) {
-    const d = new Date();
-    d.setMonth(d.getMonth() - offset);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-  }
+  
 
   // =====================================================================
   // 2. FRETES POR MÊS
@@ -66,7 +69,7 @@ class DashboardController {
 
       // Gera últimos 6 meses com 0
       for (let i = 5; i >= 0; i--) {
-        months[this.generateMonthKey(i)] = 0;
+        months[generateMonthKey(i)] = 0;
       }
 
       // Insere valores reais
@@ -144,7 +147,7 @@ class DashboardController {
       const months = {};
 
       for (let i = 5; i >= 0; i--) {
-        months[this.generateMonthKey(i)] = 0;
+        months[generateMonthKey(i)] = 0;
       }
 
       rawMonthly.forEach(r => {
@@ -342,6 +345,172 @@ class DashboardController {
         }))
       });
 
+    } catch (error) {
+      next(error);
+    }
+  }
+  // =====================================================================
+  // 11. RELATÓRIO (PDF/CSV) gerado a partir do payload enviado pelo frontend
+  // Recebe o payload (summary, monthly, monthlyFaturamento, topClientes, tipoServicos, clienteShare, evolucaoValores)
+  // e retorna um PDF (ou CSV) como anexo.
+  // Nota: para simplicidade o frontend envia os dados já agregados.
+  // =====================================================================
+  async relatorio(req, res, next) {
+    try {
+      const payload = req.body || {};
+      const format = (payload.format || 'pdf').toLowerCase();
+
+      if (format === 'csv') {
+        const sep = ';';
+        const lines = [];
+        const writeRows = (title, headers, rows) => {
+          lines.push([`Seção: ${title}`]);
+          if (headers && headers.length) lines.push(headers);
+          (rows || []).forEach(r => {
+            const row = headers.map(h => {
+              const v = r[h] == null ? '' : r[h];
+              const s = String(v).replace(/"/g, '""');
+              return `"${s}"`;
+            });
+            lines.push(row);
+          });
+          lines.push([]);
+        };
+
+        // Summary
+        if (payload.summary) {
+          const s = payload.summary;
+          Object.keys(s).forEach(k => lines.push([`${k}${sep}${String(s[k])}`]));
+          lines.push([]);
+        }
+
+        writeRows('Top Clientes', ['nome', 'total'], payload.topClientes || []);
+        writeRows('Tipo de Serviços', ['tipo', 'total'], payload.tipoServicos || []);
+
+        const csv = lines.map(r => (Array.isArray(r) ? r.join(sep) : String(r))).join('\r\n');
+        res.set('Content-Type', 'text/csv');
+        return res.send(csv);
+      }
+
+      if (format === 'pdf') {
+        const PDFDocument = require('pdfkit');
+        const doc = new PDFDocument({ size: 'A4', margin: 0, lineGap: 2 });
+        const chunks = [];
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="dashboard-relatorio.pdf"');
+
+        doc.on('data', (chunk) => chunks.push(chunk));
+        doc.on('end', () => {
+          const pdfBuffer = Buffer.concat(chunks);
+          res.end(pdfBuffer);
+        });
+
+        // Simple styled header similar to faturamentos
+        const BLUE_PRIMARY = '#2563eb';
+        const BLUE_DARK = '#1d4ed8';
+        const GRAY_50 = '#f9fafb';
+        const GRAY_200 = '#e5e7eb';
+        const TEXT_PRIMARY = '#0f172a';
+        const TEXT_SECONDARY = '#64748b';
+        const MARGIN_LEFT = 50;
+        const CONTENT_WIDTH = 495;
+
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('pt-BR');
+        const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+        // Hero header
+        doc.rect(0, 0, 595, 120).fill(BLUE_PRIMARY);
+        doc.fontSize(28).fillColor('#ffffff').font('Helvetica-Bold').text('DASHBOARD', MARGIN_LEFT, 28);
+        doc.fontSize(9).fillColor('#bfdbfe').text('Relatório Executivo', MARGIN_LEFT, 70);
+        doc.fontSize(8).fillColor('#cbd5e1').text(`${dateStr} • ${timeStr}`, MARGIN_LEFT, 88);
+
+        // small filters area
+        let y = 140;
+        doc.fontSize(9).fillColor(TEXT_PRIMARY).font('Helvetica-Bold').text('PERÍODO E FILTROS', MARGIN_LEFT, y);
+        y += 14;
+        doc.fontSize(8).fillColor(TEXT_SECONDARY).font('Helvetica');
+        const periodoLabel = payload.periodo || '';
+        if (periodoLabel) doc.text(`Período: ${periodoLabel}`, MARGIN_LEFT, y, { width: CONTENT_WIDTH });
+        y = doc.y + 8;
+
+        // KPIs (from payload.summary)
+        const summary = payload.summary || {};
+        const kpis = [
+          { title: 'TOTAL', value: summary.total || 0 },
+          { title: 'ORDENS', value: summary.status_counts ? Object.values(summary.status_counts).reduce((s, n) => s + Number(n || 0), 0) : 0 },
+          { title: 'TICKET MÉDIO', value: payload.ticketMedio || 0 },
+        ];
+
+        const kpiW = (CONTENT_WIDTH - 10) / 3;
+        const kpiH = 60;
+
+        doc.fontSize(10).fillColor(TEXT_PRIMARY).font('Helvetica-Bold').text('RESUMO EXECUTIVO', MARGIN_LEFT, y);
+        y += 16;
+
+        kpis.forEach((k, idx) => {
+          const x = MARGIN_LEFT + idx * (kpiW + 5);
+          doc.rect(x, y, kpiW, kpiH).fillAndStroke(GRAY_50, GRAY_200);
+          doc.fontSize(7).fillColor(TEXT_SECONDARY).font('Helvetica').text(k.title, x + 8, y + 8);
+          doc.fontSize(14).font('Helvetica-Bold').fillColor(BLUE_DARK).text(String(k.value), x + 8, y + 24);
+        });
+
+        y += kpiH + 18;
+
+        // Top Clientes table
+        const topClientes = payload.topClientes || [];
+        if (topClientes.length) {
+          doc.fontSize(11).font('Helvetica-Bold').fillColor(TEXT_PRIMARY).text('TOP CLIENTES', MARGIN_LEFT, y);
+          y += 14;
+
+          // header
+          doc.rect(MARGIN_LEFT, y, CONTENT_WIDTH, 22).fillAndStroke('#f3f4f6', GRAY_200);
+          doc.fontSize(9).fillColor(TEXT_PRIMARY).font('Helvetica-Bold').text('Cliente', MARGIN_LEFT + 8, y + 6);
+          doc.fontSize(9).fillColor(TEXT_PRIMARY).font('Helvetica-Bold').text('Total (R$)', MARGIN_LEFT + CONTENT_WIDTH - 90, y + 6, { width: 80, align: 'right' });
+          y += 26;
+
+          topClientes.slice(0, 8).forEach((c) => {
+            doc.fontSize(9).font('Helvetica').fillColor(TEXT_PRIMARY).text(String(c.nome || ''), MARGIN_LEFT + 8, y);
+            const totalStr = typeof c.total !== 'undefined' ? Number(c.total).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '';
+            doc.fontSize(9).font('Helvetica').fillColor(TEXT_PRIMARY).text(totalStr, MARGIN_LEFT + CONTENT_WIDTH - 90, y, { width: 80, align: 'right' });
+            y += 18;
+            if (y > 720) {
+              doc.addPage();
+              y = 50;
+            }
+          });
+
+          y += 8;
+        }
+
+        // Tipo de Serviços small table
+        const tipoServicos = payload.tipoServicos || [];
+        if (tipoServicos.length) {
+          doc.fontSize(11).font('Helvetica-Bold').fillColor(TEXT_PRIMARY).text('TIPO DE SERVIÇOS', MARGIN_LEFT, y);
+          y += 14;
+
+          tipoServicos.slice(0, 10).forEach((t) => {
+            doc.fontSize(9).font('Helvetica').fillColor(TEXT_PRIMARY).text(String(t.tipo || ''), MARGIN_LEFT + 8, y);
+            doc.fontSize(9).font('Helvetica').fillColor(TEXT_PRIMARY).text(String(t.total || ''), MARGIN_LEFT + CONTENT_WIDTH - 40, y, { width: 32, align: 'right' });
+            y += 16;
+            if (y > 720) {
+              doc.addPage();
+              y = 50;
+            }
+          });
+        }
+
+        // Footer - simple
+        const bottom = 760;
+        doc.lineWidth(0.5).strokeColor(GRAY_200).moveTo(MARGIN_LEFT, bottom).lineTo(MARGIN_LEFT + CONTENT_WIDTH, bottom).stroke();
+        doc.fontSize(8).fillColor(TEXT_SECONDARY).text(`Gerado em ${dateStr} às ${timeStr}`, MARGIN_LEFT, bottom + 6, { align: 'center', width: CONTENT_WIDTH });
+
+        doc.end();
+        return;
+      }
+
+      return res.status(400).json({ success: false, message: 'Formato não suportado' });
     } catch (error) {
       next(error);
     }
