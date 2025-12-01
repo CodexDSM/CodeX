@@ -24,16 +24,74 @@ class ChecklistController {
             connection = await pool.getConnection();
             const { template_id, colaborador_id, ativo_relacionado_id, respostas, filePaths } = req.body;
 
+            // Validações de entrada
+            if (!template_id) {
+                return res.status(400).json({ error: 'O campo template_id é obrigatório.' });
+            }
+            const templateIdNum = parseInt(template_id, 10);
+            if (isNaN(templateIdNum)) {
+                return res.status(400).json({ error: 'template_id inválido.' });
+            }
+
+            if (colaborador_id === undefined || colaborador_id === null) {
+                return res.status(400).json({ error: 'O campo colaborador_id é obrigatório.' });
+            }
+            const colaboradorIdNum = parseInt(colaborador_id, 10);
+            if (isNaN(colaboradorIdNum)) {
+                return res.status(400).json({ error: 'colaborador_id inválido.' });
+            }
+
+            // Verifica se o colaborador existe (evita erro de foreign key)
+            const [colRows] = await connection.query('SELECT id FROM colaborador WHERE id = ?', [colaboradorIdNum]);
+            if (!colRows || colRows.length === 0) {
+                return res.status(400).json({ error: `Colaborador com id ${colaboradorIdNum} não encontrado.` });
+            }
+
             await connection.beginTransaction();
 
             const registoQuery = 'INSERT INTO registros_checklist (template_id, colaborador_id, ativo_relacionado_id) VALUES (?, ?, ?)';
-            const [registoResult] = await connection.execute(registoQuery, [template_id, colaborador_id, ativo_relacionado_id || null]);
+            const [registoResult] = await connection.execute(registoQuery, [templateIdNum, colaboradorIdNum, ativo_relacionado_id || null]);
             const novoRegistoId = registoResult.insertId;
 
             if (respostas && respostas.length > 0) {
-                const respostasQuery = 'INSERT INTO checklist_respostas (registro_id, pergunta_id, valor_resposta) VALUES ?';
-                const respostasValues = respostas.map(r => [novoRegistoId, r.pergunta_id, r.valor_resposta]);
-                await connection.query(respostasQuery, [respostasValues]);
+                // Resolve pergunta_id: aceita payload com pergunta_id (DB id) ou pergunta_texto/tipo_pergunta
+                const resolvedValues = [];
+                for (const r of respostas) {
+                    let perguntaIdDb = null;
+                    // If a numeric pergunta_id was provided, check it exists
+                    if (r.pergunta_id) {
+                        const pid = parseInt(r.pergunta_id, 10);
+                        if (!isNaN(pid)) {
+                            const [rows] = await connection.query('SELECT id FROM checklist_perguntas WHERE id = ?', [pid]);
+                            if (rows && rows.length > 0) perguntaIdDb = pid;
+                        }
+                    }
+
+                    // Try to resolve by texto if not found
+                    if (!perguntaIdDb && r.pergunta_texto) {
+                        const [rows2] = await connection.query('SELECT id FROM checklist_perguntas WHERE texto_pergunta = ? LIMIT 1', [r.pergunta_texto]);
+                        if (rows2 && rows2.length > 0) {
+                            perguntaIdDb = rows2[0].id;
+                        } else {
+                            // Insert new pergunta record (default tipo_pergunta if not provided)
+                            const tipo = r.tipo_pergunta || 'TEXTO';
+                            const [ins] = await connection.query('INSERT INTO checklist_perguntas (texto_pergunta, tipo_pergunta, ativo) VALUES (?, ?, ?)', [r.pergunta_texto, tipo, true]);
+                            perguntaIdDb = ins.insertId;
+                        }
+                    }
+
+                    // As a last resort, if still no pergunta id, throw a helpful error
+                    if (!perguntaIdDb) {
+                        throw new Error(`Pergunta não encontrada e não foi possível criar (pergunta_temp_id=${r.pergunta_temp_id})`);
+                    }
+
+                    resolvedValues.push([novoRegistoId, perguntaIdDb, r.valor_resposta]);
+                }
+
+                if (resolvedValues.length > 0) {
+                    const respostasQuery = 'INSERT INTO checklist_respostas (registro_id, pergunta_id, valor_resposta) VALUES ?';
+                    await connection.query(respostasQuery, [resolvedValues]);
+                }
             }
 
             if (filePaths && filePaths.length > 0) {

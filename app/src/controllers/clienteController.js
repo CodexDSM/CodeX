@@ -10,7 +10,7 @@ class ClienteController {
         ativo, 
         search, 
         page = 1, 
-        limit = 10 
+        limit = 999 
       } = req.query;
 
       let query = 'SELECT * FROM cliente WHERE 1=1';
@@ -26,7 +26,7 @@ class ClienteController {
         params.push(ativo === 'true');
       }
 
-      query += ' ORDER BY nome LIMIT 10';
+      query += ' ORDER BY nome LIMIT 999';
 
       console.log('Query SQL:', query);
       console.log('Params:', params);
@@ -39,7 +39,7 @@ class ClienteController {
         data: rows,
         pagination: {
           current_page: 1,
-          per_page: 10,
+          per_page: 999,
           total_records: rows.length,
           total_pages: 1,
           has_next: false,
@@ -70,17 +70,15 @@ class ClienteController {
   async create(req, res, next) {
     try {
       const { 
-        tipo_pessoa, nome, documento, email, telefone,
-        logradouro, numero, bairro, cidade, uf, cep 
+        tipo_pessoa, nome, documento, email, telefone
       } = req.body;
 
       const complemento = req.body.complemento || null;
       const [result] = await pool.execute(
         `INSERT INTO cliente 
-        (tipo_pessoa, nome, documento, email, telefone, logradouro, numero, complemento, bairro, cidade, uf, cep) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [tipo_pessoa, nome, documento, email, telefone, 
-          logradouro, numero, complemento, bairro, cidade, uf, cep]
+        (tipo_pessoa, nome, documento, email, telefone) 
+        VALUES (?, ?, ?, ?, ?)`,
+        [tipo_pessoa, nome, documento, email, telefone]
       );
 
       res.status(201).json({ 
@@ -96,29 +94,19 @@ class ClienteController {
     try {
       const { id } = req.params;
       let { 
-        nome, email, telefone, ativo,
-        logradouro, numero, complemento, bairro, cidade, uf, cep 
+        nome, email, telefone, ativo
       } = req.body;
 
       nome = nome ?? null;
       email = email ?? null;
       telefone = telefone ?? null;
       ativo = ativo ?? null;
-      logradouro = logradouro ?? null;
-      numero = numero ?? null;
-      complemento = complemento ?? null;
-      bairro = bairro ?? null;
-      cidade = cidade ?? null;
-      uf = uf ?? null;
-      cep = cep ?? null;
 
       const [result] = await pool.execute(
         `UPDATE cliente 
-        SET nome = ?, email = ?, telefone = ?, ativo = ?,
-            logradouro = ?, numero = ?, complemento = ?, 
-            bairro = ?, cidade = ?, uf = ?, cep = ?
+        SET nome = ?, email = ?, telefone = ?, ativo = ?
         WHERE id = ?`,
-        [nome, email, telefone, ativo, logradouro, numero, complemento, bairro, cidade, uf, cep, id]
+        [nome, email, telefone, ativo, id]
       );
 
       if (result.affectedRows === 0) {

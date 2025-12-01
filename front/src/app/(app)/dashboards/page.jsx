@@ -14,7 +14,6 @@ export default function DashboardsPage() {
   const [monthly, setMonthly] = useState([]); // fretes counts
   const [monthlyFaturamento, setMonthlyFaturamento] = useState([]); // faturamento values
   const [topClientes, setTopClientes] = useState([]);
-  const [fakeMonthly, setFakeMonthly] = useState(false);
 
   // Novos estados para os gráficos solicitados
   const [tipoServicos, setTipoServicos] = useState([]);
@@ -40,7 +39,11 @@ export default function DashboardsPage() {
         topClientes,
         tipoServicos,
         clienteShare,
-        evolucaoValores
+        evolucaoValores,
+        // additional computed KPIs for export
+        somaTotal: monthlyFaturamento.reduce((s, r) => s + Number(r.total || 0), 0),
+        totalOrdens: summary ? Number(summary.total || 0) : 0,
+        ticketMedio: (summary && Number(summary.total || 0)) ? (monthlyFaturamento.reduce((s, r) => s + Number(r.total || 0), 0) / Number(summary.total || 0)) : 0
       };
     } catch (e) { /* ignore */ }
     return () => {
@@ -60,8 +63,13 @@ export default function DashboardsPage() {
       fetchClienteShare(),
       fetchEvolucaoValores()
     ]);
+    // do not apply fake data; rely on backend values (may be empty)
     setLoading(false);
   }
+
+  
+
+  
 
   // -------------------------
   // Summary (total ordens + status_counts)
@@ -99,24 +107,17 @@ export default function DashboardsPage() {
       const json = await res.json();
       console.debug('[dashboard/monthly-fretes] response:', json);
       if (res.status === 401 || res.status === 403) {
-        const fallback = generateFakeMonthly(6);
-        setMonthly(fallback);
-        setFakeMonthly(true);
+        setMonthly([]);
         return;
       }
       if (json && json.success && Array.isArray(json.data) && json.data.length > 0) {
         setMonthly(json.data);
-        setFakeMonthly(false);
       } else {
-        const fallback = generateFakeMonthly(6);
-        setMonthly(fallback);
-        setFakeMonthly(true);
+        setMonthly([]);
       }
     } catch (err) {
       console.error('Erro monthly', err);
-      const fallback = generateFakeMonthly(6);
-      setMonthly(fallback);
-      setFakeMonthly(true);
+      setMonthly([]);
     }
   }
 
@@ -197,11 +198,11 @@ export default function DashboardsPage() {
         } catch (e) {
           // ignore
         }
-        setTipoServicos(generateFakeTipoServicos());
+        setTipoServicos([]);
       }
     } catch (err) {
       console.error('Erro tipo servicos', err);
-      setTipoServicos(generateFakeTipoServicos());
+      setTipoServicos([]);
     }
   }
 
@@ -214,11 +215,11 @@ export default function DashboardsPage() {
         const normalized = json.data.map(item => ({ nome_cliente: item.nome || item.nome_cliente || 'Sem nome', total: Number(item.total || item.valor || 0) }));
         setClienteShare(normalized);
       } else {
-        setClienteShare(generateFakeClienteShare());
+        setClienteShare([]);
       }
     } catch (err) {
       console.error('Erro cliente share', err);
-      setClienteShare(generateFakeClienteShare());
+      setClienteShare([]);
     }
   }
 
@@ -239,55 +240,15 @@ export default function DashboardsPage() {
         const filled = fillLastNMonths(normalized, 6);
         setEvolucaoValores(filled);
       } else {
-        setEvolucaoValores(generateFakeEvolucao(6));
+        setEvolucaoValores([]);
       }
     } catch (err) {
       console.error('Erro evolucao valores', err);
-      setEvolucaoValores(generateFakeEvolucao(6));
+      setEvolucaoValores([]);
     }
   }
 
-  function generateFakeMonthly(months = 6) {
-    const out = [];
-    const now = new Date();
-    for (let i = months - 1; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const month = d.toISOString().slice(0, 7);
-      const value = Math.floor(Math.random() * 50 + 5);
-      out.push({ month, total: value });
-    }
-    return out;
-  }
-
-  function generateFakeTipoServicos() {
-    return [
-      { tipo: 'Serviço A', total: 32 },
-      { tipo: 'Serviço B', total: 18 },
-      { tipo: 'Serviço C', total: 9 },
-      { tipo: 'Serviço D', total: 4 },
-    ];
-  }
-
-  function generateFakeClienteShare() {
-    return [
-      { nome_cliente: 'Cliente A', total: 120 },
-      { nome_cliente: 'Cliente B', total: 80 },
-      { nome_cliente: 'Cliente C', total: 50 },
-      { nome_cliente: 'Outros', total: 30 },
-    ];
-  }
-
-  function generateFakeEvolucao(months = 6) {
-    const out = [];
-    const now = new Date();
-    for (let i = months - 1; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const month = d.toISOString().slice(0, 7);
-      const valor = Math.floor(Math.random() * 5000 + 500);
-      out.push({ month, total_valor: valor });
-    }
-    return out;
-  }
+  
 
   // Preenche últimos N meses (formato { month, total_valor }) com zeros quando faltar
   function fillLastNMonths(dataArray, months = 6) {
@@ -399,7 +360,15 @@ export default function DashboardsPage() {
       const csv = buildCsvString(payload);
       const now = new Date();
       const stamp = now.toISOString().slice(0,19).replace(/[:T]/g, '-');
-      downloadBlob(`dashboard-export-${stamp}.csv`, csv, 'text/csv;charset=utf-8;');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `dashboard-export-${stamp}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (e) {
       console.error('Erro ao exportar CSV', e);
       setExportError('Erro ao exportar CSV');
@@ -525,11 +494,7 @@ export default function DashboardsPage() {
         <div className={styles.card}>
           <h3>Fretes - Últimos meses (contagem)</h3>
           <Line data={monthlyDataset} options={{ responsive: true, plugins: { legend: { display: false } } }} />
-          {fakeMonthly && (
-            <div style={{ marginTop: 8, color: '#6b7280', fontSize: 13 }}>
-              Exibindo dados de exemplo (sem dados reais disponíveis)
-            </div>
-          )}
+          
         </div>
       </section>
 

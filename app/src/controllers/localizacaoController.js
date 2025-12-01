@@ -87,7 +87,7 @@ class LocalizacaoController {
       }
 
       if (format === 'pdf') {
-        const doc = new PDFDocument({ size: 'A4', margin: 40 });
+        const doc = new PDFDocument({ size: 'A4', margin: 0 });
         const chunks = [];
 
         res.setHeader('Content-Type', 'application/pdf');
@@ -263,6 +263,42 @@ class LocalizacaoController {
       `, [colaborador_id]);
 
       res.json(rows);
+
+    } catch (error) {
+      next({ status: 500, message: error.message });
+    }
+  }
+
+  async getLogins30d(req, res, next) {
+    try {
+      const { colaborador_id } = req.params;
+      const usuarioLogado = req.user;
+
+      if (usuarioLogado.perfil !== 'Administrador' && 
+          usuarioLogado.perfil !== 'Gerente' && 
+          usuarioLogado.id !== parseInt(colaborador_id)) {
+        return res.status(403).json({ 
+          error: 'Acesso negado. Você só pode ver seu próprio histórico.' 
+        });
+      }
+
+      const days = parseInt(req.query.days, 10) || 30;
+
+      const [rows] = await pool.execute(`
+        SELECT data_hora
+        FROM localizacao_historico
+        WHERE colaborador_id = ?
+          AND data_hora >= DATE_SUB(NOW(), INTERVAL ? DAY)
+        ORDER BY data_hora DESC
+      `, [colaborador_id, days]);
+
+      // Normalize to ISO strings for frontend
+      const timestamps = (rows || []).map(r => {
+        const v = r.data_hora;
+        try { return (v instanceof Date) ? v.toISOString() : new Date(v).toISOString(); } catch (e) { return String(v); }
+      });
+
+      res.json(timestamps);
 
     } catch (error) {
       next({ status: 500, message: error.message });

@@ -44,9 +44,9 @@ export default function ListarSubmissionsPage() {
         const fetchTemplates = async () => {
             try {
                 setTemplates([
-                    { id: 1, name: 'Checklist de Veículos' },
-                    { id: 2, name: 'Checklist de Manutenção' },
-                    { id: 3, name: 'Checklist de Segurança' },
+                    { id: 1, name: 'Checklist Diário' },
+                    { id: 2, name: 'Formulário de Abertura da Empresa' },
+                    { id: 3, name: 'Formulário de Manutenção Predial' },
                 ]);
             } catch (err) {
                 console.error('Erro ao carregar templates:', err);

@@ -437,11 +437,39 @@ class DashboardController {
 
         // KPIs (from payload.summary)
         const summary = payload.summary || {};
-        const kpis = [
-          { title: 'TOTAL', value: summary.total || 0 },
-          { title: 'ORDENS', value: summary.status_counts ? Object.values(summary.status_counts).reduce((s, n) => s + Number(n || 0), 0) : 0 },
-          { title: 'TICKET MÉDIO', value: payload.ticketMedio || 0 },
-        ];
+          // compute ticketMedio: prefer payload, else try compute from payload.monthlyFaturamento/summary, else fallback to DB AVG
+          const formatMoney = (v) => `R$ ${Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+
+          let ticketMedioVal = Number(payload.ticketMedio || 0);
+          if (!ticketMedioVal) {
+            // try compute from payload.monthlyFaturamento and summary
+            try {
+              const mf = Array.isArray(payload.monthlyFaturamento) ? payload.monthlyFaturamento : (payload.monthly || []);
+              const d = mf.reduce((s, r) => s + Number((r && (r.total || r.total_valor || r.valor)) || 0), 0);
+              const totalOrd = Number(summary.total || 0);
+              if (totalOrd > 0) {
+                ticketMedioVal = soma / totalOrd;
+              }
+            } catch (e) {
+              ticketMedioVal = 0;
+            }
+          }
+
+          // final fallback: query DB AVG
+          if (!ticketMedioVal) {
+            try {
+              const [[{ avg_ticket }]] = await pool.query(`SELECT COALESCE(AVG(valor),0) AS avg_ticket FROM ordens_servico`);
+              ticketMedioVal = Number(avg_ticket || 0);
+            } catch (e) {
+              ticketMedioVal = 0;
+            }
+          }
+
+          const kpis = [
+            { title: 'TOTAL', value: summary.total || 0 },
+            { title: 'ORDENS', value: summary.status_counts ? Object.values(summary.status_counts).reduce((s, n) => s + Number(n || 0), 0) : 0 },
+            { title: 'TICKET MÉDIO', value: ticketMedioVal, format: 'currency' },
+          ];
 
         const kpiW = (CONTENT_WIDTH - 10) / 3;
         const kpiH = 60;
@@ -453,7 +481,8 @@ class DashboardController {
           const x = MARGIN_LEFT + idx * (kpiW + 5);
           doc.rect(x, y, kpiW, kpiH).fillAndStroke(GRAY_50, GRAY_200);
           doc.fontSize(7).fillColor(TEXT_SECONDARY).font('Helvetica').text(k.title, x + 8, y + 8);
-          doc.fontSize(14).font('Helvetica-Bold').fillColor(BLUE_DARK).text(String(k.value), x + 8, y + 24);
+          const display = k.format === 'currency' ? formatMoney(k.value) : String(k.value);
+          doc.fontSize(14).font('Helvetica-Bold').fillColor(BLUE_DARK).text(display, x + 8, y + 24);
         });
 
         y += kpiH + 18;

@@ -9,6 +9,7 @@ import ptBR from 'date-fns/locale/pt-BR';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { DetalhesEvento } from './DetalhesEvento';
 import { getApiUrl, getAuthHeaders } from '@/lib/apiConfig';
+import styles from './CalendarioEventos.module.css';
 
 const locales = {
   'pt-BR': ptBR,

@@ -5,7 +5,6 @@ import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Home, Building, Calendar, GraduationCap } from 'lucide-react';
 import styles from './localTrabalho.module.css';
-import exportStyles from '../../dashboard/dashboards.module.css';
 import faturamentosStyles from '../../faturamentos/faturamentos.module.css';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -108,7 +107,6 @@ export default function PainelLocalTrabalho() {
     }
   };
 
-  // --- Export helpers (reused from dashboard) ---
   function downloadBlob(filename, content, mime = 'text/csv;charset=utf-8;') {
     const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
     const blob = new Blob([bom, content], { type: mime });
@@ -254,7 +252,6 @@ export default function PainelLocalTrabalho() {
     setPdfError('');
     setPdfLoading(true);
     try {
-      // Try server-side PDF export (same approach as faturamentos)
       const endpoints = [
         getApiUrl('/localizacoes/relatorio'),
         getApiUrl('/colaboradores/relatorio'),
@@ -282,7 +279,7 @@ export default function PainelLocalTrabalho() {
           succeeded = true;
           break;
         } catch (e) {
-          // try next endpoint
+          // tenta o proximo
         }
       }
 

@@ -179,18 +179,18 @@ exports.relatorioFaturamentos = async (req, res) => {
         if (subtitle) doc.fontSize(6).fillColor(TEXT_SECONDARY).text(subtitle, x + 8, y + 50);
       };
 
-      const avgValue = rows.length ? (total / rows.length).toFixed(2).replace('.', ',') : '0,00';
-      const maxValue = rows.length ? Math.max(...rows.map(r => parseFloat(r.valor || 0))).toFixed(2).replace('.', ',') : '0,00';
-      const minValue = rows.length ? Math.min(...rows.map(r => parseFloat(r.valor || 0))).toFixed(2).replace('.', ',') : '0,00';
+      const avgNum = rows.length ? (total / rows.length) : 0;
+      const maxNum = rows.length ? Math.max(...rows.map(r => Number(r.valor || 0))) : 0;
+      const minNum = rows.length ? Math.min(...rows.map(r => Number(r.valor || 0))) : 0;
 
       drawKpi(MARGIN_LEFT, 'TOTAL GERAL', formatMoney(total), '');
       drawKpi(MARGIN_LEFT + kpiW + kpiGap, 'QUANTIDADE', rows.length.toString(), 'faturamentos');
-      drawKpi(MARGIN_LEFT + 2 * (kpiW + kpiGap), 'TICKET MÉDIO', `R$ ${avgValue}`, '');
+      drawKpi(MARGIN_LEFT + 2 * (kpiW + kpiGap), 'TICKET MÉDIO', formatMoney(avgNum), '');
 
       y += kpiH + 12;
 
-      drawKpi(MARGIN_LEFT, 'MAIOR VALOR', `R$ ${maxValue}`, '');
-      drawKpi(MARGIN_LEFT + kpiW + kpiGap, 'MENOR VALOR', `R$ ${minValue}`, '');
+      drawKpi(MARGIN_LEFT, 'MAIOR VALOR', formatMoney(maxNum), '');
+      drawKpi(MARGIN_LEFT + kpiW + kpiGap, 'MENOR VALOR', formatMoney(minNum), '');
       drawKpi(MARGIN_LEFT + 2 * (kpiW + kpiGap), 'TOTAL', rows.length.toString(), 'registros');
 
       y += kpiH + 14;

@@ -25,11 +25,33 @@ export default function ChecklistPage() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [fileUploads, setFileUploads] = useState({});
+  const [loggedUserId, setLoggedUserId] = useState(null);
   const [submissionStatus, setSubmissionStatus] = useState('idle');
 
   useEffect(() => {
     // Fetch para API futuramente
     setTemplates(mockTemplates);
+    // Tenta ler o ID do utilizador a partir do armazenamento local (pode vir do login)
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
+      if (stored) {
+        setLoggedUserId(parseInt(stored, 10));
+      } else if (typeof window !== 'undefined') {
+        // Se não houver userId explícito, tenta extrair do token JWT (authToken)
+        const token = localStorage.getItem('authToken');
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const possibleId = payload.id || payload.userId || payload.sub || payload.uid || payload.usuario_id;
+            if (possibleId) setLoggedUserId(parseInt(possibleId, 10));
+          } catch (err) {
+            // falha ao decodificar token — não crítico, ignora
+          }
+        }
+      }
+    } catch (err) {
+      // ignore
+    }
   }, []);
 
   const handleTemplateChange = (e) => {
@@ -70,10 +92,16 @@ export default function ChecklistPage() {
     e.preventDefault();
     setSubmissionStatus('loading');
 
-    const respostas = Object.entries(formValues).map(([key, value]) => ({
-      pergunta_id: parseInt(key, 10),
-      valor_resposta: value,
-    }));
+    const respostas = Object.entries(formValues).map(([key, value]) => {
+      const question = selectedTemplate.questions.find(q => String(q.id) === String(key));
+      return {
+        pergunta_id: question && question.db_id ? parseInt(question.db_id, 10) : null,
+        pergunta_temp_id: key,
+        pergunta_texto: question && (question.texto_pergunta || question.label || question.name) ? (question.texto_pergunta || question.label || question.name) : null,
+        tipo_pergunta: question && question.tipo_pergunta ? question.tipo_pergunta : 'TEXTO',
+        valor_resposta: value,
+      };
+    });
 
     const filePaths = Object.values(fileUploads)
       .filter(f => f.status === 'success')
@@ -81,12 +109,22 @@ export default function ChecklistPage() {
 
     const payload = {
       template_id: selectedTemplate.id,
-      colaborador_id: 1, // MOCK: Trocar pelo ID do utilizador logado
+      colaborador_id: loggedUserId, // Deve vir do utilizador logado
       respostas: respostas,
       filePaths: filePaths,
     };
 
     try {
+      if (!loggedUserId) {
+        alert('Erro: utilizador não autenticado. Faça login antes de enviar.');
+        setSubmissionStatus('idle');
+        return;
+      }
+      if (!selectedTemplate) {
+        alert('Erro: template não selecionado.');
+        setSubmissionStatus('idle');
+        return;
+      }
       const response = await fetch(SUBMIT_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
