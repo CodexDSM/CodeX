@@ -63,7 +63,7 @@ yum install -y nodejs
 
 # Instalar Nginx
 echo "📥 Instalando Nginx..."
-amazon-linux-extras install -y nginx1
+yum install -y nginx
 
 # Instalar Git
 yum install -y git
@@ -163,15 +163,9 @@ sudo -u "$APP_USER" npm install --production
 echo "✅ Backend pronto"
 echo ""
 
-echo "📦 Instalando dependências e fazendo build do Frontend..."
+echo "📦 Instalando dependências do Frontend..."
 cd "$APP_DIR/front"
-sudo -u "$APP_USER" npm install --legacy-peer-deps
-echo "Building Frontend..."
-sudo -u "$APP_USER" npm run build
-if [ $? -ne 0 ]; then
-    echo "❌ Build do Frontend falhou!"
-    exit 1
-fi
+sudo -u "$APP_USER" npm install --legacy-peer-deps --no-fund --silent 2>&1 | grep -v "^npm notice"
 echo "✅ Frontend pronto"
 echo ""
 
@@ -188,10 +182,10 @@ sudo -u "$APP_USER" pm2 delete all || true
 cd "$APP_DIR/app"
 sudo -u "$APP_USER" pm2 start server.js --name "codex-api" --node-args="--max-old-space-size=512" --env production
 
-# Para o Frontend (Next.js)
+# Para o Frontend (Next.js) - usando dev mode
 cd "$APP_DIR/front"
-# Iniciar diretamente sem npm (mais confiável)
-sudo -u "$APP_USER" pm2 start "node_modules/.bin/next start -p 3000" --name "codex-front" --cwd "$APP_DIR/front" --env production
+# Iniciar com npm run dev (sem build)
+sudo -u "$APP_USER" pm2 start "npm run dev" --name "codex-front" --cwd "$APP_DIR/front" --env production
 
 # Aguardar um pouco para ter certeza que iniciou
 sleep 3
@@ -374,27 +368,22 @@ chown "$APP_USER:$APP_USER" "$APP_DIR/restart.sh"
 # Script para update
 cat > "$APP_DIR/update.sh" << 'SCRIPT_EOF'
 #!/bin/bash
+set -e
 echo "Atualizando código..."
 cd /var/www/codex
 git pull origin main
 
 echo "Instalando dependências do backend..."
 cd app
-npm install --production
+npm install --production --no-fund --silent
 
-echo "Instalando dependências e fazendo build do frontend..."
+echo "Instalando dependências do frontend..."
 cd ../front
-npm install --legacy-peer-deps
-npm run build
-
-if [ $? -ne 0 ]; then
-    echo "❌ Build falhou!"
-    exit 1
-fi
+npm install --legacy-peer-deps --no-fund --silent
 
 echo "Reiniciando aplicações..."
 pm2 restart all
-sleep 2
+sleep 3
 pm2 status
 echo "✅ Atualização concluída"
 SCRIPT_EOF
